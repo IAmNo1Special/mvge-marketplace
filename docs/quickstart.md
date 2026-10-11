@@ -24,13 +24,13 @@ work; step 4 is somebody else's, and when it says no, that is not your setup.
 
 ## Which version this page describes
 
-The published distribution on PyPI. `v0.6.22`, installed as `mvgeos-cli v0.6.22`.
+The published distribution on PyPI. `v0.6.27`, installed as `mvgeos-cli v0.6.27`.
 There is no `mvgeos --version` yet — the flag does not exist, so this is how
 you check:
 
 ```console
 $ uv tool list | grep mvgeos-cli
-mvgeos-cli v0.6.22
+mvgeos-cli v0.6.27
 - mvgeos
 ```
 

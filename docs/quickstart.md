@@ -22,26 +22,31 @@ can.** The default Realm's free tier is not MvgeOS's to give you, and it is
 shared with everyone else on it. Steps 1-3 are your side of the line and they
 work; step 4 is somebody else's, and when it says no, that is not your setup.
 
-## Which version this page describes
+## Checking your version
 
-The published distribution on PyPI. `v0.6.27`, installed as `mvgeos-cli v0.6.27`.
-There is no `mvgeos --version` yet — the flag does not exist, so this is how
-you check:
+There is no `mvgeos --version` yet — the flag does not exist, so this is how you
+check what you have:
 
 ```console
 $ uv tool list | grep mvgeos-cli
-mvgeos-cli v0.6.27
-- mvgeos
 ```
 
 If a command on this page is missing when you run it, you have something older
 than `v0.6.8`. The newest command here, `mvge install --confirm-python-deps` in
 step 3, landed in `v0.6.7` — it is not in `v0.6.6`.
 
-This page is not version-pinned yet, and there is a reason: the install is not
-pinned either, so there are no versions to choose between. Once the install
-becomes a released package, this page is what gets versioned per release, and
-the version selector appears here.
+This page deliberately does not name a version. It used to, and the number was
+wrong for six releases running, because it named the engine's newest source
+commit while the install line above installs the newest *published* wheel — and
+those two are only the same number in the moment a release is cut. Stating a
+number that cannot be kept true is worse than stating none, so the number is
+gone and what replaces it is the thing a reader actually needs: the commands
+below and the oldest release that has them.
+
+This page is still not version-pinned, and the reason is unchanged: the install
+is not pinned either, so there are no versions to choose between. Once the
+install becomes a released package, this page is what gets versioned per
+release, and the version selector appears here.
 
 !!! warning "Steps 1-3 always work. Step 4 depends on someone else's free tier."
     The install is yours and takes seconds. The model call in step 4 goes through

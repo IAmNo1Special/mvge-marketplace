@@ -1,23 +1,33 @@
-"""The version the docs claim must be the version the engine declares.
+"""The one claim the docs make about versions must be true.
 
-The docs name a version in exactly one place -- the Quickstart's "Which
-version this page describes" section -- because the install line points at
-the engine's default branch and that section is where a reader goes to find
-out what they are running. Every other page points there instead of
-restating the number.
+The Quickstart used to name a current version -- "The published distribution
+on PyPI. `v0.6.27`, installed as `mvgeos-cli v0.6.27`" -- and a test asserted
+that the number equalled the engine's. It could not hold. The number named the
+engine's newest *source* commit while the install line installs the newest
+*published* wheel, and those two agree only in the moment a release is cut. It
+was wrong for six consecutive releases, 0.6.23 through 0.6.28, and the reason
+it went that long is that nothing about "someone updates a number in another
+repository on every engine merge" survives contact with a release cadence.
 
-That is a convention, and conventions rot silently. Three releases in two
-days each shipped with a stale version somewhere in these docs: twice
-because a page restated a number the Quickstart already owned, and once
-because a *historical* claim about which release added a flag was wrong, so
-a reader missing that flag was told they were current.
+So the number is gone, and what replaces it is the claim that was always the
+point: which release introduced a command. A reader's real question is not
+"what version is this page about" but "why is the command I read here missing
+when I run it" -- and the answer, `mvge install --confirm-python-deps` landed
+in `v0.6.7`, is history. History does not rot.
 
-These tests exist so that drift fails the build instead of being found by a
-reader. Both are offline. The engine's declared version is read from the
-clone CI already makes, not from tags: the tag series is not semver
-monotonic (``v3.0.0`` is a September tag from a different numbering era, so
-"highest tag" is ``v3.0.0`` and means nothing), and the declared version is
-what the package actually calls itself.
+The contract now has three parts, all offline:
+
+1. No page states the engine's current version. The old version of this check
+   allowed exactly one page to; there is no longer a page permitted to.
+2. Every "landed in `vX.Y.Z`" is <= the engine's declared version. A floor
+   newer than the engine is an instruction to install a release that does not
+   exist.
+3. At least one floor exists, so the suite cannot pass by checking nothing.
+
+The engine's declared version is read from the clone CI already makes, not from
+tags: the tag series is not semver monotonic (``v3.0.0`` is a September tag
+from a different numbering era, so "highest tag" is ``v3.0.0`` and means
+nothing), and the declared version is what the package actually calls itself.
 """
 
 from __future__ import annotations
@@ -48,13 +58,16 @@ ENGINE_PYPROJECT_CANDIDATES = (
 )
 
 ANY_VERSION = re.compile(r"v\d+\.\d+\.\d+")
-VERSION_SECTION = re.compile(
-    r"`(v?\d+\.\d+\.\d+)`,\s*installed as `mvgeos-cli (v?\d+\.\d+\.\d+)`"
-)
-# The only page allowed to name the current version. Everything else points
-# at this section via its anchor.
+#: A "landed in `vX.Y.Z`" claim. The version is the only group, and it is
+#: restricted to a bare version inside backticks so a path or a sentence
+#: mentioning a release is not misread as a floor.
+LANDED_IN = re.compile(r"landed in `(v\d+\.\d+\.\d+)`")
+#: The page that owns the version claims. It is no longer "the one page allowed
+#: to name a version" -- no page is -- it is the page carrying the floors.
 OWNS_THE_VERSION = "quickstart.md"
-VERSION_SECTION_ANCHOR = "which-version-this-page-describes"
+#: The section a reader is pointed to when a command is missing. Renamed from
+#: "which-version-this-page-describes" when the version claim was removed.
+VERSION_SECTION_ANCHOR = "checking-your-version"
 
 
 def _engine_pyproject() -> Path | None:
@@ -85,35 +98,86 @@ needs_engine = pytest.mark.skipif(
 
 
 @pytest.mark.parametrize("page", sorted(p.name for p in DOCS.glob("*.md")))
-def test_only_one_page_names_the_current_version(page: str) -> None:
-    """No page but the Quickstart may state the version the reader installed.
+def test_no_page_names_the_current_version(page: str) -> None:
+    """No page may state the version the reader installed -- not even one.
 
-    A page may name an older release when it says which release introduced
-    something -- that is history and does not rot. What must not survive is
-    a *current* version claim anywhere but the section that owns it.
+    This used to permit exactly one page, the Quickstart, to own the number.
+    That allowance is what let the number rot for six releases: there was one
+    place to update, and updating it was a manual step in another repository on
+    every engine merge. There is now nowhere it is allowed, so a regression
+    fails for whichever page re-introduces it.
+
+    A page may still name an *older* release when it says which release
+    introduced something -- that is history and does not rot.
     """
-    if page == OWNS_THE_VERSION or DECLARED is None:
-        pytest.skip("this page owns the version, or there is nothing to compare")
+    if DECLARED is None:
+        pytest.skip("there is no engine checkout, so there is nothing to compare")
     versions = {v for v in ANY_VERSION.findall((DOCS / page).read_text())}
     current = f"v{DECLARED}"
     assert current not in versions, (
-        f"{page} states {current}, the current version, outside "
-        f"{OWNS_THE_VERSION}; link its version section instead so there is "
-        "one place to update"
+        f"{page} states {current}, the current version. No page names a "
+        "version now; say how to check (`uv tool list`) and which release "
+        "introduced the command instead, so the claim cannot go stale"
     )
 
 
 @needs_engine
-def test_version_section_matches_the_declared_version() -> None:
-    """The number a reader is told they installed is the number that ships."""
+def test_every_feature_floor_is_a_release_that_has_actually_shipped() -> None:
+    """The claims that are left must be true, and they are checkable.
+
+    This replaces a test that asserted the page's stated version equalled the
+    engine's declared one. That invariant could not hold: the page named the
+    engine's newest source commit while the install line installs the newest
+    *published* wheel, and those two numbers agree only in the moment a release
+    is cut. It was wrong for six consecutive releases -- 0.6.23 through 0.6.28
+    -- because "someone remembers to update it" is not a plan at the engine's
+    release cadence.
+
+    What replaces it is the content that was always the point. Every "landed in
+    vX.Y.Z" is a promise that a reader who has that release has the command; a
+    floor newer than the engine is a lie, and a floor removed silently is a
+    reader told to upgrade to something that does not exist. Unlike the number
+    it replaces, this can be true indefinitely, so it is worth asserting.
+
+    The page no longer states a current version at all, which is what makes this
+    the whole contract rather than one half of it.
+    """
     text = (DOCS / OWNS_THE_VERSION).read_text()
-    found = VERSION_SECTION.search(text)
-    assert found, f"{OWNS_THE_VERSION}.md lost its version claim; readers need it"
-    claimed, printed = found.group(1).lstrip("v"), found.group(2).lstrip("v")
-    assert claimed == printed, (
-        f"the section claims {claimed} but shows `uv tool list` printing "
-        f"{printed}; a reader comparing the two is told they are wrong"
+    floors = [found for found in LANDED_IN.findall(text) if "/" not in found]
+    assert floors, (
+        f"{OWNS_THE_VERSION} states no 'landed in' floor, so this file "
+        "checks nothing. Either the Quickstart lost the only claim worth "
+        "making, or the claim moved to a wording this test does not read."
     )
-    assert claimed == DECLARED, (
-        f"docs claim {claimed}; the engine declares {DECLARED}"
+    for floor in floors:
+        # The `v` is part of the claim's wording, not of the version, so the
+        # comparison is on the numbers alone.
+        floor_numbers = tuple(int(part) for part in floor.lstrip("v").split("."))
+        declared_numbers = tuple(int(part) for part in DECLARED.split("."))
+        assert floor_numbers <= declared_numbers, (
+            f"{OWNS_THE_VERSION} says a command landed in {floor}, but the "
+            f"engine declares {DECLARED}. A reader told to upgrade to {floor} "
+            "would be told to install a release that does not exist."
+        )
+
+
+@needs_engine
+def test_the_quickstart_states_no_current_version() -> None:
+    """The number is gone on purpose; a regression re-adds a rotting claim.
+
+    The section that used to own it now says it names no version and why. If a
+    `v<engine version>` reappears, the drift this file exists to prevent is back
+    -- and the failure is caught here rather than six releases later by a
+    reader.
+    """
+    text = (DOCS / OWNS_THE_VERSION).read_text()
+    assert f"v{DECLARED}" not in text, (
+        f"{OWNS_THE_VERSION} states v{DECLARED}, the current version. This "
+        "page does not name a version; say how to check (`uv tool list`) and "
+        "which release introduced the command instead."
+    )
+    assert "landed in `v" in text, (
+        f"{OWNS_THE_VERSION} lost its feature floors, so a reader cannot "
+        "tell whether a missing command means their version is old or the docs "
+        "are wrong."
     )

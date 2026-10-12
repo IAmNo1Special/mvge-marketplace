@@ -1,6 +1,6 @@
 {
   "name": "coding_mvge",
-  "version": "0.2.6",
+  "version": "0.2.8",
   "description": "Official coding agent for MvgeOS with built-in development spells",
   "entry_point": "mvge.py",
   "runtime": "python",

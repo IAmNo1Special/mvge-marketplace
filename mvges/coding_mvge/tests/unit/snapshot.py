@@ -7,6 +7,7 @@ from typing import Any
 import pytest
 from coding_mvge import root_mvge
 from coding_mvge.spells import bash, read
+from mvgeos_core.constants import DEFAULT_AGENT_NAME
 from mvgeos_agent import Mvge
 from mvgeos_agent.config_manager import ConfigManager
 from mvgeos_agent.environment import MvgeEnvironment, PromptSource
@@ -33,7 +34,7 @@ def _make_runner() -> RuneRunner:
     runner = RuneRunner()
     runner.bind_context(
         RuneContext(
-            cwd="/tmp", mode="cli", agent_name="test-agent", api_key="key"
+            cwd="/tmp", mode="cli", agent_name=DEFAULT_AGENT_NAME, api_key="key"
         )
     )
     return runner
@@ -41,17 +42,17 @@ def _make_runner() -> RuneRunner:
 
 class TestBuildSnapshotNoRunes:
     def test_builtin_spells_only(self, tmp_path: Path) -> None:
-        agent = Mvge(api_key="key", name="test-agent", spells=[bash, read])
+        agent = Mvge(api_key="key", name=DEFAULT_AGENT_NAME, spells=[bash, read])
         snap = agent.build_snapshot()
 
-        assert snap.agent_name == "test-agent"
+        assert snap.agent_name == DEFAULT_AGENT_NAME
         assert snap.model == DEFAULT_MODEL
         assert len(snap.spells) == 2
         assert all(s.source == "builtin" for s in snap.spells)
         assert {s.name for s in snap.spells} == {"bash", "read"}
 
     def test_no_runner_empty_collections(self, tmp_path: Path) -> None:
-        agent = Mvge(api_key="key", name="test-agent", spells=[])
+        agent = Mvge(api_key="key", name=DEFAULT_AGENT_NAME, spells=[])
         snap = agent.build_snapshot()
 
         assert snap.runes == []
@@ -84,7 +85,7 @@ class TestBuildSnapshotWithRunner:
 
         agent = Mvge(
             api_key="key",
-            name="test-agent",
+            name=DEFAULT_AGENT_NAME,
             spells=[bash],
         )
         runner = _make_runner()
@@ -115,7 +116,7 @@ class TestBuildSnapshotWithRunner:
 
         agent._runner = runner
         agent._config_manager = ConfigManager(
-            agent_name="test-agent",
+            agent_name=DEFAULT_AGENT_NAME,
             project_dir=tmp_path,
             agent_config_base=tmp_path / "agent_configs",
         )
@@ -145,7 +146,7 @@ class TestBuildSnapshotWithRunner:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         monkeypatch.setattr(Mvge, "config_dir", property(lambda self: tmp_path))
-        agent = Mvge(api_key="key", name="test-agent", spells=[])
+        agent = Mvge(api_key="key", name=DEFAULT_AGENT_NAME, spells=[])
         runner = _make_runner()
 
         skill = SkillManifest(
@@ -177,7 +178,7 @@ class TestBuildSnapshotWithRunner:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         monkeypatch.setattr(Mvge, "config_dir", property(lambda self: tmp_path))
-        agent = Mvge(api_key="key", name="test-agent", spells=[])
+        agent = Mvge(api_key="key", name=DEFAULT_AGENT_NAME, spells=[])
         runner = _make_runner()
 
         rune_diag = Diagnostic(
@@ -224,16 +225,16 @@ class TestBuildSnapshotWithConfig:
         monkeypatch.setattr(Mvge, "config_dir", property(lambda self: tmp_path))
 
         config_mgr = ConfigManager(
-            agent_name="test-agent",
+            agent_name=DEFAULT_AGENT_NAME,
             project_dir=tmp_path,
             agent_config_base=tmp_path / "agent_configs",
         )
         config_mgr.set("model", "custom-model")
 
-        env = MvgeEnvironment.resolve("test-agent", config_manager=config_mgr)
+        env = MvgeEnvironment.resolve(DEFAULT_AGENT_NAME, config_manager=config_mgr)
         agent = Mvge(
             api_key="key",
-            name="test-agent",
+            name=DEFAULT_AGENT_NAME,
             environment=env,
         )
 
@@ -251,10 +252,10 @@ class TestBuildSnapshotWithConfig:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         monkeypatch.setattr(Mvge, "config_dir", property(lambda self: tmp_path))
-        env = MvgeEnvironment.resolve("test-agent", has_config_manager=False)
+        env = MvgeEnvironment.resolve(DEFAULT_AGENT_NAME, has_config_manager=False)
         agent = Mvge(
             api_key="key",
-            name="test-agent",
+            name=DEFAULT_AGENT_NAME,
             spells=[],
             environment=env,
         )
@@ -271,7 +272,7 @@ class TestBuildSnapshotPrompt:
             "Custom system from file", encoding="utf-8"
         )
 
-        agent = Mvge(api_key="key", name="test-agent", spells=[])
+        agent = Mvge(api_key="key", name=DEFAULT_AGENT_NAME, spells=[])
         snap = agent.build_snapshot()
 
         assert snap.prompt.text == "Custom system from file"
@@ -281,7 +282,7 @@ class TestBuildSnapshotPrompt:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         monkeypatch.setattr(Mvge, "config_dir", property(lambda self: tmp_path))
-        agent = Mvge(api_key="key", name="test-agent", spells=[])
+        agent = Mvge(api_key="key", name=DEFAULT_AGENT_NAME, spells=[])
         snap = agent.build_snapshot()
         assert snap.prompt.source == PromptSource.BUILTIN.value
 
@@ -293,7 +294,7 @@ class TestBuildSnapshotSerialisation:
         monkeypatch.setattr(Mvge, "config_dir", property(lambda self: tmp_path))
         agent = Mvge(
             api_key="key",
-            name="test-agent",
+            name=DEFAULT_AGENT_NAME,
             spells=[bash, read],
         )
         snap = agent.build_snapshot()
@@ -301,7 +302,7 @@ class TestBuildSnapshotSerialisation:
         json_str = snap.to_json()
         parsed = json.loads(json_str)
 
-        assert parsed["agent_name"] == "test-agent"
+        assert parsed["agent_name"] == DEFAULT_AGENT_NAME
         assert parsed["model"] == DEFAULT_MODEL
         assert len(parsed["spells"]) == 2
         assert all(s["source"] == "builtin" for s in parsed["spells"])
@@ -310,12 +311,12 @@ class TestBuildSnapshotSerialisation:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         monkeypatch.setattr(Mvge, "config_dir", property(lambda self: tmp_path))
-        agent = Mvge(api_key="key", name="test-agent", spells=[bash])
+        agent = Mvge(api_key="key", name=DEFAULT_AGENT_NAME, spells=[bash])
         snap = agent.build_snapshot()
 
         d = snap.to_dict()
         assert isinstance(d, dict)
-        assert d["agent_name"] == "test-agent"
+        assert d["agent_name"] == DEFAULT_AGENT_NAME
         assert isinstance(d["spells"], list)
 
     @pytest.mark.asyncio
@@ -323,7 +324,7 @@ class TestBuildSnapshotSerialisation:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         monkeypatch.setattr(Mvge, "config_dir", property(lambda self: tmp_path))
-        agent = Mvge(api_key="key", name="test-agent", spells=[])
+        agent = Mvge(api_key="key", name=DEFAULT_AGENT_NAME, spells=[])
         runner = _make_runner()
 
         manifest = RuneManifest(

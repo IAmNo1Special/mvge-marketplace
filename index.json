@@ -414,7 +414,7 @@
   "mvges": {
     "coding_mvge": {
       "name": "coding_mvge",
-      "version": "0.2.6",
+      "version": "0.2.8",
       "description": "Official coding agent for MvgeOS with built-in development spells",
       "runtime": "python",
       "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",

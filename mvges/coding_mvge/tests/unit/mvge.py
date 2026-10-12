@@ -13,6 +13,7 @@ from coding_mvge.spells import (
     read,
     write,
 )
+from mvgeos_core.constants import DEFAULT_AGENT_NAME
 from mvgeos_agent import (
     FunctionSpell,
     Mvge,
@@ -125,7 +126,7 @@ class _Iter:
 class TestMvgeInit:
     def test_stores_config(self) -> None:
         env = MvgeEnvironment.resolve(
-            "test-agent",
+            DEFAULT_AGENT_NAME,
             overrides={
                 "model": "test-model",
                 "temperature": 0.5,
@@ -296,7 +297,7 @@ class TestMvgeRun:
     @pytest.mark.asyncio
     async def test_raises_on_unknown_model(self) -> None:
         env = MvgeEnvironment.resolve(
-            "test-agent", overrides={"model": "unknown/model"}
+            DEFAULT_AGENT_NAME, overrides={"model": "unknown/model"}
         )
         agent = Mvge(
             api_key="test-key",
@@ -623,7 +624,7 @@ class TestBuildSystemPrompt:
     def test_hardcoded_fallback(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             env = MvgeEnvironment.resolve(
-                "test-agent",
+                DEFAULT_AGENT_NAME,
                 config_dir=Path(td) / "nonexistent",
                 allow_unknown_agent=True,
             )
@@ -639,7 +640,7 @@ class TestBuildSystemPrompt:
     def test_config_dir_does_not_exist(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             env = MvgeEnvironment.resolve(
-                "test-agent",
+                DEFAULT_AGENT_NAME,
                 config_dir=Path(td) / "does-not-exist",
                 allow_unknown_agent=True,
             )
@@ -651,7 +652,7 @@ class TestBuildSystemPrompt:
 
     def test_custom_prompt_overrides_base(self) -> None:
         env = MvgeEnvironment.resolve(
-            "test-agent",
+            DEFAULT_AGENT_NAME,
             custom_prompt="Custom agent prompt here.",
             allow_unknown_agent=True,
         )
@@ -669,7 +670,7 @@ class TestBuildSystemPrompt:
                 "Loaded from file.", encoding="utf-8"
             )
             env = MvgeEnvironment.resolve(
-                "test-agent", config_dir=config_dir, allow_unknown_agent=True
+                DEFAULT_AGENT_NAME, config_dir=config_dir, allow_unknown_agent=True
             )
             prompt = MvgeEnvironment.render_prompt(
                 env.resolved_prompt.text,
@@ -691,7 +692,7 @@ class TestBuildSystemPrompt:
                 "Additive instructions.", encoding="utf-8"
             )
             env = MvgeEnvironment.resolve(
-                "test-agent",
+                DEFAULT_AGENT_NAME,
                 config_dir=config_dir,
                 caller_dir=caller_dir,
                 allow_unknown_agent=True,

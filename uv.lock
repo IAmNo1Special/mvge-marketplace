@@ -917,7 +917,7 @@ wheels = [
 
 [[package]]
 name = "mvgeos-agent"
-version = "0.6.27"
+version = "0.6.30"
 source = { editable = "../mvgeos/mvgeos-agent" }
 dependencies = [
     { name = "httpx" },
@@ -942,7 +942,7 @@ requires-dist = [
 
 [[package]]
 name = "mvgeos-core"
-version = "0.6.27"
+version = "0.6.30"
 source = { editable = "../mvgeos/mvgeos-core" }
 dependencies = [
     { name = "pydantic" },
@@ -1016,7 +1016,7 @@ dev = [
 
 [[package]]
 name = "mvgeos-provider"
-version = "0.6.27"
+version = "0.6.30"
 source = { editable = "../mvgeos/mvgeos-provider" }
 dependencies = [
     { name = "httpx" },
@@ -1031,7 +1031,7 @@ requires-dist = [
 
 [[package]]
 name = "mvgeos-runes"
-version = "0.6.27"
+version = "0.6.30"
 source = { editable = "../mvgeos/mvgeos-runes" }
 dependencies = [
     { name = "httpx" },
@@ -1052,7 +1052,7 @@ requires-dist = [
 
 [[package]]
 name = "mvgeos-tome"
-version = "0.6.27"
+version = "0.6.30"
 source = { editable = "../mvgeos/mvgeos-tome" }
 dependencies = [
     { name = "portalocker" },

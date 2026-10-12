@@ -21,6 +21,32 @@ mvgeos mvge install coding_mvge
 
 | Rune | Version | Description | Path |
 | --- | --- | --- | --- |
+| `adr-bridge` | `0.1.0` | Official Markdown Architectural Decision Records (MADR 3.0) bridge for MvgeOS | `runes/adr-bridge` |
+| `approval-rune` | `0.1.0` | Fail-closed execution gate: pauses every uncovered mutating spell cast until the user approves it, with scoped persistent grants, deny rules, and a durable audit trail | `runes/approval-rune` |
+| `heal-my-goap` | `0.1.0` | Zero-token GOAP planning & LLM-powered self-healing Rune for MvgeOS | `runes/heal-my-goap` |
+| `mcp-bridge` | `0.1.0` | Official Model Context Protocol (MCP) bridge for MvgeOS | `runes/mcp-bridge` |
+| `okf-bridge` | `0.2.0` | Official Open Knowledge Format (OKF v0.2) knowledge bridge for MvgeOS | `runes/okf-bridge` |
+| `opencode-realm` | `0.1.0` | Official OpenCode Zen provider realm for MvgeOS | `runes/opencode-realm` |
+| `openrouter-realm` | `0.1.0` | Official OpenRouter provider realm for MvgeOS | `runes/openrouter-realm` |
+| `opentelemetry-bridge` | `0.1.0` | Official OpenTelemetry GenAI tracing bridge for MvgeOS | `runes/opentelemetry-bridge` |
+| `pi-codec` | `0.1.0` | Native Pi session codec: resume, append, fork, and validate Pi agent session logs (JSONL v3/v4) directly in MvgeOS with no conversion; pi-export copies a Tome v1 session to a Pi-native v4 file | `runes/pi-codec` |
+| `seeker` | `0.1.0` | Seeker Protocol - DCI-based discovery for spells, skills, and MCP servers | `runes/seeker` |
+| `selfmod-bridge` | `0.1.0` | Official self-modification & customization bridge for MvgeOS | `runes/selfmod-bridge` |
+| `session-search` | `0.1.0` | Full-text BM25 search over MvgeOS sessions: Tome v1, Pi sessions (via pi-codec), and Antigravity transcripts, indexed into local SQLite FTS5 | `runes/session-search` |
+| `session-title` | `0.1.0` | Auto-generates session titles from conversation content with instant fallback and optional LLM upgrade | `runes/session-title` |
+| `skill-evolution` | `0.3.0` | Persistent experience consolidation and autonomous skill evolution: harvests raw experience, consolidates durable patterns, and proposes or applies agent-scoped skills | `runes/skill-evolution` |
+| `skills-bridge` | `0.1.0` | Official Agent Skills (agentskills.io) and Agent Plugins bridge for MvgeOS | `runes/skills-bridge` |
+| `steering-bridge` | `0.1.0` | Official repository steering (AGENTS.md, .agents protocol) bridge for MvgeOS | `runes/steering-bridge` |
+
+Install via MvgeOS CLI:
+```bash
+mvgeos mvge install coding_mvge
+```
+
+## Available Runes (Extensions)
+
+| Rune | Version | Description | Path |
+| --- | --- | --- | --- |
 | `openrouter-realm` | `0.1.0` | Official OpenRouter provider realm for MvgeOS | `runes/openrouter-realm` |
 | `opencode-realm` | `0.1.0` | Official OpenCode Zen provider realm for MvgeOS | `runes/opencode-realm` |
 | `heal-my-goap` | `0.1.0` | Zero-token GOAP planning & LLM self-healing Rune | `runes/heal-my-goap` |
@@ -40,10 +66,10 @@ Install via MvgeOS CLI:
 mvgeos rune install opencode-realm
 ```
 
-`opencode-realm` is the one a first run needs: the engine's default model is
-`opencode/space-bunny-free`, and the prefix in that slug is the Realm that must
-serve it. `openrouter-realm` is a full alternative and needs `OPENROUTER_API_KEY`
-— see [Use another Realm](docs/quickstart.md#use-another-realm).
+`openrouter-realm` is the one a first run needs: the engine's default model is
+`openrouter/free`, and the prefix in that slug is the Realm that must serve it.
+It needs an `OPENROUTER_API_KEY`, and no Realm serves a stranger without a
+credential — see [Use another Realm](docs/quickstart.md#use-another-realm).
 
 ## Structure
 

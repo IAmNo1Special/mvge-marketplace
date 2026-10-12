@@ -124,11 +124,20 @@ that would load.
 
 ### What a Rune may import
 
-A Rune may import engine packages: `mvgeos_core`, `mvgeos_runes`,
-`mvgeos_agent`. It may never import another Rune. That absolute boundary is
-what makes each Rune independently installable on its own — engine packages are
-supplied by the host, siblings are not, and a Rune that reaches for a sibling
-does not work once it is installed alone.
+A Rune may import engine packages: `mvgeos_core`, `mvgeos_runes`, `mvgeos_agent`,
+`mvgeos_provider`, `mvgeos_tome`. It may never import another Rune. That absolute
+boundary is what makes each Rune independently installable on its own — engine
+packages are supplied by the host, siblings are not, and a Rune that reaches for a
+sibling does not work once it is installed alone.
+
+Which *modules* an engine publishes to a Rune is enumerated in
+`mvgeos_runes.contract.RUNE_IMPORTABLE_MODULES`, and
+`tests/test_engine_import_contract.py` asserts nothing outside that set is
+imported. A package-root import is also checked against that package's `__all__`,
+so a symbol that resolves today can still be undeclared. Prefer the published
+spelling: `from mvgeos_provider import SSEStreamingRealm` is checked, while
+`from mvgeos_provider.sse import ...` is not, because `__all__` describes a
+namespace and a submodule has none.
 
 `mvgeos_agent` carries one extra rule, about **when** rather than **which**: do
 not import it at module scope. `mvgeos_agent/__init__` imports
@@ -142,6 +151,10 @@ annotations are strings at runtime.
 `tests/test_rune_import_boundary.py` enforces both halves: no sibling imports,
 and no module-scope `mvgeos_agent` in a Rune's runtime source.
 
+`tests/test_docs_version_claim.py` adds a third kind of gate over this
+repository's own documents, so a claim that names a version cannot outlive the
+code.
+
 ## Skill
 
 A **Skill** is a capability pack: a directory with `SKILL.md` — YAML frontmatter
@@ -150,9 +163,11 @@ plus markdown instructions — matching the `agentskills.io` specification.
 Skills are disclosed progressively: the catalog first (name and description),
 full instructions only when relevant, bundled resources last. A Skill is never
 executed directly. It is distinct from a Rune (executable extension) and a
-Spell (executable tool). Skills are discovered from `SKILL_SCOPES`:
-`.agents/skills` in the project, `~/.agents/skills` for the user, and the
-active Mvge's own directory.
+Spell (executable tool). Skills are discovered by `skills-bridge` from three directories: `.agents/skills`
+in the project, `~/.agents/skills` for the user, and the active Mvge's own
+`skills/` directory. There is no `SKILL_SCOPES` constant in the engine; that Rune
+enumerates the scopes and adds a fourth, for Agent Plugins, that no engine module
+knows about.
 
 ## Mana, Mana Pool, Contemplation
 
@@ -178,9 +193,10 @@ Realm as a reasoning-effort parameter. It is not the same as a run-level cap.
 
 ## Channeling
 
-Streaming a response from a Realm. The protocol method is `channel()`, and
-`ChannelRenderer` draws it. The REPL and TUI both render channeled tokens as
-they arrive.
+Streaming a response from a Realm. The protocol method is `stream()`, and
+`StreamRenderer` draws it. The REPL and TUI both render channeled tokens as they
+arrive. (`channel` survives only as the module holding the vocabulary —
+`mvgeos_core/channel.py`.)
 
 ## Where this all lives
 

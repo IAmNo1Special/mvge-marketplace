@@ -8,7 +8,14 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from mvgeos_core.telemetry import (
+from opentelemetry import context, trace
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import ReadableSpan, TracerProvider
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
+from opentelemetry.trace import StatusCode
+
+from mvgeos_runes_opentelemetry_bridge.genai_attributes import (
     GEN_AI_CONVERSATION_ID,
     GEN_AI_OPERATION_NAME,
     GEN_AI_REQUEST_MAX_TOKENS,
@@ -26,13 +33,6 @@ from mvgeos_core.telemetry import (
     MVGEOS_ORCHESTRATOR,
     derive_provider_from_model,
 )
-from opentelemetry import context, trace
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import ReadableSpan, TracerProvider
-from opentelemetry.sdk.trace.export import SimpleSpanProcessor
-from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
-from opentelemetry.trace import StatusCode
-
 from mvgeos_runes_opentelemetry_bridge.types import OTelConfig, SpanState
 
 

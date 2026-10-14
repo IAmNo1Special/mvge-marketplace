@@ -433,12 +433,6 @@ and read the shipped list before you name a different one.
     covered by the engine, it is the difference between a working Mvge and a
     Mvge missing its dependencies. Read the output either way; do not assume.
 
-!!! warning "Put `--agent-name` after the subcommand"
-    `mvgeos --agent-name coding_mvge info` silently ignores the flag and reports
-    `Agent: default-mvge` with no Spells loaded — no error, just the wrong Mvge.
-    `mvgeos info --agent-name coding_mvge` is correct. For the one-shot run in
-    step 4 there is no subcommand, so the flag goes before the prompt.
-
 ## Where things landed
 
 Everything installed into the standard `.agents` directories:

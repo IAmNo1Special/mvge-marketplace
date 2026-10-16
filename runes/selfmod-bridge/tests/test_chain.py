@@ -1,9 +1,10 @@
 """End-to-end: real engine payload + real emit_chain, in this Rune's suite.
 
 Spec §5.8: chain ordering — sections append in load (registration) order; dict
-round-trip — an earlier rune returning a dict passes through ``emit_chain``
-with the new optional fields intact. Uses the real ``BeforeMvgeStartData``
-and ``RuneRunner.emit_chain`` — no simulations.
+round-trip — an earlier rune returning a dict passes through ``emit_chain`` /
+``create_sigil_data`` with the new optional fields intact. Uses the real
+``BeforeMvgeStartData``, ``create_sigil_data``, and ``RuneRunner.emit_chain`` —
+no simulations.
 
 The peer handler is a local stand-in, not steering-bridge. This suite used to
 reach into the sibling's directory on ``sys.path`` to instantiate it, which is
@@ -23,7 +24,7 @@ from typing import Any
 import pytest
 from mvgeos_runes import SigilHook
 from mvgeos_runes.rune_runner import RuneRunner
-from mvgeos_runes.types import BeforeMvgeStartData
+from mvgeos_runes.types import create_sigil_data
 from selfmod_bridge_conftest import make_rune
 
 #: Marker the peer appends, so ordering is readable from the prompt alone.
@@ -62,10 +63,10 @@ def _payload_dict(tmp_path: Path) -> dict[str, Any]:
 async def test_real_payload_section_lands_in_base_prompt(
     tmp_path: Path,
 ) -> None:
-    """The real engine payload type is built directly and the hook appends
-    the section to base_prompt."""
+    """The real engine payload type round-trips through create_sigil_data
+    and the hook appends the section to base_prompt."""
     rune, _api = make_rune(tmp_path)
-    payload = BeforeMvgeStartData(**_payload_dict(tmp_path))
+    payload = create_sigil_data(SigilHook.BEFORE_MVGE_START, _payload_dict(tmp_path))
     assert type(payload).__name__ == "BeforeMvgeStartData"
     await rune._on_before_mvge_start(payload)
     assert payload.base_prompt.startswith("engine base")
@@ -82,9 +83,7 @@ async def test_chain_order_with_peer_handler(tmp_path: Path) -> None:
     runner.register_handler(SigilHook.BEFORE_MVGE_START, _peer_hook)
     runner.register_handler(SigilHook.BEFORE_MVGE_START, selfmod_rune._on_before_mvge_start)
 
-    result = await runner.emit_chain(
-        SigilHook.BEFORE_MVGE_START, BeforeMvgeStartData(**_payload_dict(tmp_path))
-    )
+    result = await runner.emit_chain(SigilHook.BEFORE_MVGE_START, _payload_dict(tmp_path))
     prompt = result.base_prompt
     assert "engine base" in prompt
     peer_idx = prompt.find(PEER_HEADING)
@@ -103,9 +102,7 @@ async def test_chain_order_reversed_registration(tmp_path: Path) -> None:
     runner.register_handler(SigilHook.BEFORE_MVGE_START, selfmod_rune._on_before_mvge_start)
     runner.register_handler(SigilHook.BEFORE_MVGE_START, _peer_hook)
 
-    result = await runner.emit_chain(
-        SigilHook.BEFORE_MVGE_START, BeforeMvgeStartData(**_payload_dict(tmp_path))
-    )
+    result = await runner.emit_chain(SigilHook.BEFORE_MVGE_START, _payload_dict(tmp_path))
     prompt = result.base_prompt
     selfmod_idx = prompt.find("Self-Modification & Customization:")
     peer_idx = prompt.find(PEER_HEADING)

@@ -19,7 +19,7 @@ from mvgeos_agent import (
     Mvge,
 )
 from mvgeos_agent.environment import MvgeEnvironment
-from mvgeos_agent.harness._state import MvgeState
+from mvgeos_agent.types import MvgeState
 from mvgeos_core.channel import (
     MvgeResponse,
     StopReason,

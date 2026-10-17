@@ -22,9 +22,9 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from mvgeos_agent.sigil_payloads import payload_for
 from mvgeos_runes import SigilHook
 from mvgeos_runes.rune_runner import RuneRunner
-from mvgeos_runes.types import create_sigil_data
 from selfmod_bridge_conftest import make_rune
 
 #: Marker the peer appends, so ordering is readable from the prompt alone.
@@ -63,10 +63,10 @@ def _payload_dict(tmp_path: Path) -> dict[str, Any]:
 async def test_real_payload_section_lands_in_base_prompt(
     tmp_path: Path,
 ) -> None:
-    """The real engine payload type round-trips through create_sigil_data
+    """The real engine payload type round-trips through payload_for
     and the hook appends the section to base_prompt."""
     rune, _api = make_rune(tmp_path)
-    payload = create_sigil_data(SigilHook.BEFORE_MVGE_START, _payload_dict(tmp_path))
+    payload = payload_for(SigilHook.BEFORE_MVGE_START, **_payload_dict(tmp_path))
     assert type(payload).__name__ == "BeforeMvgeStartData"
     await rune._on_before_mvge_start(payload)
     assert payload.base_prompt.startswith("engine base")

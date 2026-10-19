@@ -1,0 +1,13 @@
+{
+  "name": "eval-bridge",
+  "version": "0.1.0",
+  "description": "Evaluation harness and RL data exporter compatible with google/adk-python evalsets",
+  "types": ["Command"],
+  "runtime": "python",
+  "entry_point": "rune.py",
+  "commands": ["eval"],
+  "python_deps": [
+    "typer>=0.12"
+  ],
+  "enabled": true
+}

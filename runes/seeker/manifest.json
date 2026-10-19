@@ -9,7 +9,9 @@
   "entry_point": "rune.py",
   "hooks": [
     "session_start",
-    "session_shutdown"
+    "session_shutdown",
+    "turn_end",
+    "after_spell_result"
   ],
   "shortcuts": [],
   "system_deps": [

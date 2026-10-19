@@ -212,7 +212,7 @@ class TestSkillEvolutionRuneIntegration:
             "---\nname: export-me\ndescription: export test skill\n---\n\n# Export\n",
             encoding="utf-8",
         )
-        skill_evolution_rune_loaded.register_skill(
+        skill_evolution_rune_loaded.skill_catalog.register_skill(
             SkillManifest(
                 name="export-me",
                 description="export test skill",

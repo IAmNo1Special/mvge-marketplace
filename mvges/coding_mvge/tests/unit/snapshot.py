@@ -7,11 +7,10 @@ from typing import Any
 import pytest
 from coding_mvge import root_mvge
 from coding_mvge.spells import bash, read
-from mvgeos_core.constants import DEFAULT_AGENT_NAME
 from mvgeos_agent import Mvge
 from mvgeos_agent.config_manager import ConfigManager
 from mvgeos_agent.environment import MvgeEnvironment, PromptSource
-from mvgeos_core.constants import DEFAULT_MODEL
+from mvgeos_core.constants import DEFAULT_AGENT_NAME, DEFAULT_MODEL
 from mvgeos_runes.rune_runner import RuneRunner
 from mvgeos_runes.types import (
     Diagnostic,
@@ -42,7 +41,9 @@ def _make_runner() -> RuneRunner:
 
 class TestBuildSnapshotNoRunes:
     def test_builtin_spells_only(self, tmp_path: Path) -> None:
-        agent = Mvge(api_key="key", name=DEFAULT_AGENT_NAME, spells=[bash, read])
+        agent = Mvge(
+            api_key="key", name=DEFAULT_AGENT_NAME, spells=[bash, read]
+        )
         snap = agent.build_snapshot()
 
         assert snap.agent_name == DEFAULT_AGENT_NAME
@@ -160,7 +161,7 @@ class TestBuildSnapshotWithRunner:
             allowed_tools="read write",
             disable_model_invocation=False,
         )
-        runner.load_skills([SkillLoad(manifest=skill)])
+        runner.skill_catalog.load_skills([SkillLoad(manifest=skill)])
 
         agent._runner = runner
         snap = agent.build_snapshot()
@@ -197,7 +198,7 @@ class TestBuildSnapshotWithRunner:
         )
 
         await runner.load_rune_loads([], diagnostics=[rune_diag])
-        runner.load_skills([], diagnostics=[skill_diag])
+        runner.skill_catalog.load_skills([], diagnostics=[skill_diag])
 
         agent._runner = runner
         snap = agent.build_snapshot()
@@ -231,7 +232,9 @@ class TestBuildSnapshotWithConfig:
         )
         config_mgr.set("model", "custom-model")
 
-        env = MvgeEnvironment.resolve(DEFAULT_AGENT_NAME, config_manager=config_mgr)
+        env = MvgeEnvironment.resolve(
+            DEFAULT_AGENT_NAME, config_manager=config_mgr
+        )
         agent = Mvge(
             api_key="key",
             name=DEFAULT_AGENT_NAME,
@@ -252,7 +255,9 @@ class TestBuildSnapshotWithConfig:
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         monkeypatch.setattr(Mvge, "config_dir", property(lambda self: tmp_path))
-        env = MvgeEnvironment.resolve(DEFAULT_AGENT_NAME, has_config_manager=False)
+        env = MvgeEnvironment.resolve(
+            DEFAULT_AGENT_NAME, has_config_manager=False
+        )
         agent = Mvge(
             api_key="key",
             name=DEFAULT_AGENT_NAME,

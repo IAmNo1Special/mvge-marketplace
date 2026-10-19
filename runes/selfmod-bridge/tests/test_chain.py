@@ -83,7 +83,10 @@ async def test_chain_order_with_peer_handler(tmp_path: Path) -> None:
     runner.register_handler(SigilHook.BEFORE_MVGE_START, _peer_hook)
     runner.register_handler(SigilHook.BEFORE_MVGE_START, selfmod_rune._on_before_mvge_start)
 
-    result = await runner.emit_chain(SigilHook.BEFORE_MVGE_START, _payload_dict(tmp_path))
+    result = await runner.emit_chain(
+        SigilHook.BEFORE_MVGE_START,
+        payload_for(SigilHook.BEFORE_MVGE_START, **_payload_dict(tmp_path)),
+    )
     prompt = result.base_prompt
     assert "engine base" in prompt
     peer_idx = prompt.find(PEER_HEADING)
@@ -102,7 +105,10 @@ async def test_chain_order_reversed_registration(tmp_path: Path) -> None:
     runner.register_handler(SigilHook.BEFORE_MVGE_START, selfmod_rune._on_before_mvge_start)
     runner.register_handler(SigilHook.BEFORE_MVGE_START, _peer_hook)
 
-    result = await runner.emit_chain(SigilHook.BEFORE_MVGE_START, _payload_dict(tmp_path))
+    result = await runner.emit_chain(
+        SigilHook.BEFORE_MVGE_START,
+        payload_for(SigilHook.BEFORE_MVGE_START, **_payload_dict(tmp_path)),
+    )
     prompt = result.base_prompt
     selfmod_idx = prompt.find("Self-Modification & Customization:")
     peer_idx = prompt.find(PEER_HEADING)

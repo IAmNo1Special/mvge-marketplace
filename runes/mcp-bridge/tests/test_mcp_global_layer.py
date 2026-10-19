@@ -19,7 +19,6 @@ from pathlib import Path
 
 import pytest
 from mvgeos_core import GLOBAL_DIR_ENV, global_agents_dir
-
 from mvgeos_runes_mcp_bridge.config import (
     _global_mcp_config_path,
     get_prioritized_mcp_configs,
@@ -27,9 +26,7 @@ from mvgeos_runes_mcp_bridge.config import (
 
 
 @pytest.fixture
-def relocated_global(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> Path:
+def relocated_global(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Point the global ``.agents`` layer at a temp root for one test."""
     # Deliberately local rather than shared from the repository root:
     # each rune is an independently installable, independently testable
@@ -47,8 +44,6 @@ def _write_mcp_config(directory: Path, server: str, command: str) -> None:
         json.dumps({"mcpServers": {server: {"command": command}}}),
         encoding="utf-8",
     )
-
-
 
 
 def test_user_config_is_read_from_the_relocated_layer(
@@ -139,7 +134,5 @@ def test_project_layer_still_overrides_the_user_layer(
     project_agents = tmp_path / "project" / ".agents"
     _write_mcp_config(project_agents, "shared", "project_cmd")
 
-    configs = get_prioritized_mcp_configs(
-        cwd=tmp_path / "project", global_dir=None
-    )
+    configs = get_prioritized_mcp_configs(cwd=tmp_path / "project", global_dir=None)
     assert configs["shared"].command == "project_cmd"

@@ -459,3 +459,26 @@ def test_artifact_names_are_valid_install_directory_names() -> None:
             f"{artifact.kind}/{artifact.name} escapes the repository"
         )
         assert not Path(artifact.relative_path).is_absolute()
+
+
+def test_profiles_reference_valid_artifacts() -> None:
+    """Profiles declared in index.json must reference existing runes and mvges."""
+    index = load_index()
+    profiles = index.get("profiles", {})
+    assert "minimal" in profiles
+    assert "coding" in profiles
+    assert "autonomous" in profiles
+
+    runes_dict = index.get("runes", {})
+    mvges_dict = index.get("mvges", {})
+
+    for profile_name, data in profiles.items():
+        assert isinstance(data, dict), f"profile {profile_name} must be a dict"
+        for mvge_name in data.get("mvges", []):
+            assert mvge_name in mvges_dict, (
+                f"Profile {profile_name} references unknown mvge {mvge_name}"
+            )
+        for rune_name in data.get("runes", []):
+            assert rune_name in runes_dict, (
+                f"Profile {profile_name} references unknown rune {rune_name}"
+            )

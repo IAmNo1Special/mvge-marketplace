@@ -91,7 +91,6 @@ nav:
   - Runes:
       - ADR Bridge: runes/adr-bridge.md
       - Approval Rune: runes/approval-rune.md
-      - heal-my-goap: runes/heal-my-goap.md
       - MCP Bridge: runes/mcp-bridge.md
       - OKF Bridge: runes/okf-bridge.md
       - OpenCode Realm: runes/opencode-realm.md

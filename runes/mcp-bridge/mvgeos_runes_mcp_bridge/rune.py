@@ -26,6 +26,11 @@ def rune_factory(api: RuneAPI) -> None:
 
     async def on_session_start(_data: Any = None) -> None:
         """Connects configured MCP servers and registers their tools as spells."""
+        if getattr(api, "has_spell_gateway", False):
+            # Defer eager connections when a spell gateway (seeker) is active.
+            # Seeker will connect servers lazily on demand during 'activate'.
+            return
+
         runner = getattr(api, "_runner", None)
         ctx = getattr(runner, "context", None) if runner else None
         raw_cwd = getattr(ctx, "cwd", None) if ctx else None
@@ -78,6 +83,7 @@ def rune_factory(api: RuneAPI) -> None:
         await manager.shutdown()
 
     api.on(SigilHook.SESSION_SHUTDOWN, on_shutdown)
+    api.on_dispose(manager.shutdown)
 
     async def mcp_handler(args: str = "") -> str:
         """Parses and executes the /mcp command.

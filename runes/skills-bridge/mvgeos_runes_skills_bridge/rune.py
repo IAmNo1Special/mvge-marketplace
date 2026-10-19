@@ -47,6 +47,10 @@ class SkillsBridgeRune:
         self.diagnostics = diags
         self.skills_map = {load.manifest.name: load.manifest for load in loads}
         self.active_skills.clear()
+        if self._api is not None:
+            runner = getattr(self._api, "_runner", None)
+            if runner is not None and hasattr(runner, "skill_catalog"):
+                runner.skill_catalog.load_skills(loads, diagnostics=diags)
 
     async def on_session_start(self, data: Any = None) -> None:
         """Discover skills on session startup."""
@@ -61,7 +65,11 @@ class SkillsBridgeRune:
 
     async def on_before_mvge_start(self, data: Any = None) -> Any:
         """Inject available skills catalog into dynamic prompt."""
-        if self.suppress_catalog or not self.skills_map:
+        if (
+            self.suppress_catalog
+            or getattr(self._api, "has_spell_gateway", False) is True
+            or not self.skills_map
+        ):
             return data
 
         catalog = build_skill_catalog(
@@ -87,10 +95,14 @@ class SkillsBridgeRune:
 
     async def on_context_transform(self, invocations: list[Any]) -> list[Any]:
         """In-place update of skill catalog across multi-turn sessions."""
+        suppress = (
+            self.suppress_catalog
+            or getattr(self._api, "has_spell_gateway", False) is True
+        )
         return update_invocations_with_skill_catalog(
             invocations,
             list(self.skills_map.values()),
-            suppress=self.suppress_catalog,
+            suppress=suppress,
         )
 
     async def on_session_shutdown(self, data: Any = None) -> None:

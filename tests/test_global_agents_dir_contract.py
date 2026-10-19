@@ -103,11 +103,8 @@ def _is_home_resolution(node: ast.AST) -> bool:
         return False
     # Either ``Path.home()`` or ``pathlib.Path.home()``.
     receiver = func.value
-    return (
-        isinstance(receiver, ast.Name) and receiver.id in _HOME_RECEIVERS
-    ) or (
-        isinstance(receiver, ast.Attribute)
-        and receiver.attr in {"Path", "path"}
+    return (isinstance(receiver, ast.Name) and receiver.id in _HOME_RECEIVERS) or (
+        isinstance(receiver, ast.Attribute) and receiver.attr in {"Path", "path"}
     )
 
 
@@ -130,9 +127,7 @@ def _home_names(tree: ast.Module) -> set[str]:
         # AnnAssign.value is None for a bare annotation (``x: int``).
         if node.value is None or not _mentions_home(node.value):
             continue
-        targets = (
-            [node.target] if isinstance(node, ast.AnnAssign) else node.targets
-        )
+        targets = [node.target] if isinstance(node, ast.AnnAssign) else node.targets
         for target in targets:
             if isinstance(target, ast.Name):
                 names.add(target.id)
@@ -166,9 +161,7 @@ def _is_join(node: ast.AST) -> bool:
     return isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div)
 
 
-def _is_outermost_join(
-    node: ast.BinOp, parents: dict[ast.AST, ast.AST]
-) -> bool:
+def _is_outermost_join(node: ast.BinOp, parents: dict[ast.AST, ast.AST]) -> bool:
     """True for the top of a ``/`` chain, so one mistake reports once."""
     parent = parents.get(node)
     return not _is_join(parent) if parent is not None else True
@@ -262,19 +255,22 @@ def test_the_gate_would_catch_a_regression() -> None:
         'g = global_dir or (Path.home() / ".agents")\n',
         # mcp-bridge/config.py: the home call sits in a conditional expression
         # and the layer is joined onto the bound name one statement later
-        'user_base = global_dir if global_dir is not None else Path.home()\n'
-        'user_path = user_base / ".agents" / "mcp.json"\n',
+        (
+            "user_base = global_dir if global_dir is not None else Path.home()\n"
+            'user_path = user_base / ".agents" / "mcp.json"\n'
+        ),
         # seeker/dci_matcher.py: home and the layer in one list literal
         'roots = [(Path.home() / ".agents" / "skills").resolve()]\n',
-        # heal-my-goap/rune.py: split across two statements
-        'home_dir = Path.home()\n'
-        'auth = home_dir / ".agents" / ".mvgeos"\n'
-        'auth = auth / "auth" / "openrouter.json"\n',
+        # rune auth path: split across two statements
+        (
+            "home_dir = Path.home()\n"
+            'auth = home_dir / ".agents" / ".mvgeos"\n'
+            'auth = auth / "auth" / "openrouter.json"\n'
+        ),
         # deeper than one segment, and nested several joins deep
         'P = Path.home() / ".agents" / "skills" / "nested"\n',
         # the fully-qualified receiver
-        "import pathlib\n"
-        'P = pathlib.Path.home() / ".agents" / "skills"\n',
+        ('import pathlib\nP = pathlib.Path.home() / ".agents" / "skills"\n'),
     ]
     for source in cases:
         violations = violations_in_source(source, "planted.py")
@@ -288,16 +284,17 @@ def test_the_gate_does_not_flag_home_paths_outside_the_layer() -> None:
     allowed = [
         # seeker/dci_matcher.py:20 -- a third-party convention, correctly
         # home-relative, sharing a list literal with a project-relative path
-        '_DEFAULT_SKILL_DIRS = [Path.home() / ".claude/skills", '
-        'Path(".agents/.mvgeos/skills")]\n',
+        (
+            '_DEFAULT_SKILL_DIRS = [Path.home() / ".claude/skills", '
+            'Path(".agents/.mvgeos/skills")]\n'
+        ),
         'D = (Path.home() / ".claude" / "skills").resolve()\n',
         # session-search: a home path that is not our layer
         'D = Path.home() / ".gemini" / "antigravity" / "brain"\n',
         # project-relative layer, with no home resolution anywhere
         'D = (Path(".agents/skills")).resolve()\n',
         # the correct shape: routed through the single resolver
-        "from mvgeos_core import skills_dir\n"
-        "D = skills_dir()\n",
+        ("from mvgeos_core import skills_dir\nD = skills_dir()\n"),
         # a user-supplied path being expanded is not a home resolution
         "def f(p: Path) -> Path:\n    return p.expanduser() / '.agents'\n",
         # expanduser('~') for a non-layer directory
@@ -305,9 +302,7 @@ def test_the_gate_does_not_flag_home_paths_outside_the_layer() -> None:
     ]
     for source in allowed:
         violations = violations_in_source(source, "allowed.py")
-        assert not violations, (
-            f"unexpected violation for {source!r}: {violations}"
-        )
+        assert not violations, f"unexpected violation for {source!r}: {violations}"
 
 
 def test_the_gate_scans_every_indexed_artifact() -> None:

@@ -1,0 +1,13 @@
+{
+  "name": "lsp-bridge",
+  "version": "0.1.0",
+  "description": "LSP diagnostics bridge providing debounced compiler errors on edit and write",
+  "types": ["Sigil"],
+  "runtime": "python",
+  "entry_point": "rune.py",
+  "hooks": [
+    "after_spell_result"
+  ],
+  "python_deps": [],
+  "enabled": true
+}

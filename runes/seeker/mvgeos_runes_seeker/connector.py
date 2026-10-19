@@ -6,6 +6,8 @@ import os
 from typing import Any, ClassVar
 
 import aiohttp
+from mvgeos_core.abort import AbortSignal
+from mvgeos_core.spells import SpellContext
 from mvgeos_runes.types import ExecutionMode, SpellDefinition
 
 from .discovery import MCPServerInfo, MCPTransportError
@@ -124,8 +126,9 @@ class MCPToolSpell(SpellDefinition):
         self,
         spell_cast_id: str,
         params: dict[str, Any],
-        signal: Any | None = None,
+        signal: AbortSignal | None = None,
         on_update: Any | None = None,
+        ctx: SpellContext | None = None,
     ) -> dict[str, Any]:
         result = await self._connector.send_jsonrpc(
             method="tools/call",
@@ -169,8 +172,9 @@ class MCPResourceSpell(SpellDefinition):
         self,
         spell_cast_id: str,
         params: dict[str, Any],
-        signal: Any | None = None,
+        signal: AbortSignal | None = None,
         on_update: Any | None = None,
+        ctx: SpellContext | None = None,
     ) -> dict[str, Any]:
         result = await self._connector.send_jsonrpc(
             method="resources/read",
@@ -191,7 +195,7 @@ class MCPPromptSpell(SpellDefinition):
         self,
         prompt_name: str,
         description: str,
-        arguments: dict[str, Any],
+        arguments: list[dict[str, Any]],
         connector: MCPConnector,
     ) -> None:
         super().__init__(
@@ -217,8 +221,9 @@ class MCPPromptSpell(SpellDefinition):
         self,
         spell_cast_id: str,
         params: dict[str, Any],
-        signal: Any | None = None,
+        signal: AbortSignal | None = None,
         on_update: Any | None = None,
+        ctx: SpellContext | None = None,
     ) -> dict[str, Any]:
         result = await self._connector.send_jsonrpc(
             method="prompts/get",
@@ -264,9 +269,13 @@ class MCPConnector:
         self._proc: asyncio.subprocess.Process | None = None
         self._http_base_url: str | None = None
         self._http_session: aiohttp.ClientSession | None = None
-        self._tool_spells: list[MCPToolSpell] = []
+        self._tool_spells: list[SpellDefinition] = []
         self._closing = False  # guard against concurrent close() calls
         self._close_task: asyncio.Task[None] | None = None
+
+    @property
+    def tool_spells(self) -> list[SpellDefinition]:
+        return list(self._tool_spells)
 
     async def connect(self) -> None:
         _check_sandbox(self._info)

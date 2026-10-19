@@ -63,8 +63,10 @@ def _turn_chunks() -> tuple[str, ...]:
     return (
         '{"choices":[{"delta":{"content":"hello"}}]}',
         '{"choices":[{"delta":{},"finish_reason":"stop"}]}',
-        '{"choices":[],"usage":'
-        '{"prompt_tokens":4,"completion_tokens":7,"total_tokens":11}}',
+        (
+            '{"choices":[],"usage":'
+            '{"prompt_tokens":4,"completion_tokens":7,"total_tokens":11}}'
+        ),
     )
 
 

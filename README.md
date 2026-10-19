@@ -1,36 +1,36 @@
-# MvgeOS Marketplace
+# 🔮 MvgeOS Marketplace
 
-Official marketplace catalog for MvgeOS Runes (extensions) and Mvges (agents).
+Official marketplace catalog for MvgeOS **Runes** (extensions), **Mvges** (agents), and runtime **Profiles**.
 
-## Overview
+## ✨ Overview
 
-The MvgeOS Marketplace hosts official and community-contributed extensions (runes) and concrete agent packages (mvges) for MvgeOS.
+The MvgeOS Marketplace hosts official extensions (`runes/`) and concrete agent packages (`mvges/`) for MvgeOS, separated from the engine microkernel by a strict contract-tested seam.
 
-## Available Mvges (Agents)
+## 🧙‍♂️ Available Mvges (Agents)
 
 | Mvge | Version | Description | Path |
 | --- | --- | --- | --- |
 | `coding_mvge` | `0.2.6` | Official coding agent with built-in development spells | `mvges/coding_mvge` |
 
 Install via MvgeOS CLI:
+
 ```bash
 mvgeos mvge install coding_mvge
 ```
 
-## Available Runes (Extensions)
+## 🧩 Available Runes (Extensions)
 
 | Rune | Version | Description | Path |
 | --- | --- | --- | --- |
 | `adr-bridge` | `0.1.0` | Official Markdown Architectural Decision Records (MADR 3.0) bridge for MvgeOS | `runes/adr-bridge` |
 | `approval-rune` | `0.1.0` | Fail-closed execution gate: pauses every uncovered mutating spell cast until the user approves it, with scoped persistent grants, deny rules, and a durable audit trail | `runes/approval-rune` |
-| `heal-my-goap` | `0.1.0` | Zero-token GOAP planning & LLM-powered self-healing Rune for MvgeOS | `runes/heal-my-goap` |
 | `mcp-bridge` | `0.1.0` | Official Model Context Protocol (MCP) bridge for MvgeOS | `runes/mcp-bridge` |
 | `okf-bridge` | `0.2.0` | Official Open Knowledge Format (OKF v0.2) knowledge bridge for MvgeOS | `runes/okf-bridge` |
 | `opencode-realm` | `0.1.0` | Official OpenCode Zen provider realm for MvgeOS | `runes/opencode-realm` |
 | `openrouter-realm` | `0.1.0` | Official OpenRouter provider realm for MvgeOS | `runes/openrouter-realm` |
 | `opentelemetry-bridge` | `0.1.0` | Official OpenTelemetry GenAI tracing bridge for MvgeOS | `runes/opentelemetry-bridge` |
 | `pi-codec` | `0.1.0` | Native Pi session codec: resume, append, fork, and validate Pi agent session logs (JSONL v3/v4) directly in MvgeOS with no conversion; pi-export copies a Tome v1 session to a Pi-native v4 file | `runes/pi-codec` |
-| `seeker` | `0.1.0` | Seeker Protocol - DCI-based discovery for spells, skills, and MCP servers | `runes/seeker` |
+| `seeker` | `0.1.0` | Seeker Active Discovery+ Spell Gateway: unified `search`, `activate`, `execute`, and `unload` lifecycle across Spells, Skills, and MCP servers | `runes/seeker` |
 | `selfmod-bridge` | `0.1.0` | Official self-modification & customization bridge for MvgeOS | `runes/selfmod-bridge` |
 | `session-search` | `0.1.0` | Full-text BM25 search over MvgeOS sessions: Tome v1, Pi sessions (via pi-codec), and Antigravity transcripts, indexed into local SQLite FTS5 | `runes/session-search` |
 | `session-title` | `0.1.0` | Auto-generates session titles from conversation content with instant fallback and optional LLM upgrade | `runes/session-title` |
@@ -39,41 +39,19 @@ mvgeos mvge install coding_mvge
 | `steering-bridge` | `0.1.0` | Official repository steering (AGENTS.md, .agents protocol) bridge for MvgeOS | `runes/steering-bridge` |
 
 Install via MvgeOS CLI:
+
 ```bash
-mvgeos mvge install coding_mvge
+mvgeos rune install openrouter-realm --confirm-python-deps
 ```
 
-## Available Runes (Extensions)
-
-| Rune | Version | Description | Path |
-| --- | --- | --- | --- |
-| `openrouter-realm` | `0.1.0` | Official OpenRouter provider realm for MvgeOS | `runes/openrouter-realm` |
-| `opencode-realm` | `0.1.0` | Official OpenCode Zen provider realm for MvgeOS | `runes/opencode-realm` |
-| `heal-my-goap` | `0.1.0` | Zero-token GOAP planning & LLM self-healing Rune | `runes/heal-my-goap` |
-| `seeker` | `0.1.0` | Seeker Protocol - DCI-based discovery | `runes/seeker` |
-| `session-title` | `0.1.0` | Auto-generates session titles with instant fallback and optional LLM upgrade | `runes/session-title` |
-| `mcp-bridge` | `0.1.0` | Official Model Context Protocol (MCP) bridge for MvgeOS | `runes/mcp-bridge` |
-| `opentelemetry-bridge` | `0.1.0` | Official OpenTelemetry GenAI tracing bridge for MvgeOS | `runes/opentelemetry-bridge` |
-| `okf-bridge` | `0.1.0` | Official Open Knowledge Format (OKF v0.2) knowledge bridge for MvgeOS | `runes/okf-bridge` |
-| `adr-bridge` | `0.1.0` | Official Markdown Architectural Decision Records (MADR 3.0) bridge for MvgeOS | `runes/adr-bridge` |
-| `pi-codec` | `0.1.0` | Native Pi session codec (JSONL v3/v4): resume, append, fork, validate | `runes/pi-codec` |
-| `skills-bridge` | `0.1.0` | Official Agent Skills (agentskills.io) and Agent Plugins bridge for MvgeOS | `runes/skills-bridge` |
-| `steering-bridge` | `0.1.0` | Official repository steering (AGENTS.md, .agents protocol) bridge for MvgeOS | `runes/steering-bridge` |
-| `skill-evolution` | `0.3.0` | Persistent experience consolidation and autonomous skill evolution | `runes/skill-evolution` |
-
-Install via MvgeOS CLI:
-```bash
-mvgeos rune install opencode-realm
-```
-
-`openrouter-realm` is the one a first run needs: the engine's default model is
-`openrouter/free`, and the prefix in that slug is the Realm that must serve it.
-It needs an `OPENROUTER_API_KEY`, and no Realm serves a stranger without a
-credential — see [Use another Realm](docs/quickstart.md#use-another-realm).
+`openrouter-realm` is the Realm a first run needs: the engine's default model is
+`openrouter/free`, and the prefix in that slug is the Realm that serves it. It
+requires an `OPENROUTER_API_KEY` — see
+[Use another Realm](docs/quickstart.md#use-another-realm).
 
 ## Structure
 
-```
+```text
 mvgeos-marketplace/
 |-- index.json          # single source of truth: what we publish, and what kind
 |-- marketplace_index.py # reads index.json; the only place the index is parsed
@@ -88,19 +66,21 @@ mvgeos-marketplace/
 |       |-- system_prompt/
 |       `-- runes/
 `-- runes/              # extensions: installed to ~/.agents/extensions/<name>
-    |-- openrouter-realm/
-    |-- opencode-realm/
-    |-- heal-my-goap/
-    |-- seeker/
-    |-- session-title/
-    |-- mcp-bridge/
-    |-- opentelemetry-bridge/
-    |-- okf-bridge/
     |-- adr-bridge/
+    |-- approval-rune/
+    |-- mcp-bridge/
+    |-- okf-bridge/
+    |-- opencode-realm/
+    |-- openrouter-realm/
+    |-- opentelemetry-bridge/
     |-- pi-codec/
+    |-- seeker/
+    |-- selfmod-bridge/
+    |-- session-search/
+    |-- session-title/
+    |-- skill-evolution/
     |-- skills-bridge/
-    |-- steering-bridge/
-    `-- skill-evolution/
+    `-- steering-bridge/
 ```
 
 ### Runes and mvges are different things

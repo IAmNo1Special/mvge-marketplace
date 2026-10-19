@@ -3,12 +3,13 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from mvgeos_core.spells import MvgeSpell, SpellExecutionMode
+from mvgeos_core.abort import AbortSignal
+from mvgeos_core.spells import MvgeSpell, SpellContext, SpellExecutionMode
 from mvgeos_provider.registry import RealmRegistry
 from mvgeos_runes.types import SpellDefinition
 
-from .connector import MCPConnector, MCPTransportError
-from .discovery import MCPConfigDiscovery, MCPServerInfo
+from .connector import MCPConnector
+from .discovery import MCPConfigDiscovery, MCPServerInfo, MCPTransportError
 from .mcp_selector import MCPNLTSelector
 from .paths import missing
 
@@ -62,21 +63,14 @@ class MCPSearchSpell(MvgeSpell):
         self,
         spell_cast_id: str,
         params: dict[str, Any],
-        signal: Any | None = None,
+        signal: AbortSignal | None = None,
         on_update: Any | None = None,
+        ctx: SpellContext | None = None,
+        **kwargs: Any,
     ) -> dict[str, Any]:
         capability = params["capability"]
         max_results = params.get("max_results", 3)
         auto_connect = params.get("auto_connect", True)
-        max_connections = self._cfg.get("max_connections", 5)
-
-        # Check global connection limit
-        if len(self._connections) >= max_connections:
-            return {
-                "serversFound": 0,
-                "servers": [],
-                "error": f"maximum {max_connections} MCP connections reached",
-            }
 
         absent = missing(self._discovery.search_roots)
         if absent:

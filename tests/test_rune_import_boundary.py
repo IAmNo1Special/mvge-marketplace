@@ -567,9 +567,7 @@ def _own_pythonpath(artifact: Artifact) -> list[str]:
     return [str(entry) for entry in entries]
 
 
-def sibling_pythonpath_entries(
-    artifact: Artifact, entries: Iterable[str]
-) -> list[str]:
+def sibling_pythonpath_entries(artifact: Artifact, entries: Iterable[str]) -> list[str]:
     """Declared ``pythonpath`` entries that point at a *sibling* import root.
 
     Split out from the gate so the teeth test can feed it planted entries
@@ -692,9 +690,7 @@ def test_the_module_scope_gate_would_catch_a_regression() -> None:
             "        from mvgeos_agent import Mvge\n"
         ),
     ):
-        violations = module_scope_violations_in_source(
-            legal, "allowed.py", "runtime"
-        )
+        violations = module_scope_violations_in_source(legal, "allowed.py", "runtime")
         assert not violations, f"unexpected violation for {legal!r}: {violations}"
 
 
@@ -711,10 +707,7 @@ def test_the_gate_would_catch_a_regression() -> None:
         # the shape that failed with two collection errors standalone.
         (
             "selfmod-bridge",
-            (
-                "from mvgeos_runes_skills_bridge.parser import "
-                "parse_skill_manifest\n"
-            ),
+            ("from mvgeos_runes_skills_bridge.parser import parse_skill_manifest\n"),
         ),
         # selfmod-bridge/tests/test_chain.py:24-36 -- import_module behind a
         # scoped sys.path insert of the sibling root, worked standalone by
@@ -752,9 +745,7 @@ def test_the_gate_would_catch_a_regression() -> None:
     ]
     for artifact_name, source in cases:
         owner = _artifact_named(artifact_name)
-        violations = violations_in_source(
-            source, "planted.py", "planted", owner.path
-        )
+        violations = violations_in_source(source, "planted.py", "planted", owner.path)
         assert len(violations) == 1, (
             f"expected exactly one violation for {source!r} owned by "
             f"{artifact_name!r}, got {violations}"
@@ -793,12 +784,8 @@ def test_the_gate_allows_engine_packages_and_its_own_package() -> None:
         "mod = importlib.import_module(name)\n",
     ]
     for source in allowed:
-        violations = violations_in_source(
-            source, "allowed.py", "allowed", owner.path
-        )
-        assert not violations, (
-            f"unexpected violation for {source!r}: {violations}"
-        )
+        violations = violations_in_source(source, "allowed.py", "allowed", owner.path)
+        assert not violations, f"unexpected violation for {source!r}: {violations}"
 
 
 def test_only_the_documented_exception_may_import_a_sibling() -> None:
@@ -874,15 +861,11 @@ def test_the_gate_scans_every_artifact() -> None:
         for source in _runtime_sources(artifact)
     }
     tests = {
-        _rel(source)
-        for artifact in artifacts()
-        for source in _artifact_tests(artifact)
+        _rel(source) for artifact in artifacts() for source in _artifact_tests(artifact)
     }
     root_tier = set(_root_test_tier_relpaths())
 
-    assert runtime, (
-        "no artifact runtime modules were scanned; the gate is vacuous"
-    )
+    assert runtime, "no artifact runtime modules were scanned; the gate is vacuous"
     # The declared entry point is the module the engine actually loads, for
     # either kind of artifact (a Rune's rune.py, an Mvge's mvge.py), so assert
     # on that rather than on the filename: it is the module a sibling import
@@ -930,8 +913,7 @@ def test_no_artifact_puts_a_sibling_on_its_own_pythonpath() -> None:
             artifact, _own_pythonpath(artifact)
         ):
             offenders.append(
-                f"{artifact.relative_path}/pyproject.toml puts "
-                f"{offending}"
+                f"{artifact.relative_path}/pyproject.toml puts {offending}"
             )
     assert not offenders, (
         "A Rune's standalone suite must resolve only its own package. These "
@@ -966,7 +948,7 @@ def test_the_pythonpath_check_would_catch_a_regression() -> None:
         [".", "../pi-codec"],
         ["../skills-bridge"],
         [".", "../../runes/steering-bridge"],
-        ["../heal-my-goap"],
+        ["../seeker"],
     ):
         found = sibling_pythonpath_entries(session_search, planted)
         assert len(found) == 1, (

@@ -3,7 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from mvgeos_core.spells import MvgeSpell, SpellExecutionMode
+from mvgeos_core.abort import AbortSignal
+from mvgeos_core.spells import MvgeSpell, SpellContext, SpellExecutionMode
 from mvgeos_provider.registry import RealmRegistry
 
 from .dci_matcher import (
@@ -59,8 +60,10 @@ class SkillSearchSpell(MvgeSpell):
         self,
         spell_cast_id: str,
         params: dict[str, Any],
-        signal: Any | None = None,
+        signal: AbortSignal | None = None,
         on_update: Any | None = None,
+        ctx: SpellContext | None = None,
+        **kwargs: Any,
     ) -> dict[str, Any]:
         task = params.get("task", "")
         if not task:

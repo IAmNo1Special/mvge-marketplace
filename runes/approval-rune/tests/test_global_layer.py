@@ -25,9 +25,7 @@ from mvgeos_runes_approval_rune.policy import DenyRule
 
 
 @pytest.fixture
-def relocated_global(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> Path:
+def relocated_global(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Point the global ``.agents`` layer at a temp root for one test."""
     # Deliberately local rather than shared from the repository root:
     # each rune is an independently installable, independently testable
@@ -38,9 +36,8 @@ def relocated_global(
     monkeypatch.setenv(GLOBAL_DIR_ENV, str(root))
     return root
 
+
 INSTALL_ID = "install-1"
-
-
 
 
 def test_default_data_dir_follows_the_global_layer(

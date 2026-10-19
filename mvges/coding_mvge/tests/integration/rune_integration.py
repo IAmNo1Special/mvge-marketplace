@@ -35,6 +35,7 @@ class _TestSpell(SpellDefinition):
         params: dict[str, Any],
         signal: Any | None = None,
         on_update: Any | None = None,
+        ctx: Any = None,
     ) -> dict[str, Any]:
         self.executed = True
         self.last_params = params

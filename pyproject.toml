@@ -31,7 +31,6 @@ testpaths = [
     "runes/openrouter-realm/tests",
     "runes/opencode-realm/tests",
     "runes/seeker/tests",
-    "runes/heal-my-goap/tests",
     "runes/mcp-bridge/tests",
     "runes/opentelemetry-bridge/tests",
     "runes/okf-bridge/tests",
@@ -43,6 +42,11 @@ testpaths = [
     "runes/skill-evolution/tests",
     "mvges/coding_mvge/tests",
     "runes/session-search/tests",
+    "runes/submvge-bridge/tests",
+    "runes/checkpoint-bridge/tests",
+    "runes/lsp-bridge/tests",
+    "runes/codeact-rune/tests",
+    "runes/eval-bridge/tests",
 ]
 python_files = "*.py"
 pythonpath = [
@@ -50,7 +54,6 @@ pythonpath = [
     "runes/openrouter-realm",
     "runes/opencode-realm",
     "runes/seeker",
-    "runes/heal-my-goap",
     "runes/mcp-bridge",
     "runes/opentelemetry-bridge",
     "runes/okf-bridge",
@@ -62,6 +65,11 @@ pythonpath = [
     "runes/selfmod-bridge",
     "runes/skill-evolution",
     "runes/session-search",
+    "runes/submvge-bridge",
+    "runes/checkpoint-bridge",
+    "runes/lsp-bridge",
+    "runes/codeact-rune",
+    "runes/eval-bridge",
 ]
 addopts = "--import-mode=importlib"
 

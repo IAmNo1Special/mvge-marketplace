@@ -174,9 +174,7 @@ def read_skill_frontmatter(skill_dir: Path) -> SkillFrontmatter:
     # A loader validates the name and warns when it disagrees with the
     # directory; selfmod derives the directory from the same value, so a
     # mismatch is a selfmod defect, never a tolerated warning.
-    assert SKILL_NAME_REGEX.match(name), (
-        f"name {name!r} does not match {SKILL_NAME_REGEX.pattern}"
-    )
+    assert SKILL_NAME_REGEX.match(name), f"name {name!r} does not match {SKILL_NAME_REGEX.pattern}"
     assert name == skill_dir.name, (
         f"frontmatter name {name!r} does not match directory {skill_dir.name!r}"
     )

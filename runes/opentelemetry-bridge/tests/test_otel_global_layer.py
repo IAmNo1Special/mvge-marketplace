@@ -14,14 +14,11 @@ from pathlib import Path
 
 import pytest
 from mvgeos_core import GLOBAL_DIR_ENV, global_agents_dir
-
 from mvgeos_runes_opentelemetry_bridge.config import load_otel_config
 
 
 @pytest.fixture
-def relocated_global(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> Path:
+def relocated_global(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Point the global ``.agents`` layer at a temp root for one test."""
     # Deliberately local rather than shared from the repository root:
     # each rune is an independently installable, independently testable
@@ -31,6 +28,7 @@ def relocated_global(
     root = tmp_path / "global"
     monkeypatch.setenv(GLOBAL_DIR_ENV, str(root))
     return root
+
 
 _ENV_OVERRIDES = (
     "OTEL_SERVICE_NAME",
@@ -45,8 +43,6 @@ def _clear_env_overrides(monkeypatch: pytest.MonkeyPatch) -> None:
     """Env vars win over files, so they must not leak into these tests."""
     for name in _ENV_OVERRIDES:
         monkeypatch.delenv(name, raising=False)
-
-
 
 
 def test_global_config_is_read_from_the_relocated_layer(
@@ -73,9 +69,7 @@ def test_global_config_defaults_to_home_without_the_override(
     assert load_otel_config(cwd=None, global_dir=None).service_name == "mvgeos"
 
 
-def test_explicit_global_dir_still_wins(
-    relocated_global: Path, tmp_path: Path
-) -> None:
+def test_explicit_global_dir_still_wins(relocated_global: Path, tmp_path: Path) -> None:
     """An explicit directory keeps priority over the resolved default.
 
     The fix changes the fallback, not the override, so callers that already

@@ -135,7 +135,6 @@ Spells, CLI commands, shortcuts, and Realms.
 | --- | --- |
 | [ADR Bridge](runes/adr-bridge.md) | MADR 3.0 architectural decision records: scaffold, validate, and inject decisions into the prompt |
 | [Approval Rune](runes/approval-rune.md) | Fail-closed execution gate — pauses every uncovered mutating Spell cast for a human |
-| [heal-my-goap](runes/heal-my-goap.md) | Zero-token GOAP planning with LLM-powered self-healing when Spells fail or go missing |
 | [MCP Bridge](runes/mcp-bridge.md) | Model Context Protocol client — mounts MCP servers as Spells |
 | [OKF Bridge](runes/okf-bridge.md) | Open Knowledge Format (v0.2) knowledge bundles + ADR parsing, injected into context |
 | [OpenCode Realm](runes/opencode-realm.md) | Provider Realm for the OpenCode Zen gateway, including its free models |

@@ -134,10 +134,14 @@ def _selfmod_rune(tmp_path: Path) -> SelfmodBridgeRune:
 
 def _steering_rune(tmp_path: Path) -> SteeringBridgeRune:
     """A real steering-bridge rune that will emit a ``<project_context>`` section."""
-    (tmp_path / "AGENTS.md").write_text("# Workspace rules\n\nBe kind.\n", encoding="utf-8")
+    (tmp_path / "AGENTS.md").write_text(
+        "# Workspace rules\n\nBe kind.\n", encoding="utf-8"
+    )
     global_dir = tmp_path / "global"
     global_dir.mkdir()
-    (global_dir / "AGENTS.md").write_text("# Global\n\nGlobal standard.\n", encoding="utf-8")
+    (global_dir / "AGENTS.md").write_text(
+        "# Global\n\nGlobal standard.\n", encoding="utf-8"
+    )
 
     api = _stub_api()
     api.context.cwd = str(tmp_path)
@@ -191,8 +195,13 @@ async def test_two_real_runes_chain_in_registration_order(
     for handler in handlers:
         runner.register_handler(SigilHook.BEFORE_MVGE_START, handler)
 
-    result = await runner.emit_chain(SigilHook.BEFORE_MVGE_START, _payload_dict(tmp_path))
-    prompt = result.base_prompt
+    from mvgeos_runes.types import BeforeMvgeStartData
+
+    payload = BeforeMvgeStartData(**_payload_dict(tmp_path))
+    result = await runner.emit_chain(SigilHook.BEFORE_MVGE_START, payload)
+    prompt = (
+        result.base_prompt if hasattr(result, "base_prompt") else result["base_prompt"]
+    )
 
     assert "engine base" in prompt
     steering_idx = prompt.find("Steering")

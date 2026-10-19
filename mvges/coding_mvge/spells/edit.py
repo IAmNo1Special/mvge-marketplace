@@ -31,6 +31,7 @@ async def edit(path: str, old_string: str, new_string: str) -> SpellResult:
             spell_name="edit",
             status=SpellStatus.SUCCESS,
             content=f"Updated {path}",
+            details={"path": str(path)},
         )
     except _EditTargetNotFoundError:
         return SpellResult(

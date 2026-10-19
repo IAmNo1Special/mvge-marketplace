@@ -6,54 +6,88 @@ from mvgeos_core import extensions_dir
 from mvgeos_provider.registry import RealmRegistry
 from mvgeos_runes.rune_api import RuneAPI
 from mvgeos_runes.types import SigilHook
+from mvgeos_runes_seeker.activate_spell import ActivateSpell
+from mvgeos_runes_seeker.discovery import MCPConfigDiscovery
+from mvgeos_runes_seeker.ledger import SeekerLedger
 from mvgeos_runes_seeker.mcp_spell import MCPSearchSpell
 from mvgeos_runes_seeker.skill_execute import SkillExecuteSpell
 from mvgeos_runes_seeker.skill_spell import SkillSearchSpell
-from mvgeos_runes_seeker.spell import ToolSearchSpell
+from mvgeos_runes_seeker.spell import SearchSpell, ToolSearchSpell
+from mvgeos_runes_seeker.unload_spell import UnloadSpell
 
 
 def rune_factory(api: RuneAPI) -> None:
     provider_registry = RealmRegistry()
     runner = api._runner
     agent_name = getattr(runner.context, "agent_name", "coding-agent")
-
-    # Get API key from agent context
     api_key = getattr(runner.context, "api_key", "")
 
-    # Tool Search Spell
+    ledger = SeekerLedger()
+    connections: dict[str, Any] = {}
+    mcp_roots = [extensions_dir()]
+    mcp_discovery = MCPConfigDiscovery(search_roots=mcp_roots)
+
+    # 1. Unified 4 Meta-Spells
+    search_spell = SearchSpell(
+        provider_registry=provider_registry,
+        agent_name=agent_name,
+        nlt_api_key=api_key,
+        rune_api=api,
+        ledger=ledger,
+        mcp_roots=mcp_roots,
+    )
+
+    activate_spell = ActivateSpell(
+        rune_api=api,
+        ledger=ledger,
+        spell_registry=search_spell.spells_root,
+        discovery=mcp_discovery,
+        connections=connections,
+    )
+
+    execute_spell = SkillExecuteSpell(
+        provider_registry=provider_registry,
+        agent_name=agent_name,
+        nlt_api_key=api_key,
+        ledger=ledger,
+        name="execute",
+    )
+
+    unload_spell = UnloadSpell(
+        rune_api=api,
+        ledger=ledger,
+        connections=connections,
+    )
+
+    # 2. Legacy Spells for backward compatibility
     tool_search = ToolSearchSpell(
         provider_registry=provider_registry,
         agent_name=agent_name,
         nlt_api_key=api_key,
         rune_api=api,
+        ledger=ledger,
     )
 
-    # Skill Search Spell
     skill_search = SkillSearchSpell(
         provider_registry=provider_registry,
         agent_name=agent_name,
         nlt_api_key=api_key,
     )
 
-    # Skill Execute Spell
-    skill_execute = SkillExecuteSpell(
+    legacy_skill_execute = SkillExecuteSpell(
         provider_registry=provider_registry,
         agent_name=agent_name,
         nlt_api_key=api_key,
+        ledger=ledger,
+        name="skill_execute",
     )
 
-    # MCP Search Spell
     mcp_search = MCPSearchSpell(
         provider_registry=provider_registry,
         rune_runner=runner,
         rune_api=api,
         config={
-            # The user-scope Rune layer, from the engine's own resolver.
-            # Naming a directory here that the engine never writes to is how
-            # mcp_search spent its life returning zero on a system where
-            # every Rune was installed correctly.
-            "search_roots": [extensions_dir()],
-            "max_connections": 5,
+            "search_roots": mcp_roots,
             "nlt_model": "openrouter/free",
             "nlt_api_key": api_key,
             "timeout": {
@@ -65,32 +99,83 @@ def rune_factory(api: RuneAPI) -> None:
         },
     )
 
+    # Register all spells on api
+    api.register_spell(search_spell)
+    api.register_spell(activate_spell)
+    api.register_spell(execute_spell)
+    api.register_spell(unload_spell)
+
     api.register_spell(tool_search)
     api.register_spell(skill_search)
-    api.register_spell(skill_execute)
+    api.register_spell(legacy_skill_execute)
     api.register_spell(mcp_search)
 
-    # Register shutdown handler to clean up MCP connections
-
+    # Clean up connections on session shutdown
     async def close_mcp_connections(data: dict[str, Any]) -> None:
-        if hasattr(mcp_search, "_connections"):
-            for conn in mcp_search._connections.values():
+        for conn in list(connections.values()):
+            if hasattr(conn, "close"):
                 await conn.close()
+        connections.clear()
+        if hasattr(mcp_search, "_connections"):
+            for conn in list(mcp_search._connections.values()):
+                await conn.close()
+            mcp_search._connections.clear()
 
     api.on(SigilHook.SESSION_SHUTDOWN, close_mcp_connections)
 
-    # Seeker hides-all mode. The engine seeds the per-rune active set with
-    # every registered rune spell by default; we narrow our own entry here
-    # so only the meta-tools appear initially. The engine additionally
-    # narrows the engine-owned global allowlist (checked by
-    # Mvge._build_spells for builtins + all runes) to this rune's spells
-    # because the manifest declares "spell_gateway": true -- so the model is
-    # only aware of Seeker meta-tools and surfaces everything else through
-    # discovery. Discovered tools widen the allowlist again via
-    # RuneAPI.widen_global_allowlist (additive-only; runes can never replace
-    # or drop the engine's filter).
-    # Mirrors upstream Pi's setActiveTools called from a session_start hook.
-    meta_spells = ["tool_search", "skill_search", "skill_execute", "mcp_search"]
+    # Track last active turn of used spells
+    async def on_after_spell_result(data: dict[str, Any]) -> None:
+        spell_name = data.get("spell_name")
+        if spell_name:
+            ledger.last_active_turn[spell_name] = ledger.current_turn
+
+    api.on(SigilHook.AFTER_SPELL_RESULT, on_after_spell_result)
+
+    # Idle TTL Eviction on TURN_END
+    async def on_turn_end(data: dict[str, Any]) -> None:
+        ledger.current_turn += 1
+        idle_turn_ttl = 8
+        allowlist = api.get_global_spell_allowlist()
+        if allowlist is None:
+            return
+
+        gateway_spells = set(runner.gateway_spell_names())
+        evictable: list[str] = []
+        for name in allowlist:
+            if name in gateway_spells:
+                continue
+            last_turn = ledger.last_active_turn.get(name, 0)
+            if ledger.current_turn - last_turn >= idle_turn_ttl:
+                evictable.append(name)
+
+        if evictable:
+            api.narrow_global_allowlist(evictable)
+            # If all tools of a connected MCP server are evicted, close it
+            for s_name in list(connections.keys()):
+                server_prefix = f"mcp_{s_name}_"
+                remaining_tools = [
+                    s
+                    for s in (api.get_global_spell_allowlist() or [])
+                    if s.startswith(server_prefix)
+                ]
+                if not remaining_tools:
+                    conn = connections.pop(s_name, None)
+                    if conn is not None and hasattr(conn, "close"):
+                        await conn.close()
+
+    api.on(SigilHook.TURN_END, on_turn_end)
+
+    # Initial meta spells surfaced to the model
+    meta_spells = [
+        "search",
+        "activate",
+        "execute",
+        "unload",
+        "tool_search",
+        "skill_search",
+        "skill_execute",
+        "mcp_search",
+    ]
 
     def activate_seeker_meta_tools(_data: dict[str, Any]) -> None:
         api.set_active_spells(meta_spells)

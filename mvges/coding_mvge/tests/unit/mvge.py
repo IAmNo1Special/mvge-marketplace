@@ -13,7 +13,6 @@ from coding_mvge.spells import (
     read,
     write,
 )
-from mvgeos_core.constants import DEFAULT_AGENT_NAME
 from mvgeos_agent import (
     FunctionSpell,
     Mvge,
@@ -24,7 +23,7 @@ from mvgeos_core.channel import (
     MvgeResponse,
     StopReason,
 )
-from mvgeos_core.constants import DEFAULT_MODEL
+from mvgeos_core.constants import DEFAULT_AGENT_NAME, DEFAULT_MODEL
 from mvgeos_core.events import ContemplationLevel
 from mvgeos_runes.types import SpellDefinition
 
@@ -466,7 +465,7 @@ class TestMvgeSwitchModel:
                 await agent.switch_model("unknown/model")
 
             assert agent.tome_id == tome_before
-            assert agent._model_id == "unknown/model"
+            assert agent._model_id == DEFAULT_MODEL
             assert agent._model is not None
             assert agent._model.id == DEFAULT_MODEL
             await agent.close()
@@ -555,6 +554,7 @@ class TestMvgeToolCalls:
                         )
 
             agent._realm = FakeRealm()  # type: ignore[assignment]
+            agent.harness.set_model_and_realm(agent._model, agent._realm)
 
             result = await agent.run("run echo")
 
@@ -602,13 +602,8 @@ class TestMvgeToolCalls:
                         yield
 
             agent._realm = CaptureRealm()  # type: ignore[assignment]
-            stream_fn = agent._make_stream_fn(
-                agent._model,  # type: ignore[arg-type]
-                agent._realm,  # type: ignore[arg-type]
-                agent.harness.state,
-                0.7,
-                4096,
-            )
+            agent.harness.set_model_and_realm(agent._model, agent._realm)
+            stream_fn = agent.harness._make_stream_fn()
 
             async for _ in stream_fn(agent.harness.state.invocations):
                 pass
@@ -670,7 +665,9 @@ class TestBuildSystemPrompt:
                 "Loaded from file.", encoding="utf-8"
             )
             env = MvgeEnvironment.resolve(
-                DEFAULT_AGENT_NAME, config_dir=config_dir, allow_unknown_agent=True
+                DEFAULT_AGENT_NAME,
+                config_dir=config_dir,
+                allow_unknown_agent=True,
             )
             prompt = MvgeEnvironment.render_prompt(
                 env.resolved_prompt.text,

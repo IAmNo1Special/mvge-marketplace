@@ -32,11 +32,19 @@ async def test_seeker_rune_load() -> None:
     assert "skill_search" in spells
     assert "skill_execute" in spells
     assert "mcp_search" in spells
+    assert "search" in spells
+    assert "activate" in spells
+    assert "execute" in spells
+    assert "unload" in spells
     assert runner.get_active_spells() == [
+        "activate",
+        "execute",
         "mcp_search",
+        "search",
         "skill_execute",
         "skill_search",
         "tool_search",
+        "unload",
     ]
 
 
@@ -57,10 +65,14 @@ async def test_seeker_declares_spell_gateway() -> None:
     await runner.load_rune_loads([RuneLoad(manifest=manifest, factory=factory)])
     assert runner.gateway_rune_name == "seeker"
     assert runner.gateway_spell_names() == [
+        "activate",
+        "execute",
         "mcp_search",
+        "search",
         "skill_execute",
         "skill_search",
         "tool_search",
+        "unload",
     ]
 
 

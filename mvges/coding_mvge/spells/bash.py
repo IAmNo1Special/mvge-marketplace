@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import BinaryIO
 
 from mvgeos_core.spells import (
+    SpellContext,
     SpellResult,
     SpellStatus,
 )
@@ -131,6 +132,7 @@ async def bash(
     cwd: str | None = None,
     timeout_ms: int | None = None,
     workspace_root: str | Path | None = None,
+    ctx: SpellContext | None = None,
 ) -> SpellResult:
     """Execute a shell command with working directory confinement and timeout.
 
@@ -142,6 +144,13 @@ async def bash(
     On Windows, commands run via PowerShell.
     On Unix/macOS, commands run via default shell.
     """
+    if (
+        workspace_root is None
+        and ctx is not None
+        and ctx.workspace_root is not None
+    ):
+        workspace_root = ctx.workspace_root
+
     try:
         resolved_root = resolve_workspace_root(workspace_root)
         target_cwd = validate_working_directory(cwd, resolved_root)

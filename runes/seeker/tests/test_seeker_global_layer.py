@@ -16,14 +16,11 @@ from pathlib import Path
 
 import pytest
 from mvgeos_core import GLOBAL_DIR_ENV, global_agents_dir, skills_dir
-
 from mvgeos_runes_seeker.dci_matcher import _get_skill_roots
 
 
 @pytest.fixture
-def relocated_global(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> Path:
+def relocated_global(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Point the global ``.agents`` layer at a temp root for one test."""
     # Deliberately local rather than shared from the repository root:
     # each rune is an independently installable, independently testable
@@ -33,8 +30,6 @@ def relocated_global(
     root = tmp_path / "global"
     monkeypatch.setenv(GLOBAL_DIR_ENV, str(root))
     return root
-
-
 
 
 def test_user_skill_root_follows_the_relocated_layer(
@@ -65,8 +60,7 @@ def test_user_skill_root_is_not_read_from_the_real_home_layer(
         "run reads a directory the user did not relocate"
     )
     assert all(
-        not path.is_relative_to(Path.home()) or path.name == "skills"
-        for path in roots
+        not path.is_relative_to(Path.home()) or path.name == "skills" for path in roots
     )
 
 

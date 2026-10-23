@@ -2,9 +2,19 @@
   "name": "checkpoint-bridge",
   "version": "0.1.0",
   "description": "Shadow-git workspace checkpoints, atomic leaf restoration, and file rollbacks",
-  "types": ["Spell"],
+  "types": ["Spell", "UICanvasTab"],
   "runtime": "python",
   "entry_point": "rune.py",
+  "ui": {
+    "canvas_tabs": [
+      {
+        "id": "review",
+        "title": "Review",
+        "icon": "rate_review",
+        "order": 10
+      }
+    ]
+  },
   "python_deps": [],
   "enabled": true
 }

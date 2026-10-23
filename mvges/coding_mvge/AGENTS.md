@@ -18,18 +18,18 @@ This package implements the concrete coding agent: `root_mvge = Mvge(name="codin
 
 ```bash
 # Run this package's tests
-uv run python -m pytest coding-mvge/tests/
+uv run python -m pytest mvges/coding_mvge/tests/
 
 # Run with coverage
-uv run python -m pytest coding-mvge/tests/ --cov
+uv run python -m pytest mvges/coding_mvge/tests/ --cov
 ```
 
-Test paths follow pattern: `coding-mvge/tests/unit/<module>.py` and `coding-mvge/tests/integration/<module>.py`
+Test paths follow pattern: `mvges/coding_mvge/tests/unit/<module>.py` and `mvges/coding_mvge/tests/integration/<module>.py`
 
 ## Structure
 
 ```text
-coding-mvge/src/coding_mvge/
+mvges/coding_mvge/
 ├── __init__.py         # Re-exports root_mvge
 ├── mvge.py             # Instantiates root_mvge = Mvge(name="coding_mvge")
 ├── system_prompt/      # Layer 1 persona instructions and guidelines
@@ -45,6 +45,8 @@ coding-mvge/src/coding_mvge/
 │   ├── find.py
 │   ├── list_files.py
 │   ├── grep.py
+│   ├── read_url.py
+│   ├── search_web.py
 │   └── _process_tree.py
 ├── skills/             # On-demand agent skills
 │   └── AGENTS.md       # Skill authoring guide
@@ -63,6 +65,8 @@ coding-mvge/src/coding_mvge/
 | `grep` | `spells/grep.py` | Search file contents with regex |
 | `find` | `spells/find.py` | Find files by glob pattern |
 | `list_files` | `spells/list_files.py` | List directory contents |
+| `read_url` | `spells/read_url.py` | Fetch web pages as plain text/markdown |
+| `search_web` | `spells/search_web.py` | Search the web using DuckDuckGo/searxng |
 
 ## Dependencies
 

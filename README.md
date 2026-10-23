@@ -24,6 +24,10 @@ mvgeos mvge install coding_mvge
 | --- | --- | --- | --- |
 | `adr-bridge` | `0.1.0` | Official Markdown Architectural Decision Records (MADR 3.0) bridge for MvgeOS | `runes/adr-bridge` |
 | `approval-rune` | `0.1.0` | Fail-closed execution gate: pauses every uncovered mutating spell cast until the user approves it, with scoped persistent grants, deny rules, and a durable audit trail | `runes/approval-rune` |
+| `checkpoint-bridge` | `0.1.0` | Shadow-git workspace checkpoints, atomic leaf restoration, and file rollbacks | `runes/checkpoint-bridge` |
+| `codeact-rune` | `0.1.0` | CodeAct Python executor with AST safety, tool write-protection, and auto-dispatch | `runes/codeact-rune` |
+| `eval-bridge` | `0.1.0` | Evaluation harness and RL data exporter compatible with google/adk-python evalsets | `runes/eval-bridge` |
+| `lsp-bridge` | `0.1.0` | LSP diagnostics bridge providing debounced compiler errors on edit and write | `runes/lsp-bridge` |
 | `mcp-bridge` | `0.1.0` | Official Model Context Protocol (MCP) bridge for MvgeOS | `runes/mcp-bridge` |
 | `okf-bridge` | `0.2.0` | Official Open Knowledge Format (OKF v0.2) knowledge bridge for MvgeOS | `runes/okf-bridge` |
 | `opencode-realm` | `0.1.0` | Official OpenCode Zen provider realm for MvgeOS | `runes/opencode-realm` |
@@ -37,6 +41,7 @@ mvgeos mvge install coding_mvge
 | `skill-evolution` | `0.3.0` | Persistent experience consolidation and autonomous skill evolution: harvests raw experience, consolidates durable patterns, and proposes or applies agent-scoped skills | `runes/skill-evolution` |
 | `skills-bridge` | `0.1.0` | Official Agent Skills (agentskills.io) and Agent Plugins bridge for MvgeOS | `runes/skills-bridge` |
 | `steering-bridge` | `0.1.0` | Official repository steering (AGENTS.md, .agents protocol) bridge for MvgeOS | `runes/steering-bridge` |
+| `submvge-bridge` | `0.1.0` | Kernel sub-Mvge summoning, persistent sub-sessions, and reactive wakeup bridge | `runes/submvge-bridge` |
 
 Install via MvgeOS CLI:
 
@@ -68,6 +73,10 @@ mvgeos-marketplace/
 `-- runes/              # extensions: installed to ~/.agents/extensions/<name>
     |-- adr-bridge/
     |-- approval-rune/
+    |-- checkpoint-bridge/
+    |-- codeact-rune/
+    |-- eval-bridge/
+    |-- lsp-bridge/
     |-- mcp-bridge/
     |-- okf-bridge/
     |-- opencode-realm/
@@ -80,7 +89,8 @@ mvgeos-marketplace/
     |-- session-title/
     |-- skill-evolution/
     |-- skills-bridge/
-    `-- steering-bridge/
+    |-- steering-bridge/
+    `-- submvge-bridge/
 ```
 
 ### Runes and mvges are different things

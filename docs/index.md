@@ -7,9 +7,11 @@ MvgeOS is an operating system for AI agents, written in Python. A Mvge — the
 agent — casts Spells against models served by Realms. Conversations persist as
 Tomes. Capabilities extend through Runes.
 
-There is no account to create and no telemetry in the engine. One default model
-*is* baked in, and it runs with no credential at all — so your first task needs
-no key. To use another provider, bring the key for the Realm you want.
+There is no account to create with MvgeOS and no telemetry in the engine.
+The default model (`openrouter/free`) is free of per-token charges, and requires
+an `OPENROUTER_API_KEY` because as of 2026-10-11 no free tier answers an
+unauthenticated request (ADR-0020). To use another provider, bring the key for
+the Realm you want.
 
 ```bash
 uvx mvgeos --help
@@ -29,11 +31,14 @@ uvx mvgeos --help
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```
 
-Three commands and about thirty seconds gets you from nothing to a running Mvge:
+Four commands and under a minute gets you from nothing to a running Mvge:
 
 ```bash
+# 0. the key — required for the free router since ADR-0020
+export OPENROUTER_API_KEY="sk-or-..."
+
 # 1. the Realm — how MvgeOS reaches a model
-uvx mvgeos rune install opencode-realm --confirm-python-deps
+uvx mvgeos rune install openrouter-realm --confirm-python-deps
 
 # 2. the Mvge — carries the Spells
 uvx mvgeos mvge install coding_mvge
@@ -42,8 +47,7 @@ uvx mvgeos mvge install coding_mvge
 uvx mvgeos --agent-name coding_mvge "summarise the README in this directory"
 ```
 
-There is no credential step, because there is nothing to authenticate. The
-[Quickstart](quickstart.md) walks through it with real output, and
+The [Quickstart](quickstart.md) walks through it with real output, and
 [Use another Realm](quickstart.md#use-another-realm) covers the case where you
 already pay for a provider.
 
@@ -55,7 +59,7 @@ Spells and Runes it assembled before you spend anything:
 
 ```text
 Agent: coding_mvge
-Model: opencode/space-bunny-free
+Model: openrouter/free
 
                     Spells
 ┏━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -72,7 +76,7 @@ Model: opencode/space-bunny-free
 ```
 
 The `Model:` line is the model you get with no configuration, and its prefix is
-the Realm — `opencode`, which is why step 1 above installs `opencode-realm`.
+the Realm — `openrouter`, which is why step 1 above installs `openrouter-realm`.
 Swap the Realm and the model comes with it.
 
 - **Coding Mvge.** Nine built-in Spells — `bash`, `edit`, `find`, `grep`,
@@ -82,7 +86,7 @@ Swap the Realm and the model comes with it.
 - **Tomes.** Every conversation is an append-only JSONL file you can read, diff,
   fork, and export. Not a chat log locked in a database.
 - **Runes.** Mount MCP servers as Spells, trace with OpenTelemetry, wire in
-  Agent Skills, read your `AGENTS.md`, self-modify. Fifteen in the
+  Agent Skills, read your `AGENTS.md`, self-modify. Twenty in the
   [catalog](#rune-catalog).
 - **Realm-agnostic.** The engine programs against a Realm abstraction, not one
   vendor's SDK. Your key goes to the provider you chose and nowhere else.
@@ -101,8 +105,8 @@ Swap the Realm and the model comes with it.
 ## Honest status
 
 - **Pre-1.0.** The current version is on the
-  [Quickstart](quickstart.md#which-version-this-page-describes). The internals are
-  held to a high bar — mypy strict, ruff, roughly 2,200 tests. The command
+  [Quickstart](quickstart.md#checking-your-version). The internals are
+  held to a high bar — mypy strict, ruff, over 3,700 tests. The command
   surface still moves.
 - **The default model call can be refused.** Every command on this site was
   verified on a clean machine, including the task on the
@@ -135,6 +139,10 @@ Spells, CLI commands, shortcuts, and Realms.
 | --- | --- |
 | [ADR Bridge](runes/adr-bridge.md) | MADR 3.0 architectural decision records: scaffold, validate, and inject decisions into the prompt |
 | [Approval Rune](runes/approval-rune.md) | Fail-closed execution gate — pauses every uncovered mutating Spell cast for a human |
+| [Checkpoint Bridge](runes/checkpoint-bridge.md) | Shadow-git workspace checkpoints, atomic leaf restoration, and file rollbacks |
+| [CodeAct Rune](runes/codeact-rune.md) | CodeAct Python executor with AST safety, tool write-protection, and auto-dispatch |
+| [Eval Bridge](runes/eval-bridge.md) | Evaluation harness and RL data exporter compatible with google/adk-python evalsets |
+| [LSP Bridge](runes/lsp-bridge.md) | LSP diagnostics bridge providing debounced compiler errors on edit and write |
 | [MCP Bridge](runes/mcp-bridge.md) | Model Context Protocol client — mounts MCP servers as Spells |
 | [OKF Bridge](runes/okf-bridge.md) | Open Knowledge Format (v0.2) knowledge bundles + ADR parsing, injected into context |
 | [OpenCode Realm](runes/opencode-realm.md) | Provider Realm for the OpenCode Zen gateway, including its free models |
@@ -148,6 +156,7 @@ Spells, CLI commands, shortcuts, and Realms.
 | [Skill Evolution](runes/skill-evolution.md) | Persistent experience consolidation and autonomous Skill evolution |
 | [Skills Bridge](runes/skills-bridge.md) | Agent Skills / Agent Plugins discovery with progressive disclosure |
 | [Steering Bridge](runes/steering-bridge.md) | Repository steering via `AGENTS.md`, layered into the system prompt |
+| [Sub-Mvge Bridge](runes/submvge-bridge.md) | Kernel sub-Mvge summoning, persistent sub-sessions, and reactive wakeup bridge |
 
 Install any of them with `mvgeos rune install <name>`.
 

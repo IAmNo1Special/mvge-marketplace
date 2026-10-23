@@ -7,11 +7,13 @@ Questions a new user asks, answered without hedging. Where the honest answer is
 
 ### Do I need an API key to run my first task?
 
-No. The default Realm's free tier is served without a credential, so there is no
-authentication step between installing the Mvge and running a task. You need
-`uv` and nothing else.
+Yes. The default model (`openrouter/free`) is served via OpenRouter, which requires an API key even for free models. Getting an API key is free: sign up at [openrouter.ai](https://openrouter.ai), generate a key in settings, and set `OPENROUTER_API_KEY`:
 
-A key is what you bring when you want a Realm you already pay for — see
+```bash
+export OPENROUTER_API_KEY="sk-or-v1-..."
+```
+
+(Or pass `--api-key`). No credential file is written to disk when using the environment variable. If you use a different provider (OpenCode Zen, etc.), you provide that provider's key instead — see
 [Use another Realm](quickstart.md#use-another-realm).
 
 ### `uvx mvgeos` does not work. Why is the install line so long?
@@ -49,30 +51,23 @@ want — a different Realm or a different Mvge without touching the engine.
 
 ### Do I need an OpenRouter account?
 
-Not for the first run. The default Realm is OpenCode Zen, whose free tier answers
-with no credential, so the quickstart's three commands need no account at all.
+Yes, for the default model (`openrouter/free`). Creating an account is free and grants access to OpenRouter's free-tier models (up to 50 requests per day per account).
 
-You need a key only for a Realm that asks for one. OpenRouter is the obvious
-candidate if you want one key across many models; if you already pay for a
-provider directly, install that provider's Realm — that is the point of the
-abstraction. See
+If you already pay for another provider directly (or prefer OpenCode Zen), install that provider's Realm and provide their credentials instead — that is the point of the abstraction. See
 [Use another Realm](quickstart.md#use-another-realm).
 
 ### Which Realm do I need?
 
-The one whose prefix matches your model's slug, and the default model's prefix is
-`opencode`. Install `opencode-realm`. If you install `openrouter-realm` instead
-and run with the default model, you get a working engine that cannot reach its
-own default:
+The one whose prefix matches your model's slug. The default model's prefix is
+`openrouter` (`openrouter/free`). Install `openrouter-realm` (or run `mvgeos setup --profile coding` which installs it along with `coding_mvge`). If you install `opencode-realm` instead and run with the default model, you get a working engine that cannot reach its own default:
 
 ```text
-Error: No Realm factory registered for model 'opencode/space-bunny-free'.
+Error: No Realm factory registered for model 'openrouter/free'. Run 'mvgeos rune install openrouter-realm' to install it from the central marketplace.
 ```
 
 ### Which model should I use?
 
-The one you get by default — a free `opencode/space-bunny-free` — unless you
-have a reason. Check which one you actually got:
+The one you get by default — `openrouter/free` — unless you have a reason. Check which one you actually got:
 
 ```bash
 mvgeos info --agent-name coding_mvge
@@ -82,15 +77,18 @@ The `Model:` line is the answer. Override it with `-m`, and remember the prefix
 in the slug names the Realm that has to serve it:
 
 ```bash
-mvgeos --agent-name coding_mvge -m "opencode/space-bunny-free" "your task"
+mvgeos --agent-name coding_mvge -m "openrouter/free" "your task"
 ```
 
 MvgeOS never proxies your key anywhere except the Realm you installed.
 
 ### It says "free" — why did my run fail?
 
-Because free is shared, and shared means at capacity. On the default Realm you
-get:
+Because free is shared, and shared means at capacity or subject to daily quotas.
+
+On the default OpenRouter Realm, the limit is a daily allowance rather than a busy endpoint: OpenRouter allows **50 free-model requests per day per account**, shared across every model and every app on that account, resetting at **00:00 UTC**. A single Mvge turn spends several invocations, because verifying a result means additional model calls. When the allowance is gone, every free model returns `429 free-models-per-day`. Recent builds report it as `Daily free-model quota exhausted` — a spent allowance, not a transient fault — and add the count and reset time when the provider sent them.
+
+If you are using the OpenCode Zen Realm instead, its free tier may return:
 
 ```text
 Rate limited by the provider: Realm requested 2209s retry delay (max: 60s). Rate
@@ -216,8 +214,8 @@ evolution Rune.
 
 ### How mature is this?
 
-Pre-1.0. Roughly 2,200 tests, mypy strict, ruff. The current version is on
-the [Quickstart](quickstart.md#which-version-this-page-describes) — it moves faster
+Pre-1.0. Over 3,700 tests, mypy strict, ruff. The current version is on
+the [Quickstart](quickstart.md#checking-your-version) — it moves faster
 than this page does, which is why it is named in one place and not here. The
 internals are held to a high bar and the surface is still moving. Expect the command surface
 to change and expect the docs to lag a release or two behind the code — the

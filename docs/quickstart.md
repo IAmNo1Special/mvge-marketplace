@@ -33,7 +33,7 @@ There is no `mvgeos --version` yet — the flag does not exist, so this is how y
 check what you have:
 
 ```console
-$ uv tool list | grep mvgeos-cli
+$ uv tool list | grep mvgeos
 ```
 
 If a command on this page is missing when you run it, you have something older
@@ -55,7 +55,7 @@ release, and the version selector appears here.
 
 !!! warning "Steps 1-3 always work. Step 4 depends on someone else's free tier."
     The install is yours and takes seconds. The model call in step 4 goes through
-    OpenCode Zen's free tier, which is shared and can be at capacity. When it is,
+    OpenRouter's free router (`openrouter/free`), which is shared and can be at capacity. When it is,
     step 4 fails with a rate-limit message and it is not your setup. That is the
     most common reason this page appears broken on day one, and
     [Troubleshooting](troubleshooting.md#rate-limited-by-the-provider)
@@ -164,9 +164,8 @@ Current builds name the Rune to install in that message. Older builds named only
 `openrouter-realm`, which is worse than no remedy — so if you followed an older
 page and installed that one, install this one too.
 
-OpenRouter is a fine Realm and is in the catalog — see
-[Use another Realm](#use-another-realm) — it is just not the one the default
-model needs.
+OpenCode Zen is also in the catalog — see
+[Use another Realm](#use-another-realm) — if you have an OpenCode API key.
 
 `--confirm-python-deps` acknowledges that the Rune's manifest is an instruction
 to fetch packages from PyPI. Read the manifest before you pass it if you would
@@ -223,10 +222,9 @@ Successfully installed mvge 'coding_mvge' to ~/.agents/agents/coding_mvge
 
 ## 4. Run one task
 
-There is no authentication step, and skipping one is not an oversight. The
-default model is a free model on a Realm whose free tier answers with no
-credential at all, so the first task runs as the first command you type. If you
-want a Realm that needs a key instead, that is
+With your key exported in step 0 and `openrouter-realm` installed in step 2,
+your first task runs without prompts or additional configuration. If you
+want a Realm that needs a different key, see
 [Use another Realm](#use-another-realm).
 
 ```bash
@@ -268,7 +266,7 @@ $ ls ~/.agents/
 agents  extensions  sessions
 ```
 
-There is no `auth/`. Nothing asked you for a key, because nothing needed one.
+There is no `auth/`. Step 0 exported the key in your environment, so no credential file was written to disk.
 
 !!! warning "The default free model is the fragile part of this page"
     Every install and inspect command above was verified on a clean machine and
@@ -507,9 +505,9 @@ to fix. What remains true:
   `uvx` spelling costs a few seconds more per command than the installed one.
 
 - **Model choice is narrower than either Realm's live catalog.** `-m` resolves
-  against a static list shipped in the repository, that list is a drifting
-  snapshot, and no `mvgeos` subcommand refreshes it. Real failures are documented
-  under [`Error: Unknown model`](troubleshooting.md#error-unknown-model).
+  against a static list shipped in the repository. You can refresh it from OpenRouter
+  at any time via `mvgeos config refresh-models` (or `--force` to bypass the 24h cache TTL).
+  Real failures are documented under [`Error: Unknown model`](troubleshooting.md#error-unknown-model).
 
 - The Spell bug described in step 4 is open (SOM-23). Until it is fixed, expect
   one extra model round-trip whenever a Mvge checks its own work. It is not
@@ -517,7 +515,7 @@ to fix. What remains true:
 
 - MvgeOS is pre-1.0. The command surface moves, and the version moves faster
   than this page does — see
-  [Which version this page describes](#which-version-this-page-describes).
+  [Checking your version](#checking-your-version).
 
 - Rune code runs **in-process** via `importlib`. A Rune is Python that executes
   inside the engine with your permissions. Read manifests before installing

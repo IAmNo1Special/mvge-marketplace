@@ -5,7 +5,8 @@
   "types": [
     "Sigil",
     "Spell",
-    "Command"
+    "Command",
+    "UIView"
   ],
   "runtime": "python",
   "entry_point": "rune.py",
@@ -18,6 +19,17 @@
   "commands": [
     "skill"
   ],
+  "ui": {
+    "views": [
+      {
+        "id": "skills",
+        "title": "Skills",
+        "icon": "auto_awesome",
+        "order": 50,
+        "description": "Official Agent Skills and Plugins management surface"
+      }
+    ]
+  },
   "python_deps": [
     "pyyaml>=6.0",
     "typer>=0.12"

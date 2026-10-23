@@ -6,8 +6,17 @@ Instead of stuffing every tool description into the prompt, Seeker keeps the mod
 
 ## Spells
 
+### Unified Lifecycle Spells
 | Spell | Description |
-|-------|-------------|
+|---|---|
+| `search` | Unified discovery across available Spells, Skills, and MCP servers. |
+| `activate` | Dynamically activates discovered Spells, Skills, or MCP servers into the active allowlist. |
+| `execute` | Directly executes scripts contained in discovered skill packages. |
+| `unload` | Evicts previously activated Spells, Skills, or MCP servers from the model allowlist. |
+
+### Targeted Discovery Spells
+| Spell | Description |
+|---|---|
 | `tool_search` | Fast ripgrep discovery over available spells, with an exact-match fast path. |
 | `skill_search` | Search agent skills without vector databases or embeddings. |
 | `skill_execute` | Execute scripts contained in discovered skill packages. |
@@ -19,7 +28,7 @@ Seeker declares `"spell_gateway": true` in its manifest, which makes it the engi
 
 ## Hooks
 
-`session_start`, `session_shutdown`.
+`session_start`, `session_shutdown`, `turn_end`, `after_spell_result`.
 
 ## Prerequisites
 

@@ -42,33 +42,32 @@ The `mvgeos` **command** lives in the `mvgeos-cli` subdirectory of the
 monorepo, which is why that path ends in `#subdirectory=mvgeos-cli`. Drop that
 part and you get this error, or a confusing failure deep in a build.
 
-### `No Realm factory registered for model 'opencode/space-bunny-free'`
+### `No Realm factory registered for model 'openrouter/free'`
 
 ```text
-Error: No Realm factory registered for model 'opencode/space-bunny-free'. Run
-'mvgeos rune install opencode-realm' to install it from the central marketplace.
+Error: No Realm factory registered for model 'openrouter/free'. Run
+'mvgeos rune install openrouter-realm' to install it from the central marketplace.
 ```
 
 You installed a Realm, but not the one your default model needs. The engine's
-default model is `opencode/space-bunny-free`, and the prefix of that slug is the
-Realm — so `openrouter-realm` does not answer it. Both installs succeed; the
+default model is `openrouter/free`, and the prefix of that slug is the
+Realm — so `opencode-realm` does not answer it. Both installs succeed; the
 task command is where this appears, and it is not a network fault.
 
 Current builds name the Rune to install in the message, which is exactly what to
 run:
 
 ```bash
-mvgeos rune install opencode-realm --confirm-python-deps
+mvgeos rune install openrouter-realm --confirm-python-deps
 ```
 
-Older builds named `openrouter-realm` in that same message, which is worse than
-naming nothing: it installs a working Realm that still cannot serve the default
-model. If you followed one, install `opencode-realm` as well — the two coexist,
+Older builds named `opencode-realm` in that same message when OpenCode was the default.
+If you followed an older guide and installed `opencode-realm`, install `openrouter-realm` as well — the two coexist,
 and `-m` picks which one serves a given slug.
 
 The same error with a different model in it means the same thing for that
-model's prefix. The two Realms that ship are `opencode-realm` and
-`openrouter-realm`; see
+model's prefix. The two Realms that ship are `openrouter-realm` and
+`opencode-realm`; see
 [Use another Realm](quickstart.md#use-another-realm).
 
 ### `No executables are provided by package mkdocs-material`
@@ -249,13 +248,13 @@ Error: No Realm extension installed.
 ```
 
 The engine has no way to reach a model yet. Install the Realm your default model
-needs, which is `opencode-realm`:
+needs, which is `openrouter-realm`:
 
 ```bash
-mvgeos rune install opencode-realm --confirm-python-deps
+mvgeos rune install openrouter-realm --confirm-python-deps
 ```
 
-Interactively, `mvgeos` offers to install it for you and then retries. That
+Interactively, `mvgeos` offers to install it for you and then retries (or run `mvgeos setup --profile coding`). That
 prompt is skipped when stdout is not a terminal — in a script or a CI job you
 must run the install yourself first.
 
@@ -331,8 +330,8 @@ mvgeos -m <slug> --agent-name coding_mvge \
 ```
 
 A `-m` slug's prefix is the Realm that must serve it. Passing an
-`nvidia/…` slug with only `opencode-realm` installed gets you
-[`No Realm factory registered`](#no-realm-factory-registered-for-model-opencodespace-bunny-free),
+`opencode/…` slug with only `openrouter-realm` installed gets you
+[`No Realm factory registered`](#no-realm-factory-registered-for-model-openrouterfree),
 not a different answer.
 
 This page deliberately does not hardcode a fallback slug. The default moves, and
@@ -359,10 +358,13 @@ Error: Unknown model: qwen/qwen3.8-27b:free
 That model genuinely exists on OpenRouter today. `-m` does not accept it because
 on a clean machine the model list is the **static baseline shipped in the
 repository**, at `mvgeos-provider/src/mvgeos_provider/models.json` — 19 `:free`
-entries and 391 paid ones. Nothing in the CLI refreshes it: the live-catalog
-refresh exists in `mvgeos_provider.refresh_models()` but no `mvgeos` subcommand
-calls it, so `~/.agents/models.json` stays absent unless something else writes
-it.
+entries and 391 paid ones. You can refresh the catalog at any time via:
+
+```bash
+mvgeos config refresh-models
+```
+
+This queries OpenRouter for the latest model list and updates `~/.agents/models.json` (pass `--force` to bypass the 24-hour cache TTL).
 
 The list is also a snapshot and drifts. One baseline entry,
 `openai/gpt-oss-20b:free`, resolves but then fails:

@@ -91,6 +91,10 @@ nav:
   - Runes:
       - ADR Bridge: runes/adr-bridge.md
       - Approval Rune: runes/approval-rune.md
+      - Checkpoint Bridge: runes/checkpoint-bridge.md
+      - CodeAct Rune: runes/codeact-rune.md
+      - Eval Bridge: runes/eval-bridge.md
+      - LSP Bridge: runes/lsp-bridge.md
       - MCP Bridge: runes/mcp-bridge.md
       - OKF Bridge: runes/okf-bridge.md
       - OpenCode Realm: runes/opencode-realm.md
@@ -104,3 +108,4 @@ nav:
       - Skill Evolution: runes/skill-evolution.md
       - Skills Bridge: runes/skills-bridge.md
       - Steering Bridge: runes/steering-bridge.md
+      - Sub-Mvge Bridge: runes/submvge-bridge.md

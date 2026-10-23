@@ -2,9 +2,19 @@
   "name": "submvge-bridge",
   "version": "0.1.0",
   "description": "Kernel sub-Mvge summoning, persistent sub-sessions, and reactive wakeup bridge",
-  "types": ["Spell"],
+  "types": ["Spell", "UICanvasTab"],
   "runtime": "python",
   "entry_point": "rune.py",
+  "ui": {
+    "canvas_tabs": [
+      {
+        "id": "sub_mvge",
+        "title": "Sub-Mvge",
+        "icon": "hub",
+        "order": 30
+      }
+    ]
+  },
   "python_deps": [],
   "enabled": true
 }

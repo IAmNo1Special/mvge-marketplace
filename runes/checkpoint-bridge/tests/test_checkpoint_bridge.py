@@ -6,9 +6,9 @@ from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
-from mvgeos_core.spells import SpellContext
-from mvgeos_runes.rune_api import RuneAPI
-from mvgeos_runes.types import SessionLeafChangedData, SigilHook
+from mvge.core.spells import SpellContext
+from mvge.runes.rune_api import RuneAPI
+from mvge.runes.types import SessionLeafChangedData, SigilHook
 from mvgeos_runes_checkpoint_bridge.rune import rune_factory
 
 

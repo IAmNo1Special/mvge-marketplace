@@ -11,10 +11,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from mvgeos_core import agent_extensions_dir, extensions_dir
-from mvgeos_runes.codecs import load_session_codecs
-from mvgeos_runes.rune_api import RuneAPI
-from mvgeos_runes.types import SigilHook, SpellDefinition
+from mvge.core import agent_extensions_dir, extensions_dir
+from mvge.runes.codecs import load_session_codecs
+from mvge.runes.rune_api import RuneAPI
+from mvge.runes.types import SigilHook, SpellDefinition
 
 from mvgeos_runes_session_search.db import (
     get_database_stats,

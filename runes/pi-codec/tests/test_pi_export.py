@@ -6,10 +6,10 @@ import json
 from pathlib import Path
 
 import pytest
+from mvge.tome.handle import TomeHandleFactory
+from mvge.tome.types import TomeEntry, TomeEntryType
 from mvgeos_runes_pi_codec.codec import PiSessionCodec
 from mvgeos_runes_pi_codec.exporter import ExportError, export_tome_to_pi
-from mvgeos_tome.handle import TomeHandleFactory
-from mvgeos_tome.types import TomeEntry, TomeEntryType
 
 
 def _message(i: int, parent: str | None, role: str, **payload: object) -> TomeEntry:

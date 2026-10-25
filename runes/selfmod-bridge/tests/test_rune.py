@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from mvgeos_runes.types import ExecutionMode, SigilHook
+from mvge.runes.types import ExecutionMode, SigilHook
 from selfmod_bridge_conftest import FakeApi, load_root_module, make_rune, make_state
 
 from mvgeos_runes_selfmod_bridge.prompt import build_selfmod_section

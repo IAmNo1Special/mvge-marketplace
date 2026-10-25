@@ -5,8 +5,8 @@ from unittest.mock import patch
 
 import pytest
 from coding_mvge.spells import list_files
-from mvgeos_core.spells import SpellStatus
-from mvgeos_core.truncate import DEFAULT_MAX_BYTES
+from mvge.core.spells import SpellStatus
+from mvge.core.truncate import DEFAULT_MAX_BYTES
 
 
 class TestListSpell:

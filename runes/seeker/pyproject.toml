@@ -7,10 +7,7 @@ name = "mvgeos-runes-seeker"
 version = "0.1.0"
 description = "Seeker Protocol rune for MvgeOS - DCI-based discovery for spells, skills, and MCP servers"
 dependencies = [
-    "mvgeos-agent",
-    "mvgeos-core",
-    "mvgeos-provider",
-    "mvgeos-runes",
+    "mvge",
     "aiohttp",
 ]
 

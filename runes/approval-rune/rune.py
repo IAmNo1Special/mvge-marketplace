@@ -13,8 +13,8 @@ import weakref
 from pathlib import Path
 from typing import Any
 
-from mvgeos_runes.rune_api import RuneAPI
-from mvgeos_runes.types import SigilHook
+from mvge.runes.rune_api import RuneAPI
+from mvge.runes.types import SigilHook
 
 from mvgeos_runes_approval_rune.gate import ApprovalGate
 from mvgeos_runes_approval_rune.policy import PolicyStore

@@ -22,14 +22,14 @@ import json
 from pathlib import Path
 
 import pytest
-from mvgeos_core import (
+from mvge.core import (
     DEFAULT_AGENT_NAME,
     GLOBAL_DIR_ENV,
     agent_spells_dir,
     extensions_dir,
     skills_dir,
 )
-from mvgeos_provider.registry import RealmRegistry
+from mvge.provider.registry import RealmRegistry
 from mvgeos_runes_seeker.dci_matcher import DCISkillMatcher
 from mvgeos_runes_seeker.discovery import MCPConfigDiscovery
 from mvgeos_runes_seeker.mcp_spell import MCPSearchSpell
@@ -169,7 +169,7 @@ def test_tool_search_root_agrees_with_the_agents_directory(
     """Route through the engine's Spells resolver rather than re-deriving it.
 
     Asserting the engine's own answer is what makes this a contract on
-    ``mvgeos_core.agent_spells_dir``. A hardcoded literal, or a local
+    ``mvge.core.agent_spells_dir``. A hardcoded literal, or a local
     composition from ``agent_dir``, would let the two drift apart again --
     which is the defect this file exists to catch. It did: ``paths`` composed
     ``agent_dir(name) / "spells"`` while the engine exported the directory it

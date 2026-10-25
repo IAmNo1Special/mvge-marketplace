@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from mvgeos_core.spells import ExecutionMode
-from mvgeos_runes.types import SpellDefinition
+from mvge.core.spells import ExecutionMode
+from mvge.runes.types import SpellDefinition
 
 from mvgeos_runes_skill_evolution.export.plugin_exporter import (
     SkillPluginExporter,

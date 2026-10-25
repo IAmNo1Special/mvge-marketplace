@@ -152,7 +152,7 @@ class SkillsBridgeRune:
 
 def rune_factory(api: Any) -> SkillsBridgeRune:
     """Instantiate and register the skills-bridge rune."""
-    from mvgeos_runes.types import ExecutionMode, SigilHook, SpellDefinition
+    from mvge.runes.types import ExecutionMode, SigilHook, SpellDefinition
 
     rune = SkillsBridgeRune(api)
 
@@ -168,7 +168,7 @@ def rune_factory(api: Any) -> SkillsBridgeRune:
         api.register_sigil(SigilHook.SESSION_SHUTDOWN, rune.on_session_shutdown)
 
     if hasattr(api, "register_spell"):
-        from mvgeos_runes.types import ExecutionMode, SpellDefinition
+        from mvge.runes.types import ExecutionMode, SpellDefinition
 
         spell = SpellDefinition(
             name="activate_skill",

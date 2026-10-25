@@ -2,7 +2,7 @@
 
 Strictly follows open-telemetry/semantic-conventions-genai v1.42+ standard.
 
-This vocabulary used to live in ``mvgeos_core.telemetry``. The engine never
+This vocabulary used to live in ``mvge.core.telemetry``. The engine never
 consumed it -- it re-exported the symbols and nothing called them, while the
 engine's README states there is no telemetry in the engine. This Rune is the
 only consumer, so it owns the vocabulary. See ADR 0021.

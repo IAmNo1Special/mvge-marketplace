@@ -13,7 +13,7 @@ import os
 from collections import defaultdict
 from pathlib import Path
 
-from mvgeos_core import global_agents_dir
+from mvge.core import global_agents_dir
 
 from mvgeos_runes_okf_bridge.parser import parse_concept_file
 from mvgeos_runes_okf_bridge.types import Concept, TrustTier

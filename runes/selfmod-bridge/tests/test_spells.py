@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from mvgeos_agent.function_spell import discover_spells_from_dir
+from mvge.agent.function_spell import discover_spells_from_dir
 from selfmod_bridge_conftest import FakeApi, make_rune, read_skill_frontmatter
 
 SPELL_NAMES = [

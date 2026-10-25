@@ -4,7 +4,7 @@ import json
 import os
 from pathlib import Path
 
-from mvgeos_core import global_agents_dir
+from mvge.core import global_agents_dir
 
 from mvgeos_runes_opentelemetry_bridge.types import OTelConfig
 

@@ -5,9 +5,9 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
-from mvgeos_core.invocations import SummonerRequest
-from mvgeos_runes.rune_api import RuneAPI
-from mvgeos_runes.types import SigilHook
+from mvge.core.invocations import SummonerRequest
+from mvge.runes.rune_api import RuneAPI
+from mvge.runes.types import SigilHook
 from openrouter import OpenRouterRealm, _invocations_to_messages
 from rune import (
     after_provider_response,

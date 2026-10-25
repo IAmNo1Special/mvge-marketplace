@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from mvgeos_core.events import ContentType
-from mvgeos_core.invocations import MvgeInvocation
+from mvge.core.events import ContentType
+from mvge.core.invocations import MvgeInvocation
 
 
 @dataclass

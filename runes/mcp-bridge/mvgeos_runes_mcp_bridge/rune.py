@@ -4,8 +4,8 @@ import inspect
 from pathlib import Path
 from typing import Any
 
-from mvgeos_runes.rune_api import RuneAPI
-from mvgeos_runes.types import SigilHook, SpellDefinition
+from mvge.runes.rune_api import RuneAPI
+from mvge.runes.types import SigilHook, SpellDefinition
 
 from mvgeos_runes_mcp_bridge.config import get_prioritized_mcp_configs
 from mvgeos_runes_mcp_bridge.manager import (

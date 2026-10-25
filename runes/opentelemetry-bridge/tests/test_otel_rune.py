@@ -4,8 +4,8 @@ from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
-from mvgeos_runes.rune_api import RuneAPI
-from mvgeos_runes.types import (
+from mvge.runes.rune_api import RuneAPI
+from mvge.runes.types import (
     AfterProviderResponseData,
     AfterSpellResultData,
     BeforeProviderRequestData,

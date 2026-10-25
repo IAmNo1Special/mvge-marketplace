@@ -4,9 +4,9 @@ from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
-from mvgeos_core.spells import SpellResult, SpellStatus
-from mvgeos_runes.rune_api import RuneAPI
-from mvgeos_runes.types import ExecutionMode, SpellDefinition
+from mvge.core.spells import SpellResult, SpellStatus
+from mvge.runes.rune_api import RuneAPI
+from mvge.runes.types import ExecutionMode, SpellDefinition
 from mvgeos_runes_codeact.rune import CodeActExecutor, rune_factory
 
 

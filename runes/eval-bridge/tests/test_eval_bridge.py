@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock
 
-from mvgeos_runes.rune_api import RuneAPI
+from mvge.runes.rune_api import RuneAPI
 from mvgeos_runes_eval_bridge.cli import app
 from mvgeos_runes_eval_bridge.evaluator import (
     evaluate_case,

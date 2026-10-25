@@ -5,10 +5,10 @@ from unittest.mock import AsyncMock, MagicMock, PropertyMock, patch
 
 import pytest
 from mcp.types import Tool
-from mvgeos_core.spells import SpellResult, SpellStatus
-from mvgeos_runes.rune_api import RuneAPI
-from mvgeos_runes.rune_runner import RuneRunner
-from mvgeos_runes.types import RuneContext, SigilHook, SpellDefinition
+from mvge.core.spells import SpellResult, SpellStatus
+from mvge.runes.rune_api import RuneAPI
+from mvge.runes.rune_runner import RuneRunner
+from mvge.runes.types import RuneContext, SigilHook, SpellDefinition
 from mvgeos_runes_mcp_bridge.rune import rune_factory
 from mvgeos_runes_mcp_bridge.types import MCPServerConfig
 

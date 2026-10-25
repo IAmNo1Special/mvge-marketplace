@@ -7,13 +7,13 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from typing import Any
 
-from mvgeos_core.abort import AbortSignal
-from mvgeos_core.channel import (
+from mvge.core.abort import AbortSignal
+from mvge.core.channel import (
     ChannelConfig,
     Model,
 )
-from mvgeos_provider.base import NoRealmRegisteredError
-from mvgeos_provider.registry import get_registry
+from mvge.provider.base import NoRealmRegisteredError
+from mvge.provider.registry import get_registry
 
 from mvgeos_runes_skill_evolution.consolidator.harvester import (
     ExperienceHarvester,

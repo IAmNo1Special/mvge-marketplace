@@ -26,18 +26,18 @@ import json
 from typing import Any
 
 import httpx
-from mvgeos_core.abort import (
+from mvge.core.abort import (
     AbortError,
     AbortSignal,
 )
-from mvgeos_core.channel import (
+from mvge.core.channel import (
     ChannelConfig,
     Model,
     MvgeResponse,
     RealmResponse,
     StopReason,
 )
-from mvgeos_provider import (
+from mvge.provider import (
     SSEChunk,
     SSEStreamingRealm,
     retry_realm_request,

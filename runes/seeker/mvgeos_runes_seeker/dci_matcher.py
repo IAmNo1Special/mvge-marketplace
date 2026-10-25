@@ -250,7 +250,7 @@ def _skill_root_candidates(
     """Every skill root Seeker would search, resolved now and unfiltered.
 
     The user-scope root comes from :func:`paths.skill_roots`, which reads
-    ``mvgeos_core.skills_dir()`` rather than spelling out ``~/.agents/skills``,
+    ``mvge.core.skills_dir()`` rather than spelling out ``~/.agents/skills``,
     so it moves with ``$MVGEOS_GLOBAL_DIR`` and cannot drift from where
     Skills are installed.
 

@@ -18,7 +18,7 @@ import json
 from pathlib import Path
 
 import pytest
-from mvgeos_core import GLOBAL_DIR_ENV, global_agents_dir
+from mvge.core import GLOBAL_DIR_ENV, global_agents_dir
 from mvgeos_runes_mcp_bridge.config import (
     _global_mcp_config_path,
     get_prioritized_mcp_configs,

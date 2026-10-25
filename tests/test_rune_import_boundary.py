@@ -1,17 +1,17 @@
 """No Rune may import another Rune's package. Nothing else may either.
 
 This is the boundary the whole marketplace is sold on. A Rune may import
-engine packages -- ``mvgeos_core``, ``mvgeos_runes``, ``mvgeos_agent`` -- and
+engine packages -- ``mvge.core``, ``mvge.runes``, ``mvge.agent`` -- and
 never another Rune. That absolute rule is what makes each Rune independently
 installable into ``~/.agents/extensions/`` without dragging a sibling along.
 An artifact that imports a sibling does not work when installed on its own,
 and the failure is a ``ModuleNotFoundError`` in someone else's session.
 
-``mvgeos_agent`` is allowed, with one extra rule: never at module scope.
-``mvgeos_agent/__init__`` imports ``agent_session``, which imports
-``mvgeos_runes.rune_runner`` -- the loader that loads Rune modules. A Rune
-module imported during that chain sees a half-built ``mvgeos_agent``, so a
-module-scope ``from mvgeos_agent import Mvge`` raises and the loader reports a
+``mvge.agent`` is allowed, with one extra rule: never at module scope.
+``mvge.agent/__init__`` imports ``agent_session``, which imports
+``mvge.runes.rune_runner`` -- the loader that loads Rune modules. A Rune
+module imported during that chain sees a half-built ``mvge.agent``, so a
+module-scope ``from mvge.agent import Mvge`` raises and the loader reports a
 load failure rather than the initialization cycle it actually is. Import it
 inside the function that uses it, or under ``if TYPE_CHECKING:`` if the name is
 only ever an annotation. The window is latent today -- all three loader call
@@ -171,16 +171,16 @@ _DYNAMIC_IMPORT_CALLS = frozenset(
 #: Engine packages a Rune may import, but only lazily. See
 #: ``_module_scope_violations_in_source`` for why this one is different.
 #:
-#: ``mvgeos_agent/__init__`` imports ``agent_session``, which imports
-#: ``mvgeos_runes.rune_runner`` -- the loader that loads Rune modules. So during
-#: that import chain ``mvgeos_agent`` is in ``sys.modules`` with one line
+#: ``mvge.agent/__init__`` imports ``agent_session``, which imports
+#: ``mvge.runes.rune_runner`` -- the loader that loads Rune modules. So during
+#: that import chain ``mvge.agent`` is in ``sys.modules`` with one line
 #: executed: ``Mvge`` is unbound and ``__all__`` is unset. A Rune imported at
-#: that moment, with a module-scope ``from mvgeos_agent import Mvge``, fails to
+#: that moment, with a module-scope ``from mvge.agent import Mvge``, fails to
 #: import, and the loader reports it as a load failure rather than as the
 #: initialization cycle it is. The window is latent today -- all three loader
 #: call sites are inside functions -- and this rule closes it before something
 #: else opens it.
-_MODULE_SCOPE_FORBIDDEN = frozenset({"mvgeos_agent"})
+_MODULE_SCOPE_FORBIDDEN = frozenset({"mvge.agent", "mvgeos_agent"})
 
 #: Directories that hold no Python source we publish.
 _SKIP_DIRS = frozenset({"__pycache__"})
@@ -383,6 +383,13 @@ def _import_time_statements(body: list[ast.stmt]) -> Iterator[ast.stmt]:
             yield from _import_time_statements(nested)
 
 
+def _agent_scope_name(dotted: str) -> str:
+    """The matched package or subpackage for module scope checks."""
+    if dotted == "mvge.agent" or dotted.startswith("mvge.agent."):
+        return "mvge.agent"
+    return _root_name(dotted)
+
+
 def _module_scope_imports(tree: ast.Module) -> Iterator[tuple[int, str, str]]:
     """Imports that execute at module scope, as ``(line, name, source)``.
 
@@ -398,9 +405,9 @@ def _module_scope_imports(tree: ast.Module) -> Iterator[tuple[int, str, str]]:
     for node in _import_time_statements(tree.body):
         if isinstance(node, ast.Import):
             for alias in node.names:
-                yield node.lineno, _root_name(alias.name), ast.unparse(node)
+                yield node.lineno, _agent_scope_name(alias.name), ast.unparse(node)
         elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
-            yield node.lineno, _root_name(node.module), ast.unparse(node)
+            yield node.lineno, _agent_scope_name(node.module), ast.unparse(node)
 
 
 def module_scope_violations_in_source(
@@ -521,12 +528,12 @@ def all_module_scope_violations() -> list[ModuleScopeViolation]:
     rather than a narrowing of it.
 
     - ``mvges/`` is excluded because a mvge *is* the agent. ``coding_mvge``
-      importing ``mvgeos_agent`` at module scope is the correct wiring, not a
+      importing ``mvge.agent`` at module scope is the correct wiring, not a
       near miss.
     - Test tiers are excluded because pytest is not the loader. The hazard is
       specifically a Rune module being imported *by* ``rune_runner`` while
-      ``mvgeos_agent`` is half-built. A test module imported by pytest is not in
-      that chain, and three Rune suites import ``mvgeos_agent`` at module scope
+      ``mvge.agent`` is half-built. A test module imported by pytest is not in
+      that chain, and three Rune suites import ``mvge.agent`` at module scope
       today for legitimate reasons.
 
     So the exact set this must catch is "a published Rune module the loader
@@ -623,20 +630,20 @@ def test_no_artifact_imports_a_sibling() -> None:
 def test_no_module_imports_a_lazy_package_at_module_scope() -> None:
     """The second rule. A lazily-imported package is not imported at module scope.
 
-    ``mvgeos_agent`` is lawful for a Rune to import, but not at module scope:
+    ``mvge.agent`` is lawful for a Rune to import, but not at module scope:
     its ``__init__`` loads the Rune loader, so a Rune imported during that chain
     sees a half-built package and silently fails to load.
     """
     violations = all_module_scope_violations()
     assert not violations, (
-        "A Rune may import mvgeos_agent, but never at module scope. These "
+        "A Rune may import mvge.agent, but never at module scope. These "
         "modules import it while their own module body runs:\n"
         + "\n".join(f"  {v.describe()}\n      {v.source}" for v in violations)
         + "\nFix it where the code lives:\n"
         "  - Import it inside the function that uses it.\n"
         "  - If the name is only used in annotations, import it under\n"
         "    `if TYPE_CHECKING:`. That never executes at runtime.\n"
-        "Do NOT re-export mvgeos_agent from a module that is imported at "
+        "Do NOT re-export mvge.agent from a module that is imported at "
         "module scope: the same half-built package is still what the import "
         "sees."
     )
@@ -651,19 +658,19 @@ def test_the_module_scope_gate_would_catch_a_regression() -> None:
     """
     # Illegal: module scope, plain import and `import` spelling both.
     for illegal in (
-        "from mvgeos_agent import Mvge\n",
-        "import mvgeos_agent\n",
-        "from mvgeos_agent.auth import load_api_key_from_auth\n",
-        "import os\nfrom mvgeos_agent import Mvge\nimport sys\n",
+        "from mvge.agent import Mvge\n",
+        "import mvge.agent\n",
+        "from mvge.agent.auth import load_api_key_from_auth\n",
+        "import os\nfrom mvge.agent import Mvge\nimport sys\n",
         # A guard that is not TYPE_CHECKING still runs at module scope, so the
         # gate descends into `if` bodies rather than reading the module body only.
         (
             "import sys\nif sys.version_info >= (3, 13):\n"
-            "    from mvgeos_agent import Mvge\n"
+            "    from mvge.agent import Mvge\n"
         ),
         # Same for try/except: the import runs, and it may fail.
         (
-            "try:\n    from mvgeos_agent import Mvge\n"
+            "try:\n    from mvge.agent import Mvge\n"
             "except ImportError:\n    Mvge = None\n"
         ),
     ):
@@ -674,20 +681,20 @@ def test_the_module_scope_gate_would_catch_a_regression() -> None:
 
     # Legal: inside a function, under TYPE_CHECKING, or another package.
     for legal in (
-        "def build():\n    from mvgeos_agent import Mvge\n    return Mvge\n",
+        "def build():\n    from mvge.agent import Mvge\n    return Mvge\n",
         (
             "from typing import TYPE_CHECKING\n\nif TYPE_CHECKING:\n"
-            "    from mvgeos_agent import Mvge\n"
+            "    from mvge.agent import Mvge\n"
         ),
         (
             "import typing\n\nif typing.TYPE_CHECKING:\n"
-            "    from mvgeos_agent import Mvge\n"
+            "    from mvge.agent import Mvge\n"
         ),
-        "from mvgeos_core import agent_dir\nfrom mvgeos_runes import SigilHook\n",
+        "from mvge.core import agent_dir\nfrom mvge.runes import SigilHook\n",
         # Nested one level deeper in a class body is not module scope either.
         (
             "class Sub:\n    def __init__(self) -> None:\n"
-            "        from mvgeos_agent import Mvge\n"
+            "        from mvge.agent import Mvge\n"
         ),
     ):
         violations = module_scope_violations_in_source(legal, "allowed.py", "runtime")
@@ -759,17 +766,17 @@ def test_the_gate_allows_engine_packages_and_its_own_package() -> None:
     """What a Rune is allowed to import stays importable."""
     owner = _artifact_named("session-search")
     allowed = [
-        "from mvgeos_core import sessions_dir\n",
-        "from mvgeos_runes import SigilHook\n",
-        "from mvgeos_runes.rune_api import RuneAPI\n",
+        "from mvge.core import sessions_dir\n",
+        "from mvge.runes import SigilHook\n",
+        "from mvge.runes.rune_api import RuneAPI\n",
         # Allowed by this gate: a submodule import is not a sibling reach-across.
         # Note this holds at *any* scope. It is not in tension with the
-        # module-scope rule for the ``mvgeos_agent`` package root: importing
-        # ``mvgeos_agent.auth`` still executes ``mvgeos_agent/__init__``, so the
+        # module-scope rule for the ``mvge.agent`` package root: importing
+        # ``mvge.agent.auth`` still executes ``mvge.agent/__init__``, so the
         # half-built-package hazard applies to it identically and the separate
         # ``_MODULE_SCOPE_FORBIDDEN`` check holds it to a function body. Both
         # answers were settled on upstream issue SOM-24; keep them together.
-        "from mvgeos_agent.auth import load_api_key_from_auth\n",
+        "from mvge.agent.auth import load_api_key_from_auth\n",
         # Its own package, at any depth.
         "from mvgeos_runes_session_search.db import get_db_connection\n",
         "from mvgeos_runes_session_search import indexer\n",

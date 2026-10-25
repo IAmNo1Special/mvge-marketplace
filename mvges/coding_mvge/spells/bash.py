@@ -6,12 +6,12 @@ import tempfile
 from pathlib import Path
 from typing import BinaryIO
 
-from mvgeos_core.spells import (
+from mvge.core.spells import (
     SpellContext,
     SpellResult,
     SpellStatus,
 )
-from mvgeos_core.truncate import (
+from mvge.core.truncate import (
     DEFAULT_MAX_BYTES,
     DEFAULT_MAX_LINES,
     MAX_BASH_BYTES,

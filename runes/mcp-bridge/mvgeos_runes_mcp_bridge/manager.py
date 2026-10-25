@@ -14,7 +14,7 @@ from mcp.types import (
     TextContent,
     Tool,
 )
-from mvgeos_core.spells import SpellResult, SpellStatus
+from mvge.core.spells import SpellResult, SpellStatus
 
 try:
     from .session import MCPServerSession

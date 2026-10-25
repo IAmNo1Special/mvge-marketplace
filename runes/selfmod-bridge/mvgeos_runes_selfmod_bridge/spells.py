@@ -31,7 +31,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, cast
 
-from mvgeos_core import global_agents_dir, skills_dir
+from mvge.core import global_agents_dir, skills_dir
 
 from mvgeos_runes_selfmod_bridge.state import SelfmodState
 from mvgeos_runes_selfmod_bridge.status import describe_extensions

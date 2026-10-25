@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 
 import pytest
-from mvgeos_core import GLOBAL_DIR_ENV, global_agents_dir
+from mvge.core import GLOBAL_DIR_ENV, global_agents_dir
 from mvgeos_runes_opentelemetry_bridge.config import load_otel_config
 
 

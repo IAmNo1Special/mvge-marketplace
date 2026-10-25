@@ -7,7 +7,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from mvgeos_core import DEFAULT_AGENT_NAME, agent_dir
+from mvge.core import DEFAULT_AGENT_NAME, agent_dir
 
 from mvgeos_runes_skill_evolution.engine import SkillEvolutionEngine
 from mvgeos_runes_skill_evolution.proposer_mvge.spells.finish import (
@@ -20,13 +20,13 @@ from mvgeos_runes_skill_evolution.proposer_mvge.spells.read_file import (
 )
 
 if TYPE_CHECKING:
-    # Annotations only. ``mvgeos_agent`` must not be imported at module scope:
-    # its ``__init__`` imports ``mvgeos_runes.rune_runner``, which is the loader
+    # Annotations only. ``mvge.agent`` must not be imported at module scope:
+    # its ``__init__`` imports ``mvge.runes.rune_runner``, which is the loader
     # that loads Rune modules, so a Rune imported during that chain sees a
-    # half-built ``mvgeos_agent`` and the import fails. The one runtime use is
+    # half-built ``mvge.agent`` and the import fails. The one runtime use is
     # in ``create_proposer_mvge``, which imports it locally. See the Rune
     # charter.
-    from mvgeos_agent import Mvge
+    from mvge.agent import Mvge
 
 PROPOSER_DIR = Path(__file__).resolve().parent
 
@@ -84,15 +84,15 @@ def create_proposer_mvge(
 ) -> Mvge:
     """Create a standalone Proposer Mvge instance via file-based construction.
 
-    ``mvgeos_agent`` is imported here rather than at module scope, for two
+    ``mvge.agent`` is imported here rather than at module scope, for two
     reasons. Building an ``Mvge`` discovers spells from disk, so a module-scope
     import would do that work on every import of this module. And
-    ``mvgeos_agent``'s own ``__init__`` imports the loader that loads Rune
+    ``mvge.agent``'s own ``__init__`` imports the loader that loads Rune
     modules, so a module-scope import would raise if this module were imported
-    while ``mvgeos_agent`` was still half-built. By the time this function runs,
+    while ``mvge.agent`` was still half-built. By the time this function runs,
     the package is fully loaded.
     """
-    from mvgeos_agent import Mvge
+    from mvge.agent import Mvge
 
     spells = kwargs.pop("spells", None)
     if spells is None and engine is not None:

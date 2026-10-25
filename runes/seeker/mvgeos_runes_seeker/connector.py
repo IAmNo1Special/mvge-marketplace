@@ -6,9 +6,9 @@ import os
 from typing import Any, ClassVar
 
 import aiohttp
-from mvgeos_core.abort import AbortSignal
-from mvgeos_core.spells import SpellContext
-from mvgeos_runes.types import ExecutionMode, SpellDefinition
+from mvge.core.abort import AbortSignal
+from mvge.core.spells import SpellContext
+from mvge.runes.types import ExecutionMode, SpellDefinition
 
 from .discovery import MCPServerInfo, MCPTransportError
 

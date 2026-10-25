@@ -6,16 +6,16 @@ import inspect
 import uuid
 from typing import Any
 
-from mvgeos_core.sandbox import MvgeSandbox
-from mvgeos_core.spells import (
+from mvge.core.sandbox import MvgeSandbox
+from mvge.core.spells import (
     ExecutionMode,
     MvgeSpell,
     SpellContext,
     SpellResult,
     SpellStatus,
 )
-from mvgeos_runes.rune_api import RuneAPI
-from mvgeos_runes.types import SpellDefinition
+from mvge.runes.rune_api import RuneAPI
+from mvge.runes.types import SpellDefinition
 
 SAFE_STDLIB_MODULES = {
     "math",

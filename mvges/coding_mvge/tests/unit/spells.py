@@ -11,7 +11,7 @@ from coding_mvge.spells import (
     read,
     write,
 )
-from mvgeos_core.spells import (
+from mvge.core.spells import (
     SpellResult,
     SpellStatus,
 )

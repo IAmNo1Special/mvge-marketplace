@@ -5,7 +5,7 @@ from collections.abc import Awaitable, Callable
 from contextvars import ContextVar
 from typing import Any
 
-from mvgeos_core.spells import (
+from mvge.core.spells import (
     SpellResult,
     SpellStatus,
 )

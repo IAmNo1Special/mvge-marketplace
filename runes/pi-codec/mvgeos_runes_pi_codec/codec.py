@@ -23,8 +23,8 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from mvgeos_tome.codec import AppendPlan, SessionCodec
-from mvgeos_tome.types import TomeEntry, TomeEntryType, TomeMetadata, TomeVersionError
+from mvge.tome.codec import AppendPlan, SessionCodec
+from mvge.tome.types import TomeEntry, TomeEntryType, TomeMetadata, TomeVersionError
 
 logger = logging.getLogger(__name__)
 

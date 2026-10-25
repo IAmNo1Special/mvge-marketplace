@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from mvgeos_runes import AuditError
+from mvge.runes import AuditError
 from selfmod_bridge_conftest import make_rune
 
 from mvgeos_runes_selfmod_bridge.rune import SelfmodBridgeRune

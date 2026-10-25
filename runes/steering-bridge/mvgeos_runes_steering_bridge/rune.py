@@ -178,7 +178,7 @@ class SteeringBridgeRune:
 
 def rune_factory(api: Any) -> SteeringBridgeRune:
     """Instantiate and register the steering-bridge rune."""
-    from mvgeos_runes.types import SigilHook
+    from mvge.runes.types import SigilHook
 
     rune = SteeringBridgeRune(api)
 

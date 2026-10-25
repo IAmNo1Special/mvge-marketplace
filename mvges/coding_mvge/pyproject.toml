@@ -5,17 +5,11 @@ description = "Concrete coding agent implementation for MvgeOS with built-in dev
 requires-python = ">=3.13"
 license = "MIT"
 dependencies = [
-    "mvgeos-agent",
-    "mvgeos-core",
-    "mvgeos-provider",
-    "mvgeos-runes",
+    "mvge",
 ]
 
 [tool.uv.sources]
-mvgeos-agent = { workspace = true }
-mvgeos-core = { workspace = true }
-mvgeos-provider = { workspace = true }
-mvgeos-runes = { workspace = true }
+mvge = { workspace = true }
 
 [build-system]
 requires = ["uv_build>=0.11.2,<0.13"]

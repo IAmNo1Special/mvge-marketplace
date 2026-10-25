@@ -22,9 +22,9 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from mvgeos_agent.sigil_payloads import payload_for
-from mvgeos_runes import SigilHook
-from mvgeos_runes.rune_runner import RuneRunner
+from mvge.agent.sigil_payloads import payload_for
+from mvge.runes import SigilHook
+from mvge.runes.rune_runner import RuneRunner
 from selfmod_bridge_conftest import make_rune
 
 #: Marker the peer appends, so ordering is readable from the prompt alone.

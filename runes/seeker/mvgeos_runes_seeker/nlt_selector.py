@@ -4,9 +4,9 @@ import asyncio
 import re
 from typing import Any
 
-from mvgeos_core.channel import ChannelConfig
-from mvgeos_core.invocations import SummonerRequest
-from mvgeos_provider.registry import RealmRegistry
+from mvge.core.channel import ChannelConfig
+from mvge.core.invocations import SummonerRequest
+from mvge.provider.registry import RealmRegistry
 
 from .router import SpellFileMatch, SpellSearchError
 

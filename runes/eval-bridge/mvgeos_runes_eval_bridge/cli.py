@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Literal
 
 import typer
-from mvgeos_core import sessions_dir
+from mvge.core import sessions_dir
 
 from mvgeos_runes_eval_bridge.evaluator import evaluate_set, load_evalset
 from mvgeos_runes_eval_bridge.exporter import export_rl_data

@@ -6,8 +6,8 @@ try:
     from .openrouter import OpenRouterRealm
 except (ImportError, ValueError):
     from openrouter import OpenRouterRealm
-from mvgeos_runes.rune_api import RuneAPI
-from mvgeos_runes.types import SigilHook
+from mvge.runes.rune_api import RuneAPI
+from mvge.runes.types import SigilHook
 
 
 def openrouter_realm_factory(

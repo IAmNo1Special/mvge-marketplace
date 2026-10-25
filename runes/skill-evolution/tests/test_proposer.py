@@ -5,10 +5,10 @@ from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from mvgeos_agent import Mvge
-from mvgeos_core.events import MvgeEventType
-from mvgeos_core.spells import SpellStatus
-from mvgeos_runes.types import (
+from mvge.agent import Mvge
+from mvge.core.events import MvgeEventType
+from mvge.core.spells import SpellStatus
+from mvge.runes.types import (
     SkillManifest,
     SkillScope,
 )

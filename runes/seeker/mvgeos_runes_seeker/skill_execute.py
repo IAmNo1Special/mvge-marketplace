@@ -5,9 +5,9 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from mvgeos_core.abort import AbortSignal
-from mvgeos_core.spells import MvgeSpell, SpellContext, SpellExecutionMode
-from mvgeos_provider.registry import RealmRegistry
+from mvge.core.abort import AbortSignal
+from mvge.core.spells import MvgeSpell, SpellContext, SpellExecutionMode
+from mvge.provider.registry import RealmRegistry
 
 from .dci_matcher import _get_skill_roots
 from .ledger import SeekerLedger

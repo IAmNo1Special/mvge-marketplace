@@ -23,8 +23,8 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from mvgeos_runes import ExecutionMode
-from mvgeos_runes.types import SigilHook, SpellDefinition
+from mvge.runes import ExecutionMode
+from mvge.runes.types import SigilHook, SpellDefinition
 
 from mvgeos_runes_selfmod_bridge.prompt import build_selfmod_section
 from mvgeos_runes_selfmod_bridge.spells import _SPELL_PARAMETERS, SelfmodSpellsMixin

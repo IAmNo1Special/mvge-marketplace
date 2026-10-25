@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from mvgeos_runes.types import (
+from mvge.runes.types import (
     AfterInvocationData,
     SessionShutdownData,
     SessionStartData,

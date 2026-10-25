@@ -5,9 +5,9 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from mvgeos_agent.sub_mvge import SubMvgeRecord, SubMvgeState
-from mvgeos_core.spells import SpellContext
-from mvgeos_runes.rune_api import RuneAPI
+from mvge.agent.sub_mvge import SubMvgeRecord, SubMvgeState
+from mvge.core.spells import SpellContext
+from mvge.runes.rune_api import RuneAPI
 from mvgeos_runes_submvge_bridge.rune import rune_factory
 
 

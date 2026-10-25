@@ -19,7 +19,7 @@ from coding_mvge.spells import (
     search_web,
     write,
 )
-from mvgeos_agent.function_spell import coerce_spell
+from mvge.agent.function_spell import coerce_spell
 
 READ_ONLY_SPELLS = (read, grep, find, list_files, read_url, search_web)
 MUTATING_SPELLS = (bash, write, edit)

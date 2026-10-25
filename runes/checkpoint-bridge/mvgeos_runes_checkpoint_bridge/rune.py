@@ -11,10 +11,10 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from mvgeos_core.layers import sessions_dir
-from mvgeos_core.spells import ExecutionMode, SpellContext
-from mvgeos_runes.rune_api import RuneAPI
-from mvgeos_runes.types import (
+from mvge.core.layers import sessions_dir
+from mvge.core.spells import ExecutionMode, SpellContext
+from mvge.runes.rune_api import RuneAPI
+from mvge.runes.types import (
     SessionLeafChangedData,
     SigilHook,
     SpellDefinition,

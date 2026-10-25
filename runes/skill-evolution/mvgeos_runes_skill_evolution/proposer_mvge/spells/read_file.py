@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
 
-from mvgeos_core.spells import (
+from mvge.core.spells import (
     SpellResult,
     SpellStatus,
 )

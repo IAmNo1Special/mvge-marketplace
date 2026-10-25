@@ -8,14 +8,14 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
-    from mvgeos_agent.sub_mvge import (
+    from mvge.agent.sub_mvge import (
         SubMvgeManager,
         SubMvgeRecord,
         SubMvgeSpec,
     )
-from mvgeos_core.spells import SpellContext
-from mvgeos_runes.rune_api import RuneAPI
-from mvgeos_runes.types import SpellDefinition
+from mvge.core.spells import SpellContext
+from mvge.runes.rune_api import RuneAPI
+from mvge.runes.types import SpellDefinition
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ class SubMvgeBridgeState:
             if self._manager_factory is not None:
                 self._manager = self._manager_factory()
             else:
-                from mvgeos_agent.sub_mvge import SubMvgeManager
+                from mvge.agent.sub_mvge import SubMvgeManager
 
                 runner = getattr(self.api, "_runner", None)
                 runner_ctx = getattr(runner, "context", None)
@@ -135,7 +135,7 @@ def rune_factory(
             else:
                 allowed_spells = None
 
-            from mvgeos_agent.sub_mvge import SubMvgeSpec
+            from mvge.agent.sub_mvge import SubMvgeSpec
 
             specs.append(
                 SubMvgeSpec(

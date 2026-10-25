@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from mvgeos_core import extensions_dir
-from mvgeos_provider.registry import RealmRegistry
-from mvgeos_runes.rune_api import RuneAPI
-from mvgeos_runes.types import SigilHook
+from mvge.core import extensions_dir
+from mvge.provider.registry import RealmRegistry
+from mvge.runes.rune_api import RuneAPI
+from mvge.runes.types import SigilHook
 from mvgeos_runes_seeker.activate_spell import ActivateSpell
 from mvgeos_runes_seeker.discovery import MCPConfigDiscovery
 from mvgeos_runes_seeker.ledger import SeekerLedger

@@ -4,7 +4,7 @@ from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from mvgeos_runes.types import (
+from mvge.runes.types import (
     AfterInvocationData,
     SessionShutdownData,
     SessionStartData,

@@ -5,10 +5,10 @@ from typing import Any, cast
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from mvgeos_provider.registry import RealmRegistry
-from mvgeos_runes.loader import load_factory_from_manifest
-from mvgeos_runes.manifest import load_manifest
-from mvgeos_runes.rune_runner import RuneRunner
+from mvge.provider.registry import RealmRegistry
+from mvge.runes.loader import load_factory_from_manifest
+from mvge.runes.manifest import load_manifest
+from mvge.runes.rune_runner import RuneRunner
 from mvgeos_runes_seeker.activate_spell import ActivateSpell
 from mvgeos_runes_seeker.connector import MCPConnector
 from mvgeos_runes_seeker.discovery import MCPConfigDiscovery

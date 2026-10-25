@@ -4,7 +4,7 @@ import importlib.util
 from pathlib import Path
 from typing import Any
 
-from mvgeos_runes.types import SigilHook
+from mvge.runes.types import SigilHook
 
 _RUNE_PATH = Path(__file__).resolve().parent.parent / "rune.py"
 _spec = importlib.util.spec_from_file_location(

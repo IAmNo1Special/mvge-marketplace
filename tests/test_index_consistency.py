@@ -351,9 +351,9 @@ def test_every_rune_entry_point_actually_loads() -> None:
     """
     import sys
 
-    from mvgeos_runes.loader import load_factory_from_manifest
-    from mvgeos_runes.manifest import load_manifest
-    from mvgeos_runes.types import DiagnosticKind
+    from mvge.runes.loader import load_factory_from_manifest
+    from mvge.runes.manifest import load_manifest
+    from mvge.runes.types import DiagnosticKind
 
     failures: list[str] = []
     for artifact in ALL_ARTIFACTS:

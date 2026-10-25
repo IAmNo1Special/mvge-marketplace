@@ -17,7 +17,7 @@ This module is wired into the ordinary ``pytest`` run, so the next Rune to
 widen its own privilege set fails the build instead of being noticed by
 whoever next reads a security diff.
 
-The forbidden set is imported from ``mvgeos_core.sandbox`` rather than
+The forbidden set is imported from ``mvge.core.sandbox`` rather than
 restated. A local copy is a second list that drifts from the engine's, which
 is exactly the failure ADR 0014's index check exists to prevent.
 
@@ -34,7 +34,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
-from mvgeos_core.sandbox import FORBIDDEN_NAMES
+from mvge.core.sandbox import FORBIDDEN_NAMES
 
 from marketplace_index import Artifact, artifacts
 

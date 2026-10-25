@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 from coding_mvge.spells import grep
-from mvgeos_core.spells import SpellStatus
+from mvge.core.spells import SpellStatus
 
 
 class TestGrepSpell:

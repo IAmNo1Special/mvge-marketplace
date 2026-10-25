@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
-from mvgeos_tome.types import TomeVersionError
+from mvge.tome.types import TomeVersionError
 
 from mvgeos_runes_pi_codec.codec import PiSessionCodec
 from mvgeos_runes_pi_codec.exporter import ExportError, export_tome_to_pi

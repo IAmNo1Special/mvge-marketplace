@@ -5,8 +5,8 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
-from mvgeos_runes.rune_api import RuneAPI
-from mvgeos_runes.types import SigilHook
+from mvge.runes.rune_api import RuneAPI
+from mvge.runes.types import SigilHook
 
 TITLE_FALLBACK_MAX_WORDS = 8
 TITLE_FALLBACK_MAX_BYTES = 96
@@ -185,8 +185,8 @@ class SessionTitleRune:
             self._state.llm_pending = False
 
     async def _call_llm_for_title(self) -> None:
-        from mvgeos_provider.registry import RealmRegistry
-        from mvgeos_runes.rune_runner import RuneRunner
+        from mvge.provider.registry import RealmRegistry
+        from mvge.runes.rune_runner import RuneRunner
 
         runner = self._api._runner
         if not isinstance(runner, RuneRunner):
@@ -207,7 +207,7 @@ class SessionTitleRune:
             "Respond with ONLY the title, no extra text."
         )
 
-        from mvgeos_core.channel import Model
+        from mvge.core.channel import Model
 
         model = Model(
             id=model_id,

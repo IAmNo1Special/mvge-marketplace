@@ -5,10 +5,10 @@ import re as _re
 from pathlib import Path
 from typing import Any
 
-from mvgeos_core import DEFAULT_AGENT_NAME
-from mvgeos_core.abort import AbortSignal
-from mvgeos_core.spells import MvgeSpell, SpellContext, SpellExecutionMode
-from mvgeos_provider.registry import RealmRegistry
+from mvge.core import DEFAULT_AGENT_NAME
+from mvge.core.abort import AbortSignal
+from mvge.core.spells import MvgeSpell, SpellContext, SpellExecutionMode
+from mvge.provider.registry import RealmRegistry
 
 from . import paths
 from .dci_matcher import DCISkillMatcher

@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 import pytest
-from mvgeos_agent.function_spell import discover_spells_from_dir
+from mvge.agent.function_spell import discover_spells_from_dir
 from selfmod_bridge_conftest import read_skill_frontmatter
 
 from mvgeos_runes_selfmod_bridge.templates import (

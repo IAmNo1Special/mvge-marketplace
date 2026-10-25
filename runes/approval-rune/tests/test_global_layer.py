@@ -12,12 +12,12 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from mvgeos_core import (
+from mvge.core import (
     GLOBAL_DIR_ENV,
     approval_dir,
     global_agents_dir,
 )
-from mvgeos_runes.installer import APPROVAL_RUNE_NAME, _approval_dir
+from mvge.runes.installer import APPROVAL_RUNE_NAME, _approval_dir
 
 from mvgeos_runes_approval_rune.contracts import SpellIdentity
 from mvgeos_runes_approval_rune.gate import ApprovalGate, default_data_dir

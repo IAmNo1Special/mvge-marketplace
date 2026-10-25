@@ -82,17 +82,12 @@ omit = [
 ]
 
 [tool.uv.sources]
-mvgeos-core = { path = "../mvgeos/mvgeos-core", editable = true }
-mvgeos-runes = { path = "../mvgeos/mvgeos-runes", editable = true }
-mvgeos-provider = { path = "../mvgeos/mvgeos-provider", editable = true }
-mvgeos-agent = { path = "../mvgeos/mvgeos-agent", editable = true }
+mvge = { path = "../mvgeos", editable = true }
 
 [dependency-groups]
 dev = [
-    "mvgeos-agent",
-    "mvgeos-core",
-    "mvgeos-provider",
-    "mvgeos-runes",
+    "mvge",
+
     "mypy>=2.3.1",
     "pytest-cov>=7.1.0",
     "ruff>=0.16.8",

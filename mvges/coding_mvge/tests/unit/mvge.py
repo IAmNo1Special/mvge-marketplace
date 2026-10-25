@@ -13,19 +13,19 @@ from coding_mvge.spells import (
     read,
     write,
 )
-from mvgeos_agent import (
+from mvge.agent import (
     FunctionSpell,
     Mvge,
 )
-from mvgeos_agent.environment import MvgeEnvironment
-from mvgeos_agent.harness._state import MvgeState
-from mvgeos_core.channel import (
+from mvge.agent.environment import MvgeEnvironment
+from mvge.agent.harness._state import MvgeState
+from mvge.core.channel import (
     MvgeResponse,
     StopReason,
 )
-from mvgeos_core.constants import DEFAULT_AGENT_NAME, DEFAULT_MODEL
-from mvgeos_core.events import ContemplationLevel
-from mvgeos_runes.types import SpellDefinition
+from mvge.core.constants import DEFAULT_AGENT_NAME, DEFAULT_MODEL
+from mvge.core.events import ContemplationLevel
+from mvge.runes.types import SpellDefinition
 
 
 @pytest.fixture
@@ -35,7 +35,7 @@ def agent() -> Mvge:
 
 @pytest.fixture
 def _register_mock_openrouter_realm() -> Any:
-    from mvgeos_provider.registry import get_default_realm_registry
+    from mvge.provider.registry import get_default_realm_registry
 
     reg = get_default_realm_registry()
     reg.register_realm_factory("openrouter", lambda **kw: _MockRealm())
@@ -56,7 +56,7 @@ def _make_mock_realm(text: str = "Hello") -> _MockRealm:
 
 
 def _install_mock(agent: Mvge, text: str = "Hello") -> _MockRealm:
-    from mvgeos_core.channel import Model
+    from mvge.core.channel import Model
 
     mock_realm = _make_mock_realm(text)
     agent._realm = mock_realm  # type: ignore[assignment]
@@ -82,7 +82,7 @@ def _install_mock(agent: Mvge, text: str = "Hello") -> _MockRealm:
         rune_runner=None,
         agent_tome=agent._agent_tome,
     )
-    from mvgeos_agent.harness import MvgeHarness
+    from mvge.agent.harness import MvgeHarness
 
     agent._harness = MvgeHarness(
         state=agent._state,
@@ -96,7 +96,7 @@ def _install_mock(agent: Mvge, text: str = "Hello") -> _MockRealm:
 
 class _Iter:
     def __aiter__(self) -> object:
-        from mvgeos_core.channel import (
+        from mvge.core.channel import (
             Model,
             RealmResponse,
         )
@@ -235,7 +235,7 @@ class TestMvgeBuildSpells:
         assert "inactive_tool" not in names
 
     def test_render_prompt_lists_active_spells(self, agent: Mvge) -> None:
-        from mvgeos_agent.environment import render_prompt as env_render_prompt
+        from mvge.agent.environment import render_prompt as env_render_prompt
 
         mock_runner = MagicMock()
         # MagicMock supports __iter__ and yields nothing, so an
@@ -423,7 +423,7 @@ class TestMvgeRun:
 class TestMvgeSwitchModel:
     @pytest.mark.asyncio
     async def test_switch_model_preserves_session(self) -> None:
-        from mvgeos_provider import list_models
+        from mvge.provider import list_models
 
         target = next(
             m.id
@@ -485,7 +485,7 @@ class TestMvgeSwitchModel:
 
     @pytest.mark.asyncio
     async def test_switch_model_before_init(self) -> None:
-        from mvgeos_provider import list_models
+        from mvge.provider import list_models
 
         target = next(m.id for m in list_models() if m.id != DEFAULT_MODEL)
         agent = Mvge(api_key="test-key")
@@ -496,9 +496,9 @@ class TestMvgeSwitchModel:
 class TestMvgeToolCalls:
     @pytest.mark.asyncio
     async def test_agent_executes_spell_and_continues_turn(self) -> None:
-        from mvgeos_agent.function_spell import FunctionSpell
-        from mvgeos_core.channel import RealmResponse, StopReason
-        from mvgeos_core.spells import SpellResultMessage
+        from mvge.agent.function_spell import FunctionSpell
+        from mvge.core.channel import RealmResponse, StopReason
+        from mvge.core.spells import SpellResultMessage
 
         with tempfile.TemporaryDirectory() as tmpdir:
             agent = Mvge(
@@ -569,7 +569,7 @@ class TestMvgeToolCalls:
 
     @pytest.mark.asyncio
     async def test_make_stream_sends_tools_schema(self) -> None:
-        from mvgeos_agent.function_spell import FunctionSpell
+        from mvge.agent.function_spell import FunctionSpell
 
         with tempfile.TemporaryDirectory() as tmpdir:
             agent = Mvge(

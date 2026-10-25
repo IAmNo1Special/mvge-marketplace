@@ -4,11 +4,11 @@ import urllib.parse
 from html.parser import HTMLParser
 
 import httpx
-from mvgeos_core.abort import (
+from mvge.core.abort import (
     AbortError,
     AbortSignal,
 )
-from mvgeos_core.spells import (
+from mvge.core.spells import (
     SpellResult,
     SpellStatus,
 )

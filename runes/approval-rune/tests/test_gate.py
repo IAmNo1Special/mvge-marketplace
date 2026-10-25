@@ -6,19 +6,19 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Any
 
-from mvgeos_core.approval import (
+from mvge.core.approval import (
     ApprovalDecision as CoreApprovalDecision,
 )
-from mvgeos_core.approval import (
+from mvge.core.approval import (
     ApprovalOutcome,
 )
-from mvgeos_core.approval import (
+from mvge.core.approval import (
     ApprovalRequest as CoreApprovalRequest,
 )
-from mvgeos_core.approval import (
+from mvge.core.approval import (
     allow as core_allow,
 )
-from mvgeos_core.approval import (
+from mvge.core.approval import (
     deny as core_deny,
 )
 

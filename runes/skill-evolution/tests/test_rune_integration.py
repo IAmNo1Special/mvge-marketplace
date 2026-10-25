@@ -3,9 +3,9 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from mvgeos_core.sandbox import MvgeSandbox
-from mvgeos_runes.rune_runner import RuneRunner
-from mvgeos_runes.types import RuneContext
+from mvge.core.sandbox import MvgeSandbox
+from mvge.runes.rune_runner import RuneRunner
+from mvge.runes.types import RuneContext
 
 
 @pytest.fixture
@@ -59,7 +59,7 @@ class TestSkillEvolutionRuneIntegration:
         }.issubset(cmds)
 
     def test_rune_hooks_registered(self, skill_evolution_rune_loaded):
-        from mvgeos_runes.types import SigilHook
+        from mvge.runes.types import SigilHook
 
         for hook in [
             SigilHook.AFTER_INVOCATION,
@@ -83,7 +83,7 @@ class TestSkillEvolutionRuneIntegration:
     async def test_system_prompt_not_polluted(
         self, skill_evolution_rune_loaded
     ):
-        from mvgeos_runes.types import (
+        from mvge.runes.types import (
             BeforeMvgeStartData,
             SigilHook,
         )
@@ -134,7 +134,7 @@ class TestSkillEvolutionRuneIntegration:
         import shutil
         from pathlib import Path
 
-        from mvgeos_core.spells import SpellStatus
+        from mvge.core.spells import SpellStatus
 
         from mvgeos_runes_skill_evolution.proposer_mvge.mvge import (
             scoped_proposer_context,
@@ -204,7 +204,7 @@ class TestSkillEvolutionRuneIntegration:
         both hermetic and a truer exercise of the seam than dropping a
         directory into the developer's home.
         """
-        from mvgeos_runes.types import SkillManifest
+        from mvge.runes.types import SkillManifest
 
         skill_dir = tmp_path / "source-skills" / "export-me"
         skill_dir.mkdir(parents=True)
@@ -245,7 +245,7 @@ class TestSkillEvolutionRuneIntegration:
     async def test_rune_command_handlers(self, skill_evolution_rune_loaded):
         from unittest.mock import AsyncMock, patch
 
-        from mvgeos_runes.types import SigilHook
+        from mvge.runes.types import SigilHook
 
         cmd_map = {
             c.name: c for c in skill_evolution_rune_loaded.get_commands()

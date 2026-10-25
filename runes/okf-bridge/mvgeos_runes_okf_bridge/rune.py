@@ -12,8 +12,8 @@ import json
 from pathlib import Path
 from typing import Any
 
-from mvgeos_runes.rune_api import RuneAPI
-from mvgeos_runes.types import BeforeMvgeStartData, SigilHook, SpellDefinition
+from mvge.runes.rune_api import RuneAPI
+from mvge.runes.types import BeforeMvgeStartData, SigilHook, SpellDefinition
 
 from mvgeos_runes_okf_bridge.graph import (
     KnowledgeGraph,

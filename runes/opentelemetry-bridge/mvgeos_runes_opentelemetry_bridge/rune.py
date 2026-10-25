@@ -5,8 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from mvgeos_runes.rune_api import RuneAPI
-from mvgeos_runes.types import (
+from mvge.runes.rune_api import RuneAPI
+from mvge.runes.types import (
     AfterProviderResponseData,
     AfterSpellResultData,
     BeforeProviderRequestData,

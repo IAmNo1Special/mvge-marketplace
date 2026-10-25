@@ -17,8 +17,8 @@ from coding_mvge.spells._process_tree import (
     validate_working_directory,
 )
 from coding_mvge.spells.bash import bash
-from mvgeos_agent.function_spell import FunctionSpell
-from mvgeos_core.spells import SpellStatus
+from mvge.agent.function_spell import FunctionSpell
+from mvge.core.spells import SpellStatus
 
 
 class _FakeReader:

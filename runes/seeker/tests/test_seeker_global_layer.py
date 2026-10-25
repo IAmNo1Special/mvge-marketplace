@@ -15,7 +15,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from mvgeos_core import GLOBAL_DIR_ENV, global_agents_dir, skills_dir
+from mvge.core import GLOBAL_DIR_ENV, global_agents_dir, skills_dir
 from mvgeos_runes_seeker.dci_matcher import _get_skill_roots
 
 

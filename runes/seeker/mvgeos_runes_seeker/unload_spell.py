@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from mvgeos_core.abort import AbortSignal
-from mvgeos_core.spells import MvgeSpell, SpellContext, SpellExecutionMode
+from mvge.core.abort import AbortSignal
+from mvge.core.spells import MvgeSpell, SpellContext, SpellExecutionMode
 
 from .connector import MCPConnector
 from .ledger import SeekerLedger

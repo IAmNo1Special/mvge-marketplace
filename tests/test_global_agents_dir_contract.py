@@ -1,9 +1,9 @@
 """No artifact may reach the global ``.agents`` layer through ``Path.home()``.
 
 The global layer has exactly one resolver: ``global_agents_dir()`` from
-``mvgeos_core``, which honours ``$MVGEOS_GLOBAL_DIR`` and otherwise returns
+``mvge.core``, which honours ``$MVGEOS_GLOBAL_DIR`` and otherwise returns
 ``~/.agents``. Import it from the package root rather than
-``mvgeos_core.constants``: the root is the public surface, and it re-exports
+``mvge.core.constants``: the root is the public surface, and it re-exports
 the resolvers whether they live in ``constants`` or in the newer ``layers``
 module. Spelling the same directory out as
 ``Path.home() / ".agents"`` produces a path that looks correct and is not:
@@ -11,7 +11,7 @@ under a relocated global dir the two disagree, and the divergence is silent.
 
 The serious direction of that silence is ``approval-rune``. The engine's
 installer resolves the purge target through ``global_agents_dir()``
-(``mvgeos_runes/installer.py::_approval_dir``), so under
+(``mvge.runes/installer.py::_approval_dir``), so under
 ``MVGEOS_GLOBAL_DIR=/tmp/x``:
 
 - the gate wrote its grants to ``~/.agents/approval/policy.toml``
@@ -231,12 +231,12 @@ def test_no_artifact_reaches_the_global_layer_through_home() -> None:
     assert not violations, (
         "These modules resolve the global "
         f"{GLOBAL_LAYER_SEGMENT!r} layer through Path.home() instead of "
-        "mvgeos_core.global_agents_dir(), so they ignore "
+        "mvge.core.global_agents_dir(), so they ignore "
         "$MVGEOS_GLOBAL_DIR:\n"
         + "\n".join(f"  {v.describe()}" for v in violations)
         + "\nRoute these through global_agents_dir() (or a named helper such "
         "as approval_dir(), skills_dir() or auth_dir()), imported from the "
-        "mvgeos_core package root, and resolve at call time rather than at "
+        "mvge.core package root, and resolve at call time rather than at "
         "import."
     )
 
@@ -294,7 +294,7 @@ def test_the_gate_does_not_flag_home_paths_outside_the_layer() -> None:
         # project-relative layer, with no home resolution anywhere
         'D = (Path(".agents/skills")).resolve()\n',
         # the correct shape: routed through the single resolver
-        ("from mvgeos_core import skills_dir\nD = skills_dir()\n"),
+        ("from mvge.core import skills_dir\nD = skills_dir()\n"),
         # a user-supplied path being expanded is not a home resolution
         "def f(p: Path) -> Path:\n    return p.expanduser() / '.agents'\n",
         # expanduser('~') for a non-layer directory

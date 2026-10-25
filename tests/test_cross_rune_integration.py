@@ -29,8 +29,8 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from mvgeos_runes import SigilHook
-from mvgeos_runes.rune_runner import RuneRunner
+from mvge.runes import SigilHook
+from mvge.runes.rune_runner import RuneRunner
 from mvgeos_runes_pi_codec.codec import PiSessionCodec
 from mvgeos_runes_selfmod_bridge.rune import SelfmodBridgeRune
 from mvgeos_runes_selfmod_bridge.state import SelfmodState
@@ -195,7 +195,7 @@ async def test_two_real_runes_chain_in_registration_order(
     for handler in handlers:
         runner.register_handler(SigilHook.BEFORE_MVGE_START, handler)
 
-    from mvgeos_runes.types import BeforeMvgeStartData
+    from mvge.runes.types import BeforeMvgeStartData
 
     payload = BeforeMvgeStartData(**_payload_dict(tmp_path))
     result = await runner.emit_chain(SigilHook.BEFORE_MVGE_START, payload)

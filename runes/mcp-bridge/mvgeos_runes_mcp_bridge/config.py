@@ -8,7 +8,7 @@ import re
 from collections.abc import Mapping
 from pathlib import Path
 
-from mvgeos_core import global_agents_dir
+from mvge.core import global_agents_dir
 
 try:
     from .types import (
@@ -266,7 +266,7 @@ def _parse_mcp_json(
 def _global_mcp_config_path(global_dir: Path | None) -> Path:
     """The user-scope ``mcp.json``, inside the global ``.agents`` layer.
 
-    Resolved through ``mvgeos_core.global_agents_dir`` rather than spelled
+    Resolved through ``mvge.core.global_agents_dir`` rather than spelled
     out from ``Path.home()`` so a relocated global layer
     (``$MVGEOS_GLOBAL_DIR``) is honoured by callers that omit the argument
     -- which is every production caller.

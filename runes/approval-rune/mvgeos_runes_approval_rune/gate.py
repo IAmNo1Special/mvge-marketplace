@@ -29,17 +29,17 @@ try:
 except ImportError:  # pragma: no cover - Windows
     fcntl = None  # type: ignore[assignment]
 
-from mvgeos_core import approval_dir
-from mvgeos_core.approval import (
+from mvge.core import approval_dir
+from mvge.core.approval import (
     ApprovalDecision as CoreApprovalDecision,
 )
-from mvgeos_core.approval import (
+from mvge.core.approval import (
     ApprovalRequest as CoreApprovalRequest,
 )
-from mvgeos_core.approval import (
+from mvge.core.approval import (
     allow as core_allow,
 )
-from mvgeos_core.approval import (
+from mvge.core.approval import (
     deny as core_deny,
 )
 
@@ -80,15 +80,15 @@ def default_data_dir() -> Path:
     is needed; freezing it at import reinstates the divergence for any
     process that sets the variable after loading the rune.
 
-    Resolved through ``mvgeos_core.approval_dir`` so the gate and the
+    Resolved through ``mvge.core.approval_dir`` so the gate and the
     engine's uninstall path -- which purges
     ``global_agents_dir()/approval/policy.toml`` -- cannot disagree. When
     they did, ``mvgeos rune uninstall approval-rune`` deleted a policy file
     the gate had never written, and the real grants survived the operation
     meant to revoke them.
 
-    Imported from the ``mvgeos_core`` package root rather than
-    ``mvgeos_core.constants``: the root is the public surface, and it
+    Imported from the ``mvge.core`` package root rather than
+    ``mvge.core.constants``: the root is the public surface, and it
     re-exports the resolvers whether they live in ``constants`` or in the
     newer ``layers`` module.
     """
@@ -366,7 +366,7 @@ class ApprovalGate:
         Accepts the engine's canonical ``ApprovalRequest`` (the production
         path through ``RuneRunner.evaluate_spell_gates``) or the rune's own
         raw-mapping contract (unit tests). Always returns the canonical
-        ``mvgeos_core.approval.ApprovalDecision`` the engine
+        ``mvge.core.approval.ApprovalDecision`` the engine
         isinstance-checks; the rune's internal decision type never crosses
         the engine boundary.
         """

@@ -3,8 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from mvgeos_core.abort import AbortSignal
-from mvgeos_core.spells import MvgeSpell, SpellContext, SpellExecutionMode
+from mvge.core.abort import AbortSignal
+from mvge.core.spells import MvgeSpell, SpellContext, SpellExecutionMode
 
 from .connector import MCPConnector
 from .dci_matcher import _get_skill_roots

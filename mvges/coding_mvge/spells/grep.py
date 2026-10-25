@@ -5,11 +5,11 @@ import re
 from pathlib import Path
 from typing import TypedDict
 
-from mvgeos_core.spells import (
+from mvge.core.spells import (
     SpellResult,
     SpellStatus,
 )
-from mvgeos_core.truncate import (
+from mvge.core.truncate import (
     DEFAULT_MAX_BYTES,
     GREP_MAX_LINE_LENGTH,
     MAX_GREP_MATCHES,

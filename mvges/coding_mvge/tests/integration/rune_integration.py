@@ -6,9 +6,9 @@ import json
 from typing import Any
 
 import pytest
-from mvgeos_runes.manifest import load_manifest
-from mvgeos_runes.rune_runner import RuneRunner
-from mvgeos_runes.types import (
+from mvge.runes.manifest import load_manifest
+from mvge.runes.rune_runner import RuneRunner
+from mvge.runes.types import (
     RuneContext,
     RuneLoad,
     RuneManifest,
@@ -151,8 +151,8 @@ async def test_load_runes_from_temp_dir(tmp_path):
     # Create a simple rune.py
     rune_py = rune_dir / "rune.py"
     rune_py.write_text("""
-from mvgeos_runes.rune_api import RuneAPI
-from mvgeos_runes.types import SpellDefinition
+from mvge.runes.rune_api import RuneAPI
+from mvge.runes.types import SpellDefinition
 
 class TestSpell(SpellDefinition):
     async def execute(self, spell_cast_id, params, signal=None, on_update=None):

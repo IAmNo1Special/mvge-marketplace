@@ -1,7 +1,7 @@
 """Pin first-party packages to this repository, not to whatever is installed.
 
 The engine puts ``~/.agents/agents`` at the front of ``sys.path`` the moment an
-Mvge is constructed (``mvgeos_agent.mvge``), and ``coding_mvge`` builds one at
+Mvge is constructed (``mvge.agent.mvge``), and ``coding_mvge`` builds one at
 module scope. The consequence for this suite was severe and entirely silent:
 ``mvges/coding_mvge/tests`` imported ``coding_mvge``, which resolved to the
 copy installed on the developer's machine rather than the tree beside it, so

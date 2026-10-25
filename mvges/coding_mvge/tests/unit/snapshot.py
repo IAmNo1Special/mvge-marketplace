@@ -7,12 +7,12 @@ from typing import Any
 import pytest
 from coding_mvge import root_mvge
 from coding_mvge.spells import bash, read
-from mvgeos_agent import Mvge
-from mvgeos_agent.config_manager import ConfigManager
-from mvgeos_agent.environment import MvgeEnvironment, PromptSource
-from mvgeos_core.constants import DEFAULT_AGENT_NAME, DEFAULT_MODEL
-from mvgeos_runes.rune_runner import RuneRunner
-from mvgeos_runes.types import (
+from mvge.agent import Mvge
+from mvge.agent.config_manager import ConfigManager
+from mvge.agent.environment import MvgeEnvironment, PromptSource
+from mvge.core.constants import DEFAULT_AGENT_NAME, DEFAULT_MODEL
+from mvge.runes.rune_runner import RuneRunner
+from mvge.runes.types import (
     Diagnostic,
     DiagnosticKind,
     RuneContext,

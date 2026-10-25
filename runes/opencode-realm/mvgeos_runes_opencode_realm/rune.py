@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from mvgeos_runes.rune_api import RuneAPI
-from mvgeos_runes.types import SigilHook
+from mvge.runes.rune_api import RuneAPI
+from mvge.runes.types import SigilHook
 
 from mvgeos_runes_opencode_realm.realm import ZEN_BASE_URL, OpenCodeRealm
 

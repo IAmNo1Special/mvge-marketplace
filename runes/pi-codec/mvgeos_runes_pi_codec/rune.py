@@ -8,7 +8,7 @@ a `rune_factory`; it is a no-op.
 
 from __future__ import annotations
 
-from mvgeos_runes.rune_api import RuneAPI
+from mvge.runes.rune_api import RuneAPI
 
 
 def rune_factory(api: RuneAPI) -> None:

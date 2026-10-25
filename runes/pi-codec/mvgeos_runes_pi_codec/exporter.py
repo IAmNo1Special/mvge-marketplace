@@ -17,9 +17,9 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from mvgeos_core import sessions_dir
-from mvgeos_tome.handle import TomeHandleFactory
-from mvgeos_tome.types import TomeEntry, TomeEntryType
+from mvge.core import sessions_dir
+from mvge.tome.handle import TomeHandleFactory
+from mvge.tome.types import TomeEntry, TomeEntryType
 
 from mvgeos_runes_pi_codec.codec import _uuidv7, pi_entry_body
 

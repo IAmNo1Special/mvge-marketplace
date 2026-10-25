@@ -21,7 +21,9 @@ from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
-from mvgeos_runes.types import SigilHook
+from mvge.runes.types import SigilHook
+from mvge.tome.handle import TomeHandleFactory
+from mvge.tome.types import TomeEntry, TomeEntryType
 from mvgeos_runes_session_search.db import (
     get_database_stats,
     get_db_connection,
@@ -39,8 +41,6 @@ from mvgeos_runes_session_search.indexer import (
     sync_index,
 )
 from mvgeos_runes_session_search.rune import _extension_dirs, rune_factory
-from mvgeos_tome.handle import TomeHandleFactory
-from mvgeos_tome.types import TomeEntry, TomeEntryType
 
 
 def _message(i: int, parent: str | None, role: str, **payload: Any) -> TomeEntry:

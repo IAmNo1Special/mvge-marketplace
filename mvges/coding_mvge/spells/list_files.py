@@ -3,11 +3,11 @@ from __future__ import annotations
 import asyncio
 from pathlib import Path
 
-from mvgeos_core.spells import (
+from mvge.core.spells import (
     SpellResult,
     SpellStatus,
 )
-from mvgeos_core.truncate import (
+from mvge.core.truncate import (
     DEFAULT_MAX_BYTES,
     MAX_LIST_ENTRIES,
     MAX_LIST_RESULTS,

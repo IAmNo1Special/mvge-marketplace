@@ -26,11 +26,11 @@ from unittest.mock import MagicMock
 
 import httpx
 import pytest
-from mvgeos_core.channel import ChannelConfig, Model
-from mvgeos_core.invocations import MvgeResponse, SummonerRequest
-from mvgeos_core.spells import SpellResultMessage
-from mvgeos_runes.rune_api import RuneAPI
-from mvgeos_runes.types import SigilHook
+from mvge.core.channel import ChannelConfig, Model
+from mvge.core.invocations import MvgeResponse, SummonerRequest
+from mvge.core.spells import SpellResultMessage
+from mvge.runes.rune_api import RuneAPI
+from mvge.runes.types import SigilHook
 from mvgeos_runes_opencode_realm.realm import (
     ZEN_BASE_URL,
     OpenCodeRealm,

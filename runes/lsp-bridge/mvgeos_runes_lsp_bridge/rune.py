@@ -9,10 +9,10 @@ import time
 from pathlib import Path
 from typing import Any
 
-from mvgeos_core.events import ContentType
-from mvgeos_core.spells import SpellResultMessage
-from mvgeos_runes.rune_api import RuneAPI
-from mvgeos_runes.types import SigilHook
+from mvge.core.events import ContentType
+from mvge.core.spells import SpellResultMessage
+from mvge.runes.rune_api import RuneAPI
+from mvge.runes.types import SigilHook
 
 _SERVER_SPECS: dict[str, tuple[str, list[list[str]]]] = {
     # extension -> (language_id, list of candidate command lines)

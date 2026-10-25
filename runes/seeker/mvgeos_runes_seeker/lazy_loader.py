@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from mvgeos_core.spells import MvgeSpell
+from mvge.core.spells import MvgeSpell
 
 from .router import SpellFileMatch
 

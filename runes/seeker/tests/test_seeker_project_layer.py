@@ -15,7 +15,7 @@ one that found nothing, which is how a dead layer stays invisible for a
 release. A root that was never asked for reintroduces exactly that.
 
 ADR 0017 makes ``.agents/skills`` a supported project layer, owned by
-``mvgeos_core.project_skills_dir``, reached only when a caller names a
+``mvge.core.project_skills_dir``, reached only when a caller names a
 project. These tests hold that line.
 """
 
@@ -24,7 +24,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from mvgeos_core import GLOBAL_DIR_ENV, project_skills_dir
+from mvge.core import GLOBAL_DIR_ENV, project_skills_dir
 from mvgeos_runes_seeker.dci_matcher import _get_skill_roots, _skill_root_candidates
 from mvgeos_runes_seeker.paths import missing, skill_roots
 

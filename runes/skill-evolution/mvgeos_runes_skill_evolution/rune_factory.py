@@ -9,8 +9,8 @@ import re
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from mvgeos_runes.rune_api import RuneAPI
-from mvgeos_runes.types import (
+from mvge.runes.rune_api import RuneAPI
+from mvge.runes.types import (
     RuneContext,
     SigilHook,
 )
@@ -37,11 +37,11 @@ from mvgeos_runes_skill_evolution.store import SkillEvolutionStore
 if TYPE_CHECKING:
     # Mvge is an annotation only in this module, and this file has
     # ``from __future__ import annotations``, so it is never evaluated at
-    # runtime. ``mvgeos_agent`` must not be imported at module scope: its
-    # ``__init__`` imports ``mvgeos_runes.rune_runner``, which is the loader
+    # runtime. ``mvge.agent`` must not be imported at module scope: its
+    # ``__init__`` imports ``mvge.runes.rune_runner``, which is the loader
     # that loads Rune modules, so a Rune imported during that chain sees a
-    # half-built ``mvgeos_agent`` and the import fails. See the Rune charter.
-    from mvgeos_agent import Mvge
+    # half-built ``mvge.agent`` and the import fails. See the Rune charter.
+    from mvge.agent import Mvge
 
 
 def rune_factory(api: RuneAPI) -> None:

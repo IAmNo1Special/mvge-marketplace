@@ -7,11 +7,11 @@ is dead. ADR-0002 chose it, ADR-0014 superseded it, and no first-party code
 in either repository has ever written there -- so every one of those
 searches matched nothing on a correctly installed system.
 
-Each resolver here is a thin wrapper over the matching ``mvgeos_core``
+Each resolver here is a thin wrapper over the matching ``mvge.core``
 resolver, and each is a *call* rather than a module constant. That second
 part matters as much as the first: the layer is read when the path is asked
 for, so a Rune loaded once at startup still follows a layer relocated by
-``$MVGEOS_GLOBAL_DIR`` afterwards. ``mvgeos_core.layers`` states the reason
+``$MVGEOS_GLOBAL_DIR`` afterwards. ``mvge.core.layers`` states the reason
 in one line -- the install path and the discovery path resolving
 differently is what allows a Rune to install successfully and then load
 nowhere.
@@ -25,7 +25,7 @@ does not relocate it and it is not ours to derive.
 constant, ``Path(".agents") / "skills"``, with no project attached, which
 bound it to the working directory at the moment of the call: launched
 from an unrelated checkout, Seeker searched that checkout's Skills. It is
-routed through ``mvgeos_core.project_skills_dir`` and reached only when a
+routed through ``mvge.core.project_skills_dir`` and reached only when a
 caller *names* a project, on the same terms ADR 0017 sets for Runes --
 anchored, never ambient. See ADR 0017.
 """
@@ -35,7 +35,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from pathlib import Path
 
-from mvgeos_core import (
+from mvge.core import (
     agent_spells_dir,
     extensions_dir,
     project_skills_dir,
@@ -46,7 +46,7 @@ from mvgeos_core import (
 def spells_root(agent_name: str) -> Path:
     """The agent-scope Spells directory: ``<global>/agents/<name>/spells``.
 
-    Routed through ``mvgeos_core.agent_spells_dir``, which the engine added
+    Routed through ``mvge.core.agent_spells_dir``, which the engine added
     for exactly this Rune's reason: the host spells this path out in its
     installer and in its own Spell discovery, and a Rune that searches it
     must not spell out a third copy. This function used to compose the path
@@ -71,7 +71,7 @@ def skill_roots(project_dir: str | Path | None = None) -> list[Path]:
 
     ``project_dir`` names the project to search. ``None`` means no project
     layer at all -- not the current directory. That is the whole point of
-    the parameter being explicit: ``mvgeos_core.layers`` omits the project
+    the parameter being explicit: ``mvge.core.layers`` omits the project
     layer rather than defaulting it, so the ambient working directory
     cannot leak into a search path. A Skill is instructions the Mvge will
     follow, so a root bound to an unnamed checkout does not return the

@@ -12,7 +12,7 @@ from mcp.types import (
     TextResourceContents,
     Tool,
 )
-from mvgeos_core.spells import SpellStatus
+from mvge.core.spells import SpellStatus
 from mvgeos_runes_mcp_bridge.manager import (
     MCPManager,
     extract_content,

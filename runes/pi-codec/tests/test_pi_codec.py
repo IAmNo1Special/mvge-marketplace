@@ -12,8 +12,8 @@ import re
 from pathlib import Path
 
 import pytest
+from mvge.tome.types import TomeEntry, TomeEntryType, TomeVersionError
 from mvgeos_runes_pi_codec.codec import PiCodecError, PiSessionCodec
-from mvgeos_tome.types import TomeEntry, TomeEntryType, TomeVersionError
 
 UUIDV7_RE = re.compile(
     r"^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
@@ -937,7 +937,7 @@ class TestLoaderContract:
         assert "Codec" in manifest["types"]
 
     def test_structural_members(self):
-        from mvgeos_runes.codecs import _CODEC_METHODS
+        from mvge.runes.codecs import _CODEC_METHODS
 
         codec = _codec()
         for member in _CODEC_METHODS:

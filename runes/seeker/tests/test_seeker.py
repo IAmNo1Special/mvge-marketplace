@@ -5,10 +5,10 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from mvgeos_runes.loader import load_factory_from_manifest
-from mvgeos_runes.manifest import load_manifest
-from mvgeos_runes.rune_runner import RuneRunner
-from mvgeos_runes.types import RuneLoad, SigilHook
+from mvge.runes.loader import load_factory_from_manifest
+from mvge.runes.manifest import load_manifest
+from mvge.runes.rune_runner import RuneRunner
+from mvge.runes.types import RuneLoad, SigilHook
 
 
 @pytest.mark.asyncio
@@ -96,7 +96,7 @@ async def test_seeker_session_start_does_not_touch_global_allowlist() -> None:
 
 @pytest.mark.asyncio
 async def test_tool_search_widens_global_allowlist(tmp_path: Path) -> None:
-    from mvgeos_provider.registry import RealmRegistry
+    from mvge.provider.registry import RealmRegistry
     from mvgeos_runes_seeker.router import SpellFileMatch
     from mvgeos_runes_seeker.spell import ToolSearchSpell
 

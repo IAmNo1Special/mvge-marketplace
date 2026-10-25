@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from mvgeos_runes.rune_api import RuneAPI
+from mvge.runes.rune_api import RuneAPI
 
 from mvgeos_runes_eval_bridge.cli import app
 

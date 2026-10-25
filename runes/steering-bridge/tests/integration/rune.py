@@ -57,7 +57,7 @@ async def test_steering_bridge_session_start_resolves_paths(
 async def test_steering_bridge_before_mvge_start_object(
     tmp_path: Path,
 ) -> None:
-    from mvgeos_runes.types import BeforeMvgeStartData
+    from mvge.runes.types import BeforeMvgeStartData
 
     rune = _rune_with_steering(tmp_path)
     data = BeforeMvgeStartData(

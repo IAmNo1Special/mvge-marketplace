@@ -5,7 +5,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from mvgeos_core import global_agents_dir
+from mvge.core import global_agents_dir
 
 from mvgeos_runes_skills_bridge.parser import (
     parse_skill_manifest,

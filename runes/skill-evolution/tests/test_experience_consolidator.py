@@ -6,7 +6,7 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
-from mvgeos_provider.registry import get_registry
+from mvge.provider.registry import get_registry
 
 from mvgeos_runes_skill_evolution.consolidator.consolidator import (
     ExperienceConsolidator,

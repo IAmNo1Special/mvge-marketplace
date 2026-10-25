@@ -16,10 +16,7 @@
     "search_web"
   ],
   "python_deps": [
-    "mvgeos-agent",
-    "mvgeos-core",
-    "mvgeos-provider",
-    "mvgeos-runes"
+    "mvge"
   ],
   "enabled": true
 }

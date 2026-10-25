@@ -10,7 +10,7 @@ from mvgeos_runes_skill_evolution.queries import SkillEvolutionQueries
 from mvgeos_runes_skill_evolution.store import SkillEvolutionStore
 
 if TYPE_CHECKING:
-    from mvgeos_runes.types import SkillManifest
+    from mvge.runes.types import SkillManifest
 
 
 class SkillPluginExporter:
@@ -26,7 +26,7 @@ class SkillPluginExporter:
         self.agent_name = agent_name
         # Skills are resolved through the RuneAPI at export time rather than
         # by importing a loader. The engine moved skill discovery out of
-        # mvgeos_runes.loader when declarative skills became the
+        # mvge.runes.loader when declarative skills became the
         # skills-bridge rune, so the old import here had been a live
         # ImportError that no test reached. Going via the API keeps this
         # rune off the loader's internals and means skills simply do not

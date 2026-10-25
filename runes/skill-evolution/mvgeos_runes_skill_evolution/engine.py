@@ -7,7 +7,7 @@ import shutil
 from pathlib import Path
 from typing import Any
 
-from mvgeos_core.spells import (
+from mvge.core.spells import (
     SpellResult,
     SpellStatus,
 )

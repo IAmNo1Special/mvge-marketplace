@@ -1,5 +1,13 @@
 # 🔮 Mvge Marketplace
 
+[![CI](https://github.com/IAmNo1Special/mvge-marketplace/actions/workflows/ci.yml/badge.svg)](https://github.com/IAmNo1Special/mvge-marketplace/actions/workflows/ci.yml)
+[![Docs](https://github.com/IAmNo1Special/mvge-marketplace/actions/workflows/docs.yml/badge.svg)](https://iamno1special.github.io/mvge-marketplace/)
+[![Engine: mvge](https://img.shields.io/badge/engine-mvge%20%3E%3D%200.1.3-blue.svg)](https://pypi.org/project/mvge/)
+[![Python](https://img.shields.io/badge/python-3.13%2B-blue.svg)](https://www.python.org/downloads/)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![Type Checking: mypy](https://img.shields.io/badge/type%20checking-mypy%20strict-blue.svg)](https://mypy-lang.org/)
+[![Tests](https://img.shields.io/badge/tests-1200%20passed-brightgreen.svg)]()
+
 Official marketplace catalog for Mvge **Runes** (extensions), **Mvges** (agents), and runtime **Profiles**.
 
 ## ✨ Overview

@@ -30,17 +30,11 @@ jobs:
       # loudly instead of leaving three tests to report 'rg not found on
       # PATH' much later, from a place that has nothing to do with the cause.
       #
-      # the engine: the rune tests import the Mvge engine packages, which
-      # live in the main mvge repo (not on PyPI). Clone it and sync its
-      # workspace so every engine dependency (pydantic, httpx, ...) is
-      # installed.
       pre-commands: |
         sudo apt-get update
         sudo apt-get install -y --no-install-recommends ripgrep
         rg --version
-        git clone --depth 1 https://github.com/IAmNo1Special/mvge mvge
-      install-command: |
-        cd mvge && uv sync
+      install-command: "uv sync"
       run-lint: false
       # Each rune ships its own pyproject.toml declaring third-party deps
       # (mcp, opentelemetry, typer, pyyaml, aiohttp, ...) that are not part of
@@ -70,4 +64,4 @@ jobs:
             esac
           done < <(python3 -c "import sys,tomllib; print('\n'.join(tomllib.load(open(sys.argv[1],'rb')).get('project',{}).get('dependencies',[])))" "$py")
         done
-        uv run --project mvge $WITH_ARGS --with pytest-asyncio python -m pytest -q
+        uv run $WITH_ARGS --with pytest-asyncio python -m pytest -q

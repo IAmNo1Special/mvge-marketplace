@@ -79,10 +79,15 @@ def _engine_pyproject() -> Path | None:
 
 def _declared_version() -> str | None:
     engine = _engine_pyproject()
-    if engine is None:
+    if engine is not None:
+        with engine.open("rb") as fh:
+            return tomllib.load(fh)["project"]["version"]
+    try:
+        import importlib.metadata
+
+        return importlib.metadata.version("mvge")
+    except importlib.metadata.PackageNotFoundError:
         return None
-    with engine.open("rb") as fh:
-        return tomllib.load(fh)["project"]["version"]
 
 
 DECLARED = _declared_version()

@@ -28,5 +28,5 @@ to any prior session leaf.
 ## Installation
 
 ```bash
-mvgeos rune install checkpoint-bridge
+mvge rune install checkpoint-bridge
 ```

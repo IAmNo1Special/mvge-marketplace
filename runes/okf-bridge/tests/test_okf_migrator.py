@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mvgeos_runes_okf_bridge.migrator import migrate_bundle_in_place
+from mvge_runes_okf_bridge.migrator import migrate_bundle_in_place
 
 
 def test_migrate_bundle_in_place(tmp_path: Path) -> None:

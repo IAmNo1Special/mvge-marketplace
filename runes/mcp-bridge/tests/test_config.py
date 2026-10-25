@@ -3,12 +3,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from mvgeos_runes_mcp_bridge.config import (
+from mvge_runes_mcp_bridge.config import (
     _parse_mcp_json,
     expand_env_vars,
     get_prioritized_mcp_configs,
 )
-from mvgeos_runes_mcp_bridge.types import (
+from mvge_runes_mcp_bridge.types import (
     MCPDiagnostic,
     MCPDiagnosticKind,
     MCPTransport,

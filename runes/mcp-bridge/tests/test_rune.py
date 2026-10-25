@@ -9,8 +9,8 @@ from mvge.core.spells import SpellResult, SpellStatus
 from mvge.runes.rune_api import RuneAPI
 from mvge.runes.rune_runner import RuneRunner
 from mvge.runes.types import RuneContext, SigilHook, SpellDefinition
-from mvgeos_runes_mcp_bridge.rune import rune_factory
-from mvgeos_runes_mcp_bridge.types import MCPServerConfig
+from mvge_runes_mcp_bridge.rune import rune_factory
+from mvge_runes_mcp_bridge.types import MCPServerConfig
 
 
 @pytest.fixture
@@ -52,25 +52,25 @@ async def test_session_start_discovery_and_spell_execution(api: RuneAPI) -> None
 
     with (
         patch(
-            "mvgeos_runes_mcp_bridge.rune.get_prioritized_mcp_configs",
+            "mvge_runes_mcp_bridge.rune.get_prioritized_mcp_configs",
             return_value={"test_srv": cfg},
         ),
         patch(
-            "mvgeos_runes_mcp_bridge.manager.MCPServerSession.connect",
+            "mvge_runes_mcp_bridge.manager.MCPServerSession.connect",
             new_callable=AsyncMock,
         ),
         patch(
-            "mvgeos_runes_mcp_bridge.manager.MCPServerSession.list_tools",
+            "mvge_runes_mcp_bridge.manager.MCPServerSession.list_tools",
             new_callable=AsyncMock,
             return_value=mock_tools,
         ),
         patch(
-            "mvgeos_runes_mcp_bridge.manager.MCPServerSession.connected",
+            "mvge_runes_mcp_bridge.manager.MCPServerSession.connected",
             new_callable=PropertyMock,
             return_value=True,
         ),
         patch(
-            "mvgeos_runes_mcp_bridge.manager.MCPServerSession.call_tool",
+            "mvge_runes_mcp_bridge.manager.MCPServerSession.call_tool",
             new_callable=AsyncMock,
             return_value=mock_res,
         ),
@@ -112,7 +112,7 @@ async def test_mcp_command_list_and_test(api: RuneAPI) -> None:
 
     # 3. Test unknown server
     with patch(
-        "mvgeos_runes_mcp_bridge.rune.get_prioritized_mcp_configs",
+        "mvge_runes_mcp_bridge.rune.get_prioritized_mcp_configs",
         return_value={},
     ):
         res_unknown = await handler("test nonexistent")
@@ -122,20 +122,20 @@ async def test_mcp_command_list_and_test(api: RuneAPI) -> None:
     cfg = MCPServerConfig(name="live_srv")
     with (
         patch(
-            "mvgeos_runes_mcp_bridge.rune.get_prioritized_mcp_configs",
+            "mvge_runes_mcp_bridge.rune.get_prioritized_mcp_configs",
             return_value={"live_srv": cfg},
         ),
         patch(
-            "mvgeos_runes_mcp_bridge.session.MCPServerSession.connect",
+            "mvge_runes_mcp_bridge.session.MCPServerSession.connect",
             new_callable=AsyncMock,
         ),
         patch(
-            "mvgeos_runes_mcp_bridge.session.MCPServerSession.list_tools",
+            "mvge_runes_mcp_bridge.session.MCPServerSession.list_tools",
             new_callable=AsyncMock,
             return_value=[MagicMock(), MagicMock()],
         ),
         patch(
-            "mvgeos_runes_mcp_bridge.session.MCPServerSession.close",
+            "mvge_runes_mcp_bridge.session.MCPServerSession.close",
             new_callable=AsyncMock,
         ),
     ):
@@ -163,20 +163,20 @@ async def test_mcp_command_list_populated(api: RuneAPI) -> None:
     mock_tools = [Tool(name="t1", description="", inputSchema={})]
     with (
         patch(
-            "mvgeos_runes_mcp_bridge.rune.get_prioritized_mcp_configs",
+            "mvge_runes_mcp_bridge.rune.get_prioritized_mcp_configs",
             return_value={"live_srv": cfg},
         ),
         patch(
-            "mvgeos_runes_mcp_bridge.manager.MCPServerSession.connect",
+            "mvge_runes_mcp_bridge.manager.MCPServerSession.connect",
             new_callable=AsyncMock,
         ),
         patch(
-            "mvgeos_runes_mcp_bridge.manager.MCPServerSession.list_tools",
+            "mvge_runes_mcp_bridge.manager.MCPServerSession.list_tools",
             new_callable=AsyncMock,
             return_value=mock_tools,
         ),
         patch(
-            "mvgeos_runes_mcp_bridge.manager.MCPServerSession.connected",
+            "mvge_runes_mcp_bridge.manager.MCPServerSession.connected",
             new_callable=PropertyMock,
             return_value=True,
         ),
@@ -199,16 +199,16 @@ async def test_mcp_command_test_server_failure(api: RuneAPI) -> None:
     cfg = MCPServerConfig(name="fail_srv")
     with (
         patch(
-            "mvgeos_runes_mcp_bridge.rune.get_prioritized_mcp_configs",
+            "mvge_runes_mcp_bridge.rune.get_prioritized_mcp_configs",
             return_value={"fail_srv": cfg},
         ),
         patch(
-            "mvgeos_runes_mcp_bridge.session.MCPServerSession.connect",
+            "mvge_runes_mcp_bridge.session.MCPServerSession.connect",
             new_callable=AsyncMock,
             side_effect=RuntimeError("Connection refused"),
         ),
         patch(
-            "mvgeos_runes_mcp_bridge.session.MCPServerSession.close",
+            "mvge_runes_mcp_bridge.session.MCPServerSession.close",
             new_callable=AsyncMock,
         ),
     ):

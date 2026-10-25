@@ -1,7 +1,7 @@
 {
   "name": "okf-bridge",
   "version": "0.2.0",
-  "description": "Official Open Knowledge Format (OKF v0.2) knowledge bridge for MvgeOS",
+  "description": "Official Open Knowledge Format (OKF v0.2) knowledge bridge for Mvge",
   "types": ["Sigil", "Spell", "Command"],
   "runtime": "python",
   "entry_point": "rune.py",

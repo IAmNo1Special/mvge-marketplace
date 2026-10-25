@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 import pytest
-from mvgeos_runes_pi_codec.cli import ValidateError, validate_pi_file
+from mvge_runes_pi_codec.cli import ValidateError, validate_pi_file
 
 FIX = Path(__file__).parent / "fixtures"
 V3 = FIX / "pi_v3_sample.jsonl"
@@ -142,7 +142,7 @@ def test_validate_torn_tail_is_read_only(tmp_path: Path):
         f.write(b'{"kind": "entry", "id": "truncated')
     with pytest.raises(ValidateError):
         validate_pi_file(path)
-    # read-only: the torn tail is left untouched for MvgeOS open to repair.
+    # read-only: the torn tail is left untouched for Mvge open to repair.
     assert path.read_bytes() == before + b'{"kind": "entry", "id": "truncated'
 
 

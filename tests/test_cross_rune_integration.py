@@ -31,12 +31,12 @@ from typing import Any
 import pytest
 from mvge.runes import SigilHook
 from mvge.runes.rune_runner import RuneRunner
-from mvgeos_runes_pi_codec.codec import PiSessionCodec
-from mvgeos_runes_selfmod_bridge.rune import SelfmodBridgeRune
-from mvgeos_runes_selfmod_bridge.state import SelfmodState
-from mvgeos_runes_session_search.db import get_db_connection, search_messages
-from mvgeos_runes_session_search.indexer import sync_index
-from mvgeos_runes_steering_bridge.rune import SteeringBridgeRune
+from mvge_runes_pi_codec.codec import PiSessionCodec
+from mvge_runes_selfmod_bridge.rune import SelfmodBridgeRune
+from mvge_runes_selfmod_bridge.state import SelfmodState
+from mvge_runes_session_search.db import get_db_connection, search_messages
+from mvge_runes_session_search.indexer import sync_index
+from mvge_runes_steering_bridge.rune import SteeringBridgeRune
 
 
 def test_pi_session_indexed(tmp_path: Path) -> None:

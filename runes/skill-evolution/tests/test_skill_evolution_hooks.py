@@ -11,7 +11,7 @@ from mvge.runes.types import (
     TurnEndData,
 )
 
-from mvgeos_runes_skill_evolution.hooks.handlers import SkillEvolutionHooks
+from mvge_runes_skill_evolution.hooks.handlers import SkillEvolutionHooks
 
 
 @pytest.mark.asyncio

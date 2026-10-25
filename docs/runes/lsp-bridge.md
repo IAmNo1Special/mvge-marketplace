@@ -22,5 +22,5 @@ and linter feedback on `edit` and `write` spell casts.
 ## Installation
 
 ```bash
-mvgeos rune install lsp-bridge
+mvge rune install lsp-bridge
 ```

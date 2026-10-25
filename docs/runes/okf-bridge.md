@@ -1,8 +1,8 @@
 # OKF Bridge
 
-Official Open Knowledge Format (OKF v0.2) knowledge bridge for MvgeOS.
+Official Open Knowledge Format (OKF v0.2) knowledge bridge for Mvge.
 
-Owns the `.agents/knowledge/` concept bundle: merges the global (`$MVGEOS_GLOBAL_DIR/knowledge`, default `~/.agents/knowledge`) and workspace (`<cwd>/.agents/knowledge`) layers, workspace winning on collisions. Injects a budgeted `<working_concepts>` block each turn — id/title/description metadata only, never full bodies (progressive disclosure, skills-bridge pattern).
+Owns the `.agents/knowledge/` concept bundle: merges the global (`$MVGE_GLOBAL_DIR/knowledge`, default `~/.agents/knowledge`) and workspace (`<cwd>/.agents/knowledge`) layers, workspace winning on collisions. Injects a budgeted `<working_concepts>` block each turn — id/title/description metadata only, never full bodies (progressive disclosure, skills-bridge pattern).
 
 ## Spells
 
@@ -18,7 +18,7 @@ Owns the `.agents/knowledge/` concept bundle: merges the global (`$MVGEOS_GLOBAL
 
 ## Commands
 
-- `mvgeos okf …` — search, inspect, validate, and manage knowledge bundles (cp1252-safe ASCII output).
+- `mvge okf …` — search, inspect, validate, and manage knowledge bundles (cp1252-safe ASCII output).
 
 ## Hooks
 

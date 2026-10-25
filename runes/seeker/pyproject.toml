@@ -3,16 +3,16 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "mvgeos-runes-seeker"
+name = "mvge-runes-seeker"
 version = "0.1.0"
-description = "Seeker Protocol rune for MvgeOS - DCI-based discovery for spells, skills, and MCP servers"
+description = "Seeker Protocol rune for Mvge - DCI-based discovery for spells, skills, and MCP servers"
 dependencies = [
     "mvge",
     "aiohttp",
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["mvgeos_runes_seeker"]
+packages = ["mvge_runes_seeker"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

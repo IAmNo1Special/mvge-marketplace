@@ -1,20 +1,20 @@
 from __future__ import annotations
 
-from mvgeos_runes_opentelemetry_bridge.tracer import OTelTracer
-from mvgeos_runes_opentelemetry_bridge.types import OTelConfig
+from mvge_runes_opentelemetry_bridge.tracer import OTelTracer
+from mvge_runes_opentelemetry_bridge.types import OTelConfig
 from opentelemetry.trace import StatusCode
 
 
 def test_otel_config_defaults() -> None:
     config = OTelConfig()
-    assert config.service_name == "mvgeos"
+    assert config.service_name == "mvge"
     assert config.endpoint is None
     assert config.in_memory is False
     assert config.disabled is False
 
 
 def test_tracer_session_and_turn_lifecycle() -> None:
-    config = OTelConfig(in_memory=True, service_name="test-mvgeos")
+    config = OTelConfig(in_memory=True, service_name="test-mvge")
     tracer = OTelTracer(config)
 
     tracer.start_session(session_id="tome-001", cwd="/workspace")
@@ -65,13 +65,13 @@ def test_tracer_session_and_turn_lifecycle() -> None:
     assert tool_span.attributes["gen_ai.tool.type"] == "function"
 
     # 3. Turn span
-    turn_span = next(s for s in spans if s.name == "mvgeos.turn")
-    assert turn_span.attributes["mvgeos.stop_reason"] == "stop"
+    turn_span = next(s for s in spans if s.name == "mvge.turn")
+    assert turn_span.attributes["mvge.stop_reason"] == "stop"
 
     # 4. Session span
-    session_span = next(s for s in spans if s.name == "mvgeos.session")
+    session_span = next(s for s in spans if s.name == "mvge.session")
     assert session_span.attributes["gen_ai.conversation.id"] == "tome-001"
-    assert session_span.attributes["mvgeos.orchestrator"] == "mvgeos"
+    assert session_span.attributes["mvge.orchestrator"] == "mvge"
 
     # Check hierarchy
     assert chat_span.parent.span_id == turn_span.context.span_id

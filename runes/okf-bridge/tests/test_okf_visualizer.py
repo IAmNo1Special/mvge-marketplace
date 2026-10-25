@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mvgeos_runes_okf_bridge.graph import KnowledgeGraph
-from mvgeos_runes_okf_bridge.visualizer import generate_html_graph
+from mvge_runes_okf_bridge.graph import KnowledgeGraph
+from mvge_runes_okf_bridge.visualizer import generate_html_graph
 
 
 def test_generate_html_graph(tmp_path: Path) -> None:

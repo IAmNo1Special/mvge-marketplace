@@ -32,8 +32,8 @@ from typing import Any
 
 import yaml
 
-from mvgeos_runes_selfmod_bridge.rune import SelfmodBridgeRune
-from mvgeos_runes_selfmod_bridge.state import SelfmodState
+from mvge_runes_selfmod_bridge.rune import SelfmodBridgeRune
+from mvge_runes_selfmod_bridge.state import SelfmodState
 
 # Unique alias: the bare ``tests.conftest`` / ``rune`` module names collide
 # across marketplace runes in full-suite runs (every rune ships

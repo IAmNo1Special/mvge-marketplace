@@ -88,25 +88,25 @@ class TestTimeoutResolution:
     def test_env_var_bash_timeout(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        monkeypatch.setenv("MVGEOS_BASH_TIMEOUT_MS", "12345")
+        monkeypatch.setenv("MVGE_BASH_TIMEOUT_MS", "12345")
         assert resolve_timeout_ms() == 12345
 
     def test_env_var_spell_timeout(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        monkeypatch.delenv("MVGEOS_BASH_TIMEOUT_MS", raising=False)
-        monkeypatch.setenv("MVGEOS_SPELL_TIMEOUT_MS", "67890")
+        monkeypatch.delenv("MVGE_BASH_TIMEOUT_MS", raising=False)
+        monkeypatch.setenv("MVGE_SPELL_TIMEOUT_MS", "67890")
         assert resolve_timeout_ms() == 67890
 
     def test_invalid_env_var_falls_back_to_default(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        monkeypatch.setenv("MVGEOS_BASH_TIMEOUT_MS", "invalid_num")
+        monkeypatch.setenv("MVGE_BASH_TIMEOUT_MS", "invalid_num")
         assert resolve_timeout_ms() == DEFAULT_BASH_TIMEOUT_MS
 
     def test_default_timeout(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.delenv("MVGEOS_BASH_TIMEOUT_MS", raising=False)
-        monkeypatch.delenv("MVGEOS_SPELL_TIMEOUT_MS", raising=False)
+        monkeypatch.delenv("MVGE_BASH_TIMEOUT_MS", raising=False)
+        monkeypatch.delenv("MVGE_SPELL_TIMEOUT_MS", raising=False)
         assert resolve_timeout_ms() == DEFAULT_BASH_TIMEOUT_MS
 
 
@@ -118,21 +118,21 @@ class TestWorkspaceResolutionAndValidation:
     def test_resolve_workspace_root_env(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        monkeypatch.setenv("MVGEOS_WORKSPACE_ROOT", str(tmp_path))
+        monkeypatch.setenv("MVGE_WORKSPACE_ROOT", str(tmp_path))
         assert resolve_workspace_root() == tmp_path.resolve()
 
     def test_resolve_workspace_root_project_dir_env(
         self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        monkeypatch.delenv("MVGEOS_WORKSPACE_ROOT", raising=False)
-        monkeypatch.setenv("MVGEOS_PROJECT_DIR", str(tmp_path))
+        monkeypatch.delenv("MVGE_WORKSPACE_ROOT", raising=False)
+        monkeypatch.setenv("MVGE_PROJECT_DIR", str(tmp_path))
         assert resolve_workspace_root() == tmp_path.resolve()
 
     def test_resolve_workspace_root_fallback_cwd(
         self, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        monkeypatch.delenv("MVGEOS_WORKSPACE_ROOT", raising=False)
-        monkeypatch.delenv("MVGEOS_PROJECT_DIR", raising=False)
+        monkeypatch.delenv("MVGE_WORKSPACE_ROOT", raising=False)
+        monkeypatch.delenv("MVGE_PROJECT_DIR", raising=False)
         assert resolve_workspace_root() == Path.cwd().resolve()
 
     def test_validate_working_dir_none_or_empty(self, tmp_path: Path) -> None:

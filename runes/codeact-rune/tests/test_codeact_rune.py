@@ -7,7 +7,7 @@ import pytest
 from mvge.core.spells import SpellResult, SpellStatus
 from mvge.runes.rune_api import RuneAPI
 from mvge.runes.types import ExecutionMode, SpellDefinition
-from mvgeos_runes_codeact.rune import CodeActExecutor, rune_factory
+from mvge_runes_codeact.rune import CodeActExecutor, rune_factory
 
 
 @pytest.fixture

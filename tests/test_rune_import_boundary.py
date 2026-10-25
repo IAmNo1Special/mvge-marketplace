@@ -50,7 +50,7 @@ Why not widen one of the two existing gates
 ------------------------------------------
 Neither covers this class, and merging them would lose their names:
 
-- ``mvgeos-core/scripts/check_marketplace_contract.py`` is engine-side. It
+- ``mvge-core/scripts/check_marketplace_contract.py`` is engine-side. It
   asserts a symbol exists and that a package-root import exposes it in
   ``__all__``. That is import *resolution*: does this name work at all. It has
   no view of an import graph, so it cannot see that a test reached sideways
@@ -180,7 +180,7 @@ _DYNAMIC_IMPORT_CALLS = frozenset(
 #: initialization cycle it is. The window is latent today -- all three loader
 #: call sites are inside functions -- and this rule closes it before something
 #: else opens it.
-_MODULE_SCOPE_FORBIDDEN = frozenset({"mvge.agent", "mvgeos_agent"})
+_MODULE_SCOPE_FORBIDDEN = frozenset({"mvge.agent", "mvge_agent"})
 
 #: Directories that hold no Python source we publish.
 _SKIP_DIRS = frozenset({"__pycache__"})
@@ -714,7 +714,7 @@ def test_the_gate_would_catch_a_regression() -> None:
         # the shape that failed with two collection errors standalone.
         (
             "selfmod-bridge",
-            ("from mvgeos_runes_skills_bridge.parser import parse_skill_manifest\n"),
+            ("from mvge_runes_skills_bridge.parser import parse_skill_manifest\n"),
         ),
         # selfmod-bridge/tests/test_chain.py:24-36 -- import_module behind a
         # scoped sys.path insert of the sibling root, worked standalone by
@@ -729,7 +729,7 @@ def test_the_gate_would_catch_a_regression() -> None:
                 "    sys.path.insert(0, str(_ROOT))\n"
                 "    try:\n"
                 "        return importlib.import_module("
-                '"mvgeos_runes_steering_bridge.rune")\n'
+                '"mvge_runes_steering_bridge.rune")\n'
                 "    finally:\n"
                 "        sys.path.remove(str(_ROOT))\n"
             ),
@@ -738,14 +738,14 @@ def test_the_gate_would_catch_a_regression() -> None:
         # turned a broken import into a silent skip.
         (
             "session-search",
-            'codec = pytest.importorskip("mvgeos_runes_pi_codec.codec")\n',
+            'codec = pytest.importorskip("mvge_runes_pi_codec.codec")\n',
         ),
         # A plain import of a sibling package.
-        ("seeker", "import mvgeos_runes_skills_bridge.parser\n"),
+        ("seeker", "import mvge_runes_skills_bridge.parser\n"),
         # The fully-qualified, alias-free runtime spelling.
-        ("seeker", 'x = __import__("mvgeos_runes_adr_bridge")\n'),
+        ("seeker", 'x = __import__("mvge_runes_adr_bridge")\n'),
         # Probing for a sibling to branch on its presence.
-        ("seeker", 's = importlib.util.find_spec("mvgeos_runes_okf_bridge")\n'),
+        ("seeker", 's = importlib.util.find_spec("mvge_runes_okf_bridge")\n'),
         # Cross-artifact too: an mvge is an artifact, so a Rune may not import
         # an Mvge's package either.
         ("seeker", "from coding_mvge.spells import plan\n"),
@@ -778,15 +778,15 @@ def test_the_gate_allows_engine_packages_and_its_own_package() -> None:
         # answers were settled on upstream issue SOM-24; keep them together.
         "from mvge.agent.auth import load_api_key_from_auth\n",
         # Its own package, at any depth.
-        "from mvgeos_runes_session_search.db import get_db_connection\n",
-        "from mvgeos_runes_session_search import indexer\n",
+        "from mvge_runes_session_search.db import get_db_connection\n",
+        "from mvge_runes_session_search import indexer\n",
         # Relative imports never leave the artifact.
         "from .helpers import fixture\n",
         "from ..sibling import fixture\n",
         # Third-party and standard library.
         "import pytest\nimport aiohttp\nimport sqlite3\n",
         # A dynamic import whose name is computed: a stated limit, not a pass.
-        'mod = importlib.import_module(f"mvgeos_runes_{name}")\n',
+        'mod = importlib.import_module(f"mvge_runes_{name}")\n',
         # A non-constant first argument, same limit.
         "mod = importlib.import_module(name)\n",
     ]

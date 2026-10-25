@@ -1,6 +1,6 @@
 # opentelemetry-bridge
 
-Official OpenTelemetry GenAI tracing bridge for MvgeOS.
+Official OpenTelemetry GenAI tracing bridge for Mvge.
 
 ## Features
 - **Lifecycle Tracing**: Instruments sessions, turns, provider requests/responses, and spell casts as nested spans.

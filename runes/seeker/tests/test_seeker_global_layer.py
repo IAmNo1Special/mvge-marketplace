@@ -1,7 +1,7 @@
 """Seeker must discover skills in the relocated global layer.
 
 ``_get_skill_roots`` hardcoded ``~/.agents/skills`` as its first default.
-Under ``$MVGEOS_GLOBAL_DIR`` the user-scope skills move to
+Under ``$MVGE_GLOBAL_DIR`` the user-scope skills move to
 ``<global>/skills``, so the discovery root and the install root diverged
 and a relocated run silently searched the wrong directory.
 
@@ -16,7 +16,7 @@ from pathlib import Path
 
 import pytest
 from mvge.core import GLOBAL_DIR_ENV, global_agents_dir, skills_dir
-from mvgeos_runes_seeker.dci_matcher import _get_skill_roots
+from mvge_runes_seeker.dci_matcher import _get_skill_roots
 
 
 @pytest.fixture

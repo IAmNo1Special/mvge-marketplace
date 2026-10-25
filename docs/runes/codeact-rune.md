@@ -23,5 +23,5 @@ code, invoking spells directly as callable functions inside a sandboxed environm
 ## Installation
 
 ```bash
-mvgeos rune install codeact-rune
+mvge rune install codeact-rune
 ```

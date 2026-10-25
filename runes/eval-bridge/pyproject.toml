@@ -1,5 +1,5 @@
 [project]
-name = "mvgeos-runes-eval-bridge"
+name = "mvge-runes-eval-bridge"
 version = "0.1.0"
 description = "Evaluation harness and RL data exporter compatible with google/adk-python evalsets"
 requires-python = ">=3.13"
@@ -13,7 +13,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 include = [
-    "mvgeos_runes_eval_bridge/",
+    "mvge_runes_eval_bridge/",
     "rune.py",
     "cli.py",
 ]

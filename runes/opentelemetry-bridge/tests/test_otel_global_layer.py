@@ -3,7 +3,7 @@
 ``load_otel_config`` honoured a ``global_dir`` *argument* but fell back to
 ``Path.home() / ".agents"`` when it was omitted, so every production caller
 (``rune.py``, which never passes one) read the real home directory even
-under ``$MVGEOS_GLOBAL_DIR``. That defeats the isolation the engine's own
+under ``$MVGE_GLOBAL_DIR``. That defeats the isolation the engine's own
 test suite sets up via ``_isolate_global_agents_dir``.
 """
 
@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pytest
 from mvge.core import GLOBAL_DIR_ENV, global_agents_dir
-from mvgeos_runes_opentelemetry_bridge.config import load_otel_config
+from mvge_runes_opentelemetry_bridge.config import load_otel_config
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ _ENV_OVERRIDES = (
     "OTEL_SERVICE_NAME",
     "OTEL_EXPORTER_OTLP_ENDPOINT",
     "OTEL_SDK_DISABLED",
-    "MVGEOS_OTEL_IN_MEMORY",
+    "MVGE_OTEL_IN_MEMORY",
 )
 
 
@@ -66,7 +66,7 @@ def test_global_config_defaults_to_home_without_the_override(
     expected = global_agents_dir() / "otel.json"
     assert expected == Path("~/.agents").expanduser() / "otel.json"
     # Nothing to read there, so the config is simply left at its default.
-    assert load_otel_config(cwd=None, global_dir=None).service_name == "mvgeos"
+    assert load_otel_config(cwd=None, global_dir=None).service_name == "mvge"
 
 
 def test_explicit_global_dir_still_wins(relocated_global: Path, tmp_path: Path) -> None:

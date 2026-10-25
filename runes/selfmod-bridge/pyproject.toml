@@ -1,7 +1,7 @@
 [project]
 name = "selfmod-bridge"
 version = "0.1.0"
-description = "Official self-modification & customization bridge for MvgeOS"
+description = "Official self-modification & customization bridge for Mvge"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -14,7 +14,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 include = [
-    "mvgeos_runes_selfmod_bridge/",
+    "mvge_runes_selfmod_bridge/",
     "rune.py",
     "cli.py",
 ]

@@ -5,48 +5,48 @@ If your error is not here, it belongs here — open an issue with the output.
 
 ## Install
 
-### `mvgeos was not found in the package registry`
+### `mvge was not found in the package registry`
 
 ```text
-$ uvx mvgeos --help
+$ uvx mvge --help
   × No solution found when resolving tool dependencies:
-  ╰─▶ Because mvgeos was not found in the package registry and you require
-      mvgeos, we can conclude that your requirements are unsatisfiable.
+  ╰─▶ Because mvge was not found in the package registry and you require
+      mvge, we can conclude that your requirements are unsatisfiable.
 ```
 
-**Not the current state.** `mvgeos` is on PyPI and `uvx mvgeos --help` resolves;
+**Not the current state.** `mvge` is on PyPI and `uvx mvge --help` resolves;
 this page's own commands were run that way. If you are reading this error, you
 are either on a version older than the first published release, or your network
 or index is not reaching PyPI. Check which:
 
 ```bash
-uvx mvgeos --help
+uvx mvge --help
 uv tool list
 ```
 
 ```text
 $ uv tool list
-mvgeos v0.6.16
-- mvgeos
+mvge v0.6.16
+- mvge
 ```
 
 The `git+` form still works and is what contributors want, because it gives you
 the default branch rather than the newest release:
 
 ```bash
-uvx --from "git+https://github.com/IAmNo1Special/mvgeos#subdirectory=mvgeos-cli" mvgeos --help
-uv tool install "git+https://github.com/IAmNo1Special/mvgeos#subdirectory=mvgeos-cli"
+uvx --from "git+https://github.com/IAmNo1Special/mvge#subdirectory=mvge-cli" mvge --help
+uv tool install "git+https://github.com/IAmNo1Special/mvge#subdirectory=mvge-cli"
 ```
 
-The `mvgeos` **command** lives in the `mvgeos-cli` subdirectory of the
-monorepo, which is why that path ends in `#subdirectory=mvgeos-cli`. Drop that
+The `mvge` **command** lives in the `mvge-cli` subdirectory of the
+monorepo, which is why that path ends in `#subdirectory=mvge-cli`. Drop that
 part and you get this error, or a confusing failure deep in a build.
 
 ### `No Realm factory registered for model 'openrouter/free'`
 
 ```text
 Error: No Realm factory registered for model 'openrouter/free'. Run
-'mvgeos rune install openrouter-realm' to install it from the central marketplace.
+'mvge rune install openrouter-realm' to install it from the central marketplace.
 ```
 
 You installed a Realm, but not the one your default model needs. The engine's
@@ -58,7 +58,7 @@ Current builds name the Rune to install in the message, which is exactly what to
 run:
 
 ```bash
-mvgeos rune install openrouter-realm --confirm-python-deps
+mvge rune install openrouter-realm --confirm-python-deps
 ```
 
 Older builds named `opencode-realm` in that same message when OpenCode was the default.
@@ -112,7 +112,7 @@ right prefix but no credit still produces this 401.
 ### `Daily free-model quota exhausted`
 
 ```text
-$ mvgeos --agent-name coding_mvge "say hi"
+$ mvge --agent-name coding_mvge "say hi"
 Daily free-model quota exhausted (50/50 requests). Resets at 00:00 UTC.
 Hint: Add credits to your OpenRouter account, switch to a paid model, or wait for the daily reset.
 ```
@@ -143,7 +143,7 @@ X-RateLimit-Remaining: 0
 X-RateLimit-Reset: 1791244800000     # milliseconds since epoch
 ```
 
-MvgeOS reads those headers on builds that do so, which is why the message can name
+Mvge reads those headers on builds that do so, which is why the message can name
 the exhaustion and the reset time instead of guessing. `X-RateLimit-Reset` is a
 Unix timestamp in **milliseconds**. `1791244800000` is `2026-10-06T00:00:00Z` —
 the allowance resets at **00:00 UTC**, so the wait can be anywhere from a minute
@@ -154,7 +154,7 @@ python3 -c 'import datetime,sys; print(datetime.datetime.fromtimestamp(int(sys.a
 ```
 
 Your options are: wait for the reset, add credit to raise the cap, or pass a paid
-model with `-m`. In interactive mode MvgeOS prints this message once and stops —
+model with `-m`. In interactive mode Mvge prints this message once and stops —
 it does not count down, because a countdown is only honest when the window is
 measured in seconds.
 
@@ -169,7 +169,7 @@ measured in seconds.
 ### `Upstream provider overloaded: Provider returned error`
 
 ```text
-$ mvgeos --agent-name coding_mvge "say hi"
+$ mvge --agent-name coding_mvge "say hi"
 Upstream provider overloaded: Provider returned error
 ```
 
@@ -207,7 +207,7 @@ provider whose credits are also empty. Nine 429s then one 402 is one exhausted
 allowance, reported twice. Fix the allowance, not the provider.
 
 You may see this one as a bare error rather than a rate-limit message, because
-the 402 carries no rate-limit headers for MvgeOS to read:
+the 402 carries no rate-limit headers for Mvge to read:
 
 ```text
 Error: Your prepayment credits are depleted
@@ -232,7 +232,7 @@ failure lost everything.
 ### `Error: API key is required.` on a local model
 
 ```text
-$ mvgeos --agent-name coding_mvge -m "ollama/llama3" "say hi"
+$ mvge --agent-name coding_mvge -m "ollama/llama3" "say hi"
 Error: API key is required.
 ```
 
@@ -251,10 +251,10 @@ The engine has no way to reach a model yet. Install the Realm your default model
 needs, which is `openrouter-realm`:
 
 ```bash
-mvgeos rune install openrouter-realm --confirm-python-deps
+mvge rune install openrouter-realm --confirm-python-deps
 ```
 
-Interactively, `mvgeos` offers to install it for you and then retries (or run `mvgeos setup --profile coding`). That
+Interactively, `mvge` offers to install it for you and then retries (or run `mvge setup --profile coding`). That
 prompt is skipped when stdout is not a terminal — in a script or a CI job you
 must run the install yourself first.
 
@@ -287,8 +287,8 @@ a run that dies *after* a `write` can leave a correct file behind and still exit
 non-zero, so check before you re-run:
 
 ```bash
-ls -l hello.txt && cat hello.txt || mvgeos --agent-name coding_mvge \
-  "Create a file named hello.txt containing exactly the text: hello from mvgeos"
+ls -l hello.txt && cat hello.txt || mvge --agent-name coding_mvge \
+  "Create a file named hello.txt containing exactly the text: hello from mvge"
 ```
 
 The check comes first on purpose. The engine writes each Spell result to disk as
@@ -304,7 +304,7 @@ Error: Upstream error from Nvidia: Service temporarily overloaded
 ```
 
 The provider refused the request. Your install is fine, your key is fine, and
-this is not a MvgeOS bug — the model endpoint is at capacity. Note that `Nvidia`
+this is not a Mvge bug — the model endpoint is at capacity. Note that `Nvidia`
 names an **OpenRouter**-routed model, so this is the message you get on the
 OpenRouter Realm; on the default Realm the same condition usually arrives as the
 rate-limit message above.
@@ -313,20 +313,20 @@ This one clears on its own. A refused attempt costs a few seconds and writes
 nothing, so check the work and re-run in one line:
 
 ```bash
-ls -l hello.txt && cat hello.txt || mvgeos --agent-name coding_mvge \
-  "Create a file named hello.txt containing exactly the text: hello from mvgeos"
+ls -l hello.txt && cat hello.txt || mvge --agent-name coding_mvge \
+  "Create a file named hello.txt containing exactly the text: hello from mvge"
 ```
 
 If it keeps failing, name a different model. Do not take a slug from this page —
-read the one you are actually running out of `mvgeos info`, then pass it:
+read the one you are actually running out of `mvge info`, then pass it:
 
 ```bash
-mvgeos info --agent-name coding_mvge     # prints: Model: <slug>
+mvge info --agent-name coding_mvge     # prints: Model: <slug>
 ```
 
 ```bash
-mvgeos -m <slug> --agent-name coding_mvge \
-  "Create a file named hello.txt containing exactly the text: hello from mvgeos"
+mvge -m <slug> --agent-name coding_mvge \
+  "Create a file named hello.txt containing exactly the text: hello from mvge"
 ```
 
 A `-m` slug's prefix is the Realm that must serve it. Passing an
@@ -351,17 +351,17 @@ the one no retry can fix.
 ### `Error: Unknown model`
 
 ```text
-$ mvgeos -m qwen/qwen3.8-27b:free --agent-name coding_mvge "say hi"
+$ mvge -m qwen/qwen3.8-27b:free --agent-name coding_mvge "say hi"
 Error: Unknown model: qwen/qwen3.8-27b:free
 ```
 
 That model genuinely exists on OpenRouter today. `-m` does not accept it because
 on a clean machine the model list is the **static baseline shipped in the
-repository**, at `mvgeos-provider/src/mvgeos_provider/models.json` — 19 `:free`
+repository**, at `mvge-provider/src/mvge_provider/models.json` — 19 `:free`
 entries and 391 paid ones. You can refresh the catalog at any time via:
 
 ```bash
-mvgeos config refresh-models
+mvge config refresh-models
 ```
 
 This queries OpenRouter for the latest model list and updates `~/.agents/models.json` (pass `--force` to bypass the 24-hour cache TTL).
@@ -378,7 +378,7 @@ So a baseline `:free` id is a starting point, not a promise. Read the list, pick
 one, and be ready for the next one:
 
 ```bash
-python3 -c "import json;print('\n'.join(e[0] for e in json.load(open('mvgeos-provider/src/mvgeos_provider/models.json'))['free']))"
+python3 -c "import json;print('\n'.join(e[0] for e in json.load(open('mvge-provider/src/mvge_provider/models.json'))['free']))"
 ```
 
 ## The wrong Mvge loaded
@@ -386,7 +386,7 @@ python3 -c "import json;print('\n'.join(e[0] for e in json.load(open('mvgeos-pro
 ### `Agent: default-mvge`, and every Spell is `(none)`
 
 ```bash
-mvgeos --agent-name coding_mvge info     # WRONG - flag silently ignored
+mvge --agent-name coding_mvge info     # WRONG - flag silently ignored
 ```
 
 ```text
@@ -406,7 +406,7 @@ subcommand resolves its own agent, so the flag never reaches it. Nothing warns
 you. Put it after the subcommand:
 
 ```bash
-mvgeos info --agent-name coding_mvge
+mvge info --agent-name coding_mvge
 ```
 
 ```text
@@ -422,7 +422,7 @@ Model: nvidia/nemotron-3-ultra-550b-a55b:free
 ```
 
 For a one-shot run there is no subcommand, so the flag goes before the prompt:
-`mvgeos --agent-name coding_mvge "your task"`.
+`mvge --agent-name coding_mvge "your task"`.
 
 ## Runes and Spells
 
@@ -430,12 +430,12 @@ For a one-shot run there is no subcommand, so the flag goes before the prompt:
 
 ```text
 Non-interactive session: skipping install of unreviewed python dependencies
-['mvgeos-agent', 'mvgeos-core', 'mvgeos-provider', 'mvgeos-runes'].
+['mvge-agent', 'mvge-core', 'mvge-provider', 'mvge-runes'].
 Re-run with confirm=True to install.
 Successfully installed mvge 'coding_mvge' to ~/.agents/agents/coding_mvge
 ```
 
-Not an error, and for `mvgeos mvge install` the correct outcome: those are the
+Not an error, and for `mvge mvge install` the correct outcome: those are the
 engine packages you already installed in step 1. Re-running with confirmation
 changes nothing measurable — the resolved Spell set is the same nine either way.
 
@@ -443,8 +443,8 @@ Both install commands take the same flag since `v0.6.7`, and it matters only
 when the dependency is *not* already covered by the engine:
 
 ```bash
-mvgeos mvge install --confirm-python-deps coding_mvge
-mvgeos rune install openrouter-realm --confirm-python-deps
+mvge mvge install --confirm-python-deps coding_mvge
+mvge rune install openrouter-realm --confirm-python-deps
 ```
 
 On `mvge install` the same message means the Mvge has a dependency you have not
@@ -459,14 +459,14 @@ Kind          │ Target │ Name  │ Scope │ Message
 parse_warning │ rune   │ .venv │ user  │ Could not parse manifest in .venv
 ```
 
-Cosmetic, and you will see it on a correct install. `mvgeos rune install`
+Cosmetic, and you will see it on a correct install. `mvge rune install`
 creates `~/.agents/extensions/.venv` to hold a Rune's Python dependencies. The
 Rune loader scans everything under `~/.agents/extensions/` looking for
 `manifest.json`, finds the virtualenv directory instead, and reports it as an
 unparseable Rune.
 
 Nothing is broken — the `openrouter-realm` Rune alongside it loaded correctly,
-which is why `mvgeos info --agent-name coding_mvge` shows `Model:` and a full
+which is why `mvge info --agent-name coding_mvge` shows `Model:` and a full
 Spell table in the same run. Ignore the row, or delete `~/.agents/extensions/.venv`
 if you want it gone; the next `rune install` recreates it.
 
@@ -495,7 +495,7 @@ rg --version
 | Windows (winget) | `winget install BurntSushi.ripgrep.MSVC` |
 | Windows (scoop) | `scoop install ripgrep` |
 
-`mvgeos setup` reports the same dependency, because Seeker declares it as
+`mvge setup` reports the same dependency, because Seeker declares it as
 `system_deps` in its manifest.
 
 ### A Rune installed but its Spells are missing
@@ -504,7 +504,7 @@ Runes are discovered from standard extension directories. Check that the load
 path and the enabled set agree:
 
 ```bash
-mvgeos info --agent-name coding_mvge
+mvge info --agent-name coding_mvge
 ls ~/.agents/extensions/
 ```
 
@@ -512,12 +512,12 @@ Runes scoped to a specific Mvge live under that Mvge's directory
 (`~/.agents/agents/coding_mvge/runes/`) and only load for that Mvge. A Rune
 installed for one agent is invisible to another — that is not a bug.
 
-### `MVGEOS_WORKSPACE_ROOT` and files you expected to be reachable
+### `MVGE_WORKSPACE_ROOT` and files you expected to be reachable
 
 `write`, `edit`, and `bash` Spells are confined to an authorized root. By
-default that is the working directory you launched from. Launch MvgeOS from the
-project you want it to touch, or set `MVGEOS_WORKSPACE_ROOT` explicitly.
-`mvgeos info` prints the resolved values and the file each came from, which is
+default that is the working directory you launched from. Launch Mvge from the
+project you want it to touch, or set `MVGE_WORKSPACE_ROOT` explicitly.
+`mvge info` prints the resolved values and the file each came from, which is
 the fastest way to see what is actually configured. See
 [Concepts](concepts.md) for the rest of the environment.
 
@@ -543,7 +543,7 @@ sign your key, your Realm, or your prompt is wrong.
 
 Nothing to fix on your side. It goes away when SOM-23 lands.
 
-### `mvgeos` is not found after installing
+### `mvge` is not found after installing
 
 If you used the `uvx --from "git+..."` form, nothing is installed — `uvx` runs
 from a throwaway environment and leaves nothing on your `PATH`. That is the
@@ -559,10 +559,10 @@ echo $PATH
 
 ## Sessions
 
-### `mvgeos tome list` is empty after a run that worked
+### `mvge tome list` is empty after a run that worked
 
 Tomes are written to `~/.agents/sessions/`, keyed by the Mvge and project. If
-you ran with `--tome-dir`, the Tomes went there instead. `mvgeos config path`
+you ran with `--tome-dir`, the Tomes went there instead. `mvge config path`
 prints the config file backing the active agent if you need to see which layers
 are in play.
 
@@ -571,12 +571,12 @@ are in play.
 Include the output of these — together they pin down almost everything:
 
 ```bash
-mvgeos info --agent-name coding_mvge
-mvgeos setup check
+mvge info --agent-name coding_mvge
+mvge setup check
 uv --version && python3 --version
 ```
 
 Then open an issue at
-[github.com/IAmNo1Special/mvgeos](https://github.com/IAmNo1Special/mvgeos/issues).
+[github.com/IAmNo1Special/mvge](https://github.com/IAmNo1Special/mvge/issues).
 See also the [FAQ](faq.md) for the questions that come up before anything
 breaks.

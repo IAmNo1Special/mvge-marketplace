@@ -1,7 +1,7 @@
 {
   "name": "skill-evolution",
   "version": "0.3.0",
-  "description": "MvgeOS implementation of WikiSkill (arxiv:2608.27454) \u2014 persistent experience consolidation and autonomous skill evolution (pure markdown, agent-scoped raw_experience/skill_evolution/skills).",
+  "description": "Mvge implementation of WikiSkill (arxiv:2608.27454) \u2014 persistent experience consolidation and autonomous skill evolution (pure markdown, agent-scoped raw_experience/skill_evolution/skills).",
   "types": [
     "Sigil",
     "Spell",

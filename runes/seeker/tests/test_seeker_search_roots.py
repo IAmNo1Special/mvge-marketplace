@@ -1,7 +1,7 @@
 """Seeker must search the layers the engine actually writes.
 
 Four search roots were spelled out inside the Rune as relative literals
-under ``.agents/.mvgeos/``. That layer is dead: ADR-0002 chose it,
+under ``.agents/.mvge/``. That layer is dead: ADR-0002 chose it,
 ADR-0014 superseded it, and nothing in either repository has ever written
 there. Each of those searches therefore matched nothing on a correctly
 installed system -- and matched nothing *silently*, because an empty
@@ -30,13 +30,13 @@ from mvge.core import (
     skills_dir,
 )
 from mvge.provider.registry import RealmRegistry
-from mvgeos_runes_seeker.dci_matcher import DCISkillMatcher
-from mvgeos_runes_seeker.discovery import MCPConfigDiscovery
-from mvgeos_runes_seeker.mcp_spell import MCPSearchSpell
-from mvgeos_runes_seeker.router import DCIRouter, SpellSearchError
-from mvgeos_runes_seeker.skill_execute import SkillExecuteSpell
-from mvgeos_runes_seeker.skill_spell import SkillSearchSpell
-from mvgeos_runes_seeker.spell import ToolSearchSpell
+from mvge_runes_seeker.dci_matcher import DCISkillMatcher
+from mvge_runes_seeker.discovery import MCPConfigDiscovery
+from mvge_runes_seeker.mcp_spell import MCPSearchSpell
+from mvge_runes_seeker.router import DCIRouter, SpellSearchError
+from mvge_runes_seeker.skill_execute import SkillExecuteSpell
+from mvge_runes_seeker.skill_spell import SkillSearchSpell
+from mvge_runes_seeker.spell import ToolSearchSpell
 
 AGENT_NAME = "probe-mvge"
 
@@ -185,12 +185,12 @@ def test_tool_search_root_agrees_with_the_agents_directory(
 def test_tool_search_root_is_not_the_dead_layer(
     relocated_global: Path,
 ) -> None:
-    """The dead ``.mvgeos`` layout is gone from the search root.
+    """The dead ``.mvge`` layout is gone from the search root.
 
     The failure this pins is silent: the path is well-formed, so a
     regression shows up only as a Rune that finds nothing.
     """
-    assert ".mvgeos" not in tool_search().spells_root.parts
+    assert ".mvge" not in tool_search().spells_root.parts
 
 
 # --------------------------------------------------------------------------
@@ -210,11 +210,11 @@ def test_skill_search_discovers_the_relocated_skills_layer(
 def test_skill_search_root_is_not_the_dead_layer(
     relocated_global: Path,
 ) -> None:
-    """The dead ``.mvgeos`` layout is gone from the skill roots."""
+    """The dead ``.mvge`` layout is gone from the skill roots."""
     roots = DCISkillMatcher().skill_dirs
 
     assert roots, "no skill root resolved at all"
-    assert all(".mvgeos" not in root.parts for root in roots)
+    assert all(".mvge" not in root.parts for root in roots)
 
 
 @pytest.mark.asyncio
@@ -285,11 +285,11 @@ def test_mcp_search_root_agrees_with_the_engines_extensions_layer(
 def test_mcp_search_root_is_not_the_dead_layer(
     relocated_global: Path,
 ) -> None:
-    """The dead ``.mvgeos`` layout is gone from the MCP search roots."""
+    """The dead ``.mvge`` layout is gone from the MCP search roots."""
     discovery = MCPConfigDiscovery()
 
     assert discovery.search_roots, "no MCP search root resolved at all"
-    assert all(".mvgeos" not in root.parts for root in discovery.search_roots)
+    assert all(".mvge" not in root.parts for root in discovery.search_roots)
 
 
 # --------------------------------------------------------------------------

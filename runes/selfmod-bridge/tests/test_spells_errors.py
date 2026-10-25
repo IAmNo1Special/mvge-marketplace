@@ -17,11 +17,11 @@ from typing import Any
 import pytest
 from selfmod_bridge_conftest import FakeApi, make_rune, make_state
 
-import mvgeos_runes_selfmod_bridge.rune as rune_mod
-import mvgeos_runes_selfmod_bridge.spells as spells_mod
-from mvgeos_runes_selfmod_bridge.rune import create_rune
-from mvgeos_runes_selfmod_bridge.status import describe_extensions, list_snapshots
-from mvgeos_runes_selfmod_bridge.validation import ValidationError, validate_extension_name
+import mvge_runes_selfmod_bridge.rune as rune_mod
+import mvge_runes_selfmod_bridge.spells as spells_mod
+from mvge_runes_selfmod_bridge.rune import create_rune
+from mvge_runes_selfmod_bridge.status import describe_extensions, list_snapshots
+from mvge_runes_selfmod_bridge.validation import ValidationError, validate_extension_name
 
 
 def _stale(result: dict[str, Any]) -> None:
@@ -463,7 +463,7 @@ def test_validate_extension_name_rejects_dotted(tmp_path: Path) -> None:
 
 def test_default_rune_target_prefers_user_scope(tmp_path: Path, monkeypatch: Any) -> None:
     """Scope precedence agent > user > project: a user-scope runes dir
-    (under $MVGEOS_GLOBAL_DIR) beats a project-scope one."""
+    (under $MVGE_GLOBAL_DIR) beats a project-scope one."""
     rune, _api = make_rune(tmp_path)
     assert rune.state is not None
     global_dir = tmp_path / "global"
@@ -471,7 +471,7 @@ def test_default_rune_target_prefers_user_scope(tmp_path: Path, monkeypatch: Any
     user_runes.mkdir(parents=True)
     proj_runes = tmp_path / "proj" / "runes"
     proj_runes.mkdir(parents=True)
-    monkeypatch.setenv("MVGEOS_GLOBAL_DIR", str(global_dir))
+    monkeypatch.setenv("MVGE_GLOBAL_DIR", str(global_dir))
     rune.state.runes_paths = [proj_runes, user_runes]
     target = rune._default_rune_target(rune.state)  # type: ignore[attr-defined]
     assert target == user_runes
@@ -607,7 +607,7 @@ def test_default_rune_target_agent_scope_wins(tmp_path: Path, monkeypatch: Any) 
     user_runes.mkdir(parents=True)
     proj_runes = tmp_path / "proj" / "runes"
     proj_runes.mkdir(parents=True)
-    monkeypatch.setenv("MVGEOS_GLOBAL_DIR", str(global_dir))
+    monkeypatch.setenv("MVGE_GLOBAL_DIR", str(global_dir))
     rune.state.runes_paths = [proj_runes, user_runes, agent_runes]
     target = rune._default_rune_target(rune.state)  # type: ignore[attr-defined]
     assert target == agent_runes

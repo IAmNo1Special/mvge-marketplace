@@ -8,14 +8,14 @@ from unittest.mock import MagicMock
 import pytest
 from mvge.provider.registry import get_registry
 
-from mvgeos_runes_skill_evolution.consolidator.consolidator import (
+from mvge_runes_skill_evolution.consolidator.consolidator import (
     ExperienceConsolidator,
 )
-from mvgeos_runes_skill_evolution.consolidator.harvester import (
+from mvge_runes_skill_evolution.consolidator.harvester import (
     ExperienceHarvester,
 )
-from mvgeos_runes_skill_evolution.queries import SkillEvolutionQueries
-from mvgeos_runes_skill_evolution.store import SkillEvolutionStore
+from mvge_runes_skill_evolution.queries import SkillEvolutionQueries
+from mvge_runes_skill_evolution.store import SkillEvolutionStore
 
 
 @pytest.fixture

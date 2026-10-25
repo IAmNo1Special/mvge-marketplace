@@ -1,7 +1,7 @@
 [project]
 name = "coding_mvge"
 version = "0.2.8"
-description = "Concrete coding agent implementation for MvgeOS with built-in development spells"
+description = "Concrete coding agent implementation for Mvge with built-in development spells"
 requires-python = ">=3.13"
 license = "MIT"
 dependencies = [

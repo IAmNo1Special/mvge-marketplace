@@ -14,8 +14,8 @@ def resolve_workspace_root(workspace_root: str | Path | None = None) -> Path:
     """Resolve the authorized workspace root."""
     if workspace_root is not None:
         return Path(workspace_root).resolve()
-    env_root = os.environ.get("MVGEOS_WORKSPACE_ROOT") or os.environ.get(
-        "MVGEOS_PROJECT_DIR"
+    env_root = os.environ.get("MVGE_WORKSPACE_ROOT") or os.environ.get(
+        "MVGE_PROJECT_DIR"
     )
     if env_root:
         return Path(env_root).resolve()
@@ -62,8 +62,8 @@ def resolve_timeout_ms(timeout_ms: int | None = None) -> int:
             )
         return timeout_ms
 
-    env_val = os.environ.get("MVGEOS_BASH_TIMEOUT_MS") or os.environ.get(
-        "MVGEOS_SPELL_TIMEOUT_MS"
+    env_val = os.environ.get("MVGE_BASH_TIMEOUT_MS") or os.environ.get(
+        "MVGE_SPELL_TIMEOUT_MS"
     )
     if env_val:
         try:

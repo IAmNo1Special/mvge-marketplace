@@ -9,12 +9,12 @@ from mvge.provider.registry import RealmRegistry
 from mvge.runes.loader import load_factory_from_manifest
 from mvge.runes.manifest import load_manifest
 from mvge.runes.rune_runner import RuneRunner
-from mvgeos_runes_seeker.activate_spell import ActivateSpell
-from mvgeos_runes_seeker.connector import MCPConnector
-from mvgeos_runes_seeker.discovery import MCPConfigDiscovery
-from mvgeos_runes_seeker.ledger import SeekerLedger
-from mvgeos_runes_seeker.skill_execute import SkillExecuteSpell
-from mvgeos_runes_seeker.unload_spell import UnloadSpell
+from mvge_runes_seeker.activate_spell import ActivateSpell
+from mvge_runes_seeker.connector import MCPConnector
+from mvge_runes_seeker.discovery import MCPConfigDiscovery
+from mvge_runes_seeker.ledger import SeekerLedger
+from mvge_runes_seeker.skill_execute import SkillExecuteSpell
+from mvge_runes_seeker.unload_spell import UnloadSpell
 
 
 @pytest.fixture

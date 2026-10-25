@@ -1,7 +1,7 @@
 # Session Search
 
 Full-text search over your session history. This rune incrementally indexes
-MvgeOS sessions into a local SQLite FTS5 database with BM25 relevance ranking,
+Mvge sessions into a local SQLite FTS5 database with BM25 relevance ranking,
 so agents recover past context, decisions, and code snippets in a few hundred
 tokens instead of re-reading whole transcripts.
 

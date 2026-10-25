@@ -1,6 +1,6 @@
 # Selfmod Bridge
 
-Official self-modification & customization bridge for MvgeOS. It lets the
+Official self-modification & customization bridge for Mvge. It lets the
 agent extend itself: scaffold spells, runes, and skills from normative
 templates, revise its own instructions, and snapshot / roll back the files
 that define it.
@@ -80,5 +80,5 @@ itself.
 
 ## Dependencies
 
-None beyond the MvgeOS engine. Scaffolding a skill validates through the
+None beyond the Mvge engine. Scaffolding a skill validates through the
 real skills-bridge parser when it is installed.

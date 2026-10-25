@@ -31,13 +31,13 @@ from mvge.core.invocations import MvgeResponse, SummonerRequest
 from mvge.core.spells import SpellResultMessage
 from mvge.runes.rune_api import RuneAPI
 from mvge.runes.types import SigilHook
-from mvgeos_runes_opencode_realm.realm import (
+from mvge_runes_opencode_realm.realm import (
     ZEN_BASE_URL,
     OpenCodeRealm,
     _invocations_to_messages,
     wire_model_id,
 )
-from mvgeos_runes_opencode_realm.rune import (
+from mvge_runes_opencode_realm.rune import (
     after_provider_response,
     before_provider_request,
     opencode_realm_factory,

@@ -15,8 +15,8 @@ import pytest
 from mvge.runes import AuditError
 from selfmod_bridge_conftest import make_rune
 
-from mvgeos_runes_selfmod_bridge.rune import SelfmodBridgeRune
-from mvgeos_runes_selfmod_bridge.validation import ValidationError, validate_extension_name
+from mvge_runes_selfmod_bridge.rune import SelfmodBridgeRune
+from mvge_runes_selfmod_bridge.validation import ValidationError, validate_extension_name
 
 
 async def _weird_result(params: dict[str, Any], signal: Any = None, on_update: Any = None) -> Any:

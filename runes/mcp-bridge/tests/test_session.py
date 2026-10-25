@@ -5,8 +5,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from mcp.types import CallToolResult, TextContent, Tool
-from mvgeos_runes_mcp_bridge.session import MCPServerSession
-from mvgeos_runes_mcp_bridge.types import MCPServerConfig, MCPTransport
+from mvge_runes_mcp_bridge.session import MCPServerSession
+from mvge_runes_mcp_bridge.types import MCPServerConfig, MCPTransport
 
 
 @pytest.mark.asyncio
@@ -55,11 +55,11 @@ async def test_session_connect_stdio_and_list_tools() -> None:
 
     with (
         patch(
-            "mvgeos_runes_mcp_bridge.session.stdio_client",
+            "mvge_runes_mcp_bridge.session.stdio_client",
             return_value=mock_stdio_cm,
         ),
         patch(
-            "mvgeos_runes_mcp_bridge.session.ClientSession",
+            "mvge_runes_mcp_bridge.session.ClientSession",
             return_value=mock_session_cm,
         ),
     ):
@@ -100,11 +100,11 @@ async def test_session_connect_sse() -> None:
 
     with (
         patch(
-            "mvgeos_runes_mcp_bridge.session.sse_client",
+            "mvge_runes_mcp_bridge.session.sse_client",
             return_value=mock_sse_cm,
         ),
         patch(
-            "mvgeos_runes_mcp_bridge.session.ClientSession",
+            "mvge_runes_mcp_bridge.session.ClientSession",
             return_value=mock_session_cm,
         ),
     ):
@@ -138,11 +138,11 @@ async def test_session_connect_streamable_http() -> None:
 
     with (
         patch(
-            "mvgeos_runes_mcp_bridge.session.streamable_http_client",
+            "mvge_runes_mcp_bridge.session.streamable_http_client",
             return_value=mock_http_cm,
         ),
         patch(
-            "mvgeos_runes_mcp_bridge.session.ClientSession",
+            "mvge_runes_mcp_bridge.session.ClientSession",
             return_value=mock_session_cm,
         ),
     ):

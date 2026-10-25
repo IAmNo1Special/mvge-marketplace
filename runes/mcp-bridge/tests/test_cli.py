@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from mvgeos_runes_mcp_bridge.cli import app
-from mvgeos_runes_mcp_bridge.types import MCPServerConfig, MCPTransport
+from mvge_runes_mcp_bridge.cli import app
+from mvge_runes_mcp_bridge.types import MCPServerConfig, MCPTransport
 from typer.testing import CliRunner
 
 runner = CliRunner()
@@ -11,7 +11,7 @@ runner = CliRunner()
 
 def test_cli_list_servers_empty() -> None:
     with patch(
-        "mvgeos_runes_mcp_bridge.cli.get_prioritized_mcp_configs",
+        "mvge_runes_mcp_bridge.cli.get_prioritized_mcp_configs",
         return_value={},
     ):
         result = runner.invoke(app, ["list-servers"])
@@ -23,7 +23,7 @@ def test_cli_list_servers_populated() -> None:
     cfg1 = MCPServerConfig(name="srv1", transport=MCPTransport.STDIO)
     cfg2 = MCPServerConfig(name="srv2", transport=MCPTransport.SSE, disabled=True)
     with patch(
-        "mvgeos_runes_mcp_bridge.cli.get_prioritized_mcp_configs",
+        "mvge_runes_mcp_bridge.cli.get_prioritized_mcp_configs",
         return_value={"srv1": cfg1, "srv2": cfg2},
     ):
         result = runner.invoke(app, ["list-servers"])
@@ -34,7 +34,7 @@ def test_cli_list_servers_populated() -> None:
 
 def test_cli_test_server_unknown() -> None:
     with patch(
-        "mvgeos_runes_mcp_bridge.cli.get_prioritized_mcp_configs",
+        "mvge_runes_mcp_bridge.cli.get_prioritized_mcp_configs",
         return_value={},
     ):
         result = runner.invoke(app, ["test", "nonexistent"])
@@ -46,20 +46,20 @@ def test_cli_test_server_success() -> None:
     cfg = MCPServerConfig(name="my_srv")
     with (
         patch(
-            "mvgeos_runes_mcp_bridge.cli.get_prioritized_mcp_configs",
+            "mvge_runes_mcp_bridge.cli.get_prioritized_mcp_configs",
             return_value={"my_srv": cfg},
         ),
         patch(
-            "mvgeos_runes_mcp_bridge.cli.MCPServerSession.connect",
+            "mvge_runes_mcp_bridge.cli.MCPServerSession.connect",
             new_callable=AsyncMock,
         ),
         patch(
-            "mvgeos_runes_mcp_bridge.cli.MCPServerSession.list_tools",
+            "mvge_runes_mcp_bridge.cli.MCPServerSession.list_tools",
             new_callable=AsyncMock,
             return_value=[MagicMock(), MagicMock(), MagicMock()],
         ),
         patch(
-            "mvgeos_runes_mcp_bridge.cli.MCPServerSession.close",
+            "mvge_runes_mcp_bridge.cli.MCPServerSession.close",
             new_callable=AsyncMock,
         ),
     ):
@@ -72,16 +72,16 @@ def test_cli_test_server_failure() -> None:
     cfg = MCPServerConfig(name="fail_srv")
     with (
         patch(
-            "mvgeos_runes_mcp_bridge.cli.get_prioritized_mcp_configs",
+            "mvge_runes_mcp_bridge.cli.get_prioritized_mcp_configs",
             return_value={"fail_srv": cfg},
         ),
         patch(
-            "mvgeos_runes_mcp_bridge.cli.MCPServerSession.connect",
+            "mvge_runes_mcp_bridge.cli.MCPServerSession.connect",
             new_callable=AsyncMock,
             side_effect=RuntimeError("Connection refused"),
         ),
         patch(
-            "mvgeos_runes_mcp_bridge.cli.MCPServerSession.close",
+            "mvge_runes_mcp_bridge.cli.MCPServerSession.close",
             new_callable=AsyncMock,
         ),
     ):

@@ -1,6 +1,6 @@
 # approval-rune
 
-Fail-closed execution gate for MvgeOS: every uncovered mutating spell cast
+Fail-closed execution gate for Mvge: every uncovered mutating spell cast
 pauses until the user approves it — once, for the spell, for the session, or
 for the project. Deny rules always win. Every decision lands in a durable,
 redacted audit log before anything executes.

@@ -1,24 +1,24 @@
-# MvgeOS
+# Mvge
 
 **An open coding-agent platform. Read it, fork it, self-host it, and run it on
 a model you already pay for.**
 
-MvgeOS is an operating system for AI agents, written in Python. A Mvge — the
+Mvge is an operating system for AI agents, written in Python. A Mvge — the
 agent — casts Spells against models served by Realms. Conversations persist as
 Tomes. Capabilities extend through Runes.
 
-There is no account to create with MvgeOS and no telemetry in the engine.
+There is no account to create with Mvge and no telemetry in the engine.
 The default model (`openrouter/free`) is free of per-token charges, and requires
 an `OPENROUTER_API_KEY` because as of 2026-10-11 no free tier answers an
 unauthenticated request (ADR-0020). To use another provider, bring the key for
 the Realm you want.
 
 ```bash
-uvx mvgeos --help
+uvx mvge --help
 ```
 
 ```text
- MvgeOS - a Python-based AI coding agent
+ Mvge - a Python-based AI coding agent
 
 ╭─ Commands ────────────────────────────────────────────────────────────────────╮
 │ build   Serialise the resolved runtime manifest (read-only).                 │
@@ -37,14 +37,14 @@ Four commands and under a minute gets you from nothing to a running Mvge:
 # 0. the key — required for the free router since ADR-0020
 export OPENROUTER_API_KEY="sk-or-..."
 
-# 1. the Realm — how MvgeOS reaches a model
-uvx mvgeos rune install openrouter-realm --confirm-python-deps
+# 1. the Realm — how Mvge reaches a model
+uvx mvge rune install openrouter-realm --confirm-python-deps
 
 # 2. the Mvge — carries the Spells
-uvx mvgeos mvge install coding_mvge
+uvx mvge mvge install coding_mvge
 
 # 3. run a task
-uvx mvgeos --agent-name coding_mvge "summarise the README in this directory"
+uvx mvge --agent-name coding_mvge "summarise the README in this directory"
 ```
 
 The [Quickstart](quickstart.md) walks through it with real output, and
@@ -54,7 +54,7 @@ already pay for a provider.
 ## What it does
 
 A Mvge reads your directory, decides what it needs, casts the Spell, and shows
-you what it did. `mvgeos info` prints the resolved runtime so you can see the
+you what it did. `mvge info` prints the resolved runtime so you can see the
 Spells and Runes it assembled before you spend anything:
 
 ```text
@@ -82,7 +82,7 @@ Swap the Realm and the model comes with it.
 - **Coding Mvge.** Nine built-in Spells — `bash`, `edit`, `find`, `grep`,
   `list_files`, `read`, `read_url`, `search_web`, `write` — installed as a
   package, so you can read exactly what your agent can do. Run
-  `mvgeos info --agent-name coding_mvge` to see the list yourself.
+  `mvge info --agent-name coding_mvge` to see the list yourself.
 - **Tomes.** Every conversation is an append-only JSONL file you can read, diff,
   fork, and export. Not a chat log locked in a database.
 - **Runes.** Mount MCP servers as Spells, trace with OpenTelemetry, wire in
@@ -110,7 +110,7 @@ Swap the Realm and the model comes with it.
   surface still moves.
 - **The default model call can be refused.** Every command on this site was
   verified on a clean machine, including the task on the
-  [Quickstart](quickstart.md). It is not MvgeOS's to fix, though: when the
+  [Quickstart](quickstart.md). It is not Mvge's to fix, though: when the
   default free tier is at capacity the run ends in
 
   ```text
@@ -151,14 +151,14 @@ Spells, CLI commands, shortcuts, and Realms.
 | [Pi Codec](runes/pi-codec.md) | Native Pi session codec — resume, append, fork, and validate Pi agent sessions |
 | [Seeker](runes/seeker.md) | On-demand discovery of Spells, Skills, and MCP servers |
 | [Self-Mod Bridge](runes/selfmod-bridge.md) | Self-modification and customization of the running Mvge |
-| [Session Search](runes/session-search.md) | Full-text BM25 search across MvgeOS Tomes and Pi sessions |
+| [Session Search](runes/session-search.md) | Full-text BM25 search across Mvge Tomes and Pi sessions |
 | [Session Title](runes/session-title.md) | Auto-generates Tome titles from conversation content |
 | [Skill Evolution](runes/skill-evolution.md) | Persistent experience consolidation and autonomous Skill evolution |
 | [Skills Bridge](runes/skills-bridge.md) | Agent Skills / Agent Plugins discovery with progressive disclosure |
 | [Steering Bridge](runes/steering-bridge.md) | Repository steering via `AGENTS.md`, layered into the system prompt |
 | [Sub-Mvge Bridge](runes/submvge-bridge.md) | Kernel sub-Mvge summoning, persistent sub-sessions, and reactive wakeup bridge |
 
-Install any of them with `mvgeos rune install <name>`.
+Install any of them with `mvge rune install <name>`.
 
 ## How a Rune is put together
 
@@ -173,7 +173,7 @@ runes/<name>/
 
 Runes are discovered from standard extension directories — the user's, the
 project's, or a specific Mvge's — and load through the same path that resolves
-their CLI commands, so a command that appears in `mvgeos --help` is a Rune that
+their CLI commands, so a command that appears in `mvge --help` is a Rune that
 would load.
 
 ## Building these docs

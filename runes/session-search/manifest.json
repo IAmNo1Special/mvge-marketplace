@@ -1,7 +1,7 @@
 {
   "name": "session-search",
   "version": "0.1.0",
-  "description": "Full-text BM25 search over MvgeOS sessions: Tome v1, Pi sessions (via pi-codec), and Antigravity transcripts, indexed into local SQLite FTS5",
+  "description": "Full-text BM25 search over Mvge sessions: Tome v1, Pi sessions (via pi-codec), and Antigravity transcripts, indexed into local SQLite FTS5",
   "types": ["Spell"],
   "runtime": "python",
   "entry_point": "rune.py",

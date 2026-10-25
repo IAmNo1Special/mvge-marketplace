@@ -136,8 +136,8 @@ async def test_scaffold_rune_full_tree_and_manifest_parse(tmp_path: Path) -> Non
         "manifest.json",
         "pyproject.toml",
         "README.md",
-        "mvgeos_runes_demo_rune/__init__.py",
-        "mvgeos_runes_demo_rune/rune.py",
+        "mvge_runes_demo_rune/__init__.py",
+        "mvge_runes_demo_rune/rune.py",
         "tests/test_skeleton.py",
     }
     actual = {
@@ -301,7 +301,7 @@ async def test_scaffold_skill_user_scope_honors_global_dir(
 ) -> None:
     global_dir = tmp_path / "global"
     (global_dir / "skills").mkdir(parents=True)
-    monkeypatch.setenv("MVGEOS_GLOBAL_DIR", str(global_dir))
+    monkeypatch.setenv("MVGE_GLOBAL_DIR", str(global_dir))
     rune, _api = make_rune(tmp_path)
     result = await rune.scaffold_skill({"name": "userskill", "description": "x", "scope": "user"})
     assert result["ok"] is True

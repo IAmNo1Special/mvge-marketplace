@@ -1,6 +1,6 @@
 # Steering Bridge
 
-Official repository steering ([.agents protocol](https://dotagentsprotocol.com)) bridge for MvgeOS.
+Official repository steering ([.agents protocol](https://dotagentsprotocol.com)) bridge for Mvge.
 
 Layers your `AGENTS.md` instructions into the system prompt — global steering plus project steering — so the agent follows your repo conventions without you pasting them into every session.
 
@@ -13,9 +13,9 @@ Layers your `AGENTS.md` instructions into the system prompt — global steering 
 
 ## Commands
 
-- `mvgeos steering status` — show which steering files resolve.
-- `mvgeos steering show` — display the effective steering content.
-- `mvgeos steering validate` — check steering files for problems.
+- `mvge steering status` — show which steering files resolve.
+- `mvge steering show` — display the effective steering content.
+- `mvge steering validate` — check steering files for problems.
 
 ## Hooks
 

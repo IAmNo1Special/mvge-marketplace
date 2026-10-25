@@ -25,6 +25,9 @@ dependencies = [
 Repository = "https://github.com/IAmNo1Special/mvge-marketplace"
 Documentation = "https://iamno1special.github.io/mvge-marketplace/"
 
+[tool.uv.sources]
+mvge = { path = "../mvge", editable = true }
+
 [tool.pytest.ini_options]
 testpaths = [
     "tests",

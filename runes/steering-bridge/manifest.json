@@ -1,7 +1,7 @@
 {
   "name": "steering-bridge",
   "version": "0.1.0",
-  "description": "Official repository steering (AGENTS.md, .agents protocol) bridge for MvgeOS",
+  "description": "Official repository steering (AGENTS.md, .agents protocol) bridge for Mvge",
   "types": ["Sigil", "Command"],
   "runtime": "python",
   "entry_point": "rune.py",

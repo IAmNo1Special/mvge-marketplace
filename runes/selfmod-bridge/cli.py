@@ -7,7 +7,7 @@ new power, so no approval interplay applies here.
 
 from __future__ import annotations
 
-from mvgeos_runes_selfmod_bridge.rune import SelfmodBridgeRune
+from mvge_runes_selfmod_bridge.rune import SelfmodBridgeRune
 
 
 class SelfmodCLI:

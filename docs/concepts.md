@@ -1,13 +1,13 @@
 # Concepts
 
-MvgeOS has a strict domain vocabulary. It is used exactly, in the code, the
+Mvge has a strict domain vocabulary. It is used exactly, in the code, the
 docs, and the CLI. This page exists because the words do not map cleanly onto
 the generic ones — "agent", "tool", and "provider" all mean something more
 specific here.
 
 ## The vocabulary
 
-| You would normally say | MvgeOS says | What it is |
+| You would normally say | Mvge says | What it is |
 | --- | --- | --- |
 | Agent | **Mvge** | The autonomous entity that acts for a Summoner. Pronounced "mage". |
 | User | **Summoner** | The human the Mvge acts for. |
@@ -29,7 +29,7 @@ domain glossary. This table is the working subset.
 
 The three that matter on day one.
 
-A **Mvge** is not the engine. The engine is `mvgeos-agent` plus `mvgeos-core`.
+A **Mvge** is not the engine. The engine is `mvge-agent` plus `mvge-core`.
 A Mvge is a configured instance of it: a name, a model, a set of enabled
 Spells, a system prompt. `coding_mvge` is the one shipped in the marketplace,
 and it carries the nine built-in development Spells — `bash`, `edit`, `find`,
@@ -77,18 +77,18 @@ Tomes therefore form a tree, and you can take an old conversation in a new
 direction without destroying it.
 
 ```bash
-mvgeos tome list
-mvgeos tome show <id>
-mvgeos tome fork <id>
-mvgeos tome export <id> -f markdown
+mvge tome list
+mvge tome show <id>
+mvge tome fork <id>
+mvge tome export <id> -f markdown
 ```
 
 !!! note "Tome on disk, Session on the wire"
-    At filesystem, wire, and CLI boundaries MvgeOS speaks the open
+    At filesystem, wire, and CLI boundaries Mvge speaks the open
     `.agents` protocol, where the standard term is **session** — so
     `type: "session"` on the wire and `~/.agents/sessions/` on disk. `Tome` is
-    the domain term: the Python model, the persona, and `mvgeos tome`. This is
-    deliberate, so MvgeOS files interoperate with the protocol rather than
+    the domain term: the Python model, the persona, and `mvge tome`. This is
+    deliberate, so Mvge files interoperate with the protocol rather than
     inventing a private layout.
 
 ## Rune and Sigil
@@ -107,7 +107,7 @@ A Rune declares which Sigils it handles in its manifest, and the engine calls
 it at the right moment. A Rune that injects repository context on every run
 subscribes to the session-start Sigil; one that reacts to Spell results
 subscribes to the after-result Sigil. Runes can also mount CLI commands, which
-appear in `mvgeos --help` as though they were built in — resolved through the
+appear in `mvge --help` as though they were built in — resolved through the
 same discovery path that loads the Rune, so a command that shows up is a Rune
 that would load.
 
@@ -122,32 +122,32 @@ that would load.
 
 ### What a Rune may import
 
-A Rune may import engine packages: `mvgeos_core`, `mvgeos_runes`, `mvgeos_agent`,
-`mvgeos_provider`, `mvgeos_tome`. It may never import another Rune. That absolute
+A Rune may import engine packages: `mvge_core`, `mvge_runes`, `mvge_agent`,
+`mvge_provider`, `mvge_tome`. It may never import another Rune. That absolute
 boundary is what makes each Rune independently installable on its own — engine
 packages are supplied by the host, siblings are not, and a Rune that reaches for a
 sibling does not work once it is installed alone.
 
 Which *modules* an engine publishes to a Rune is enumerated in
-`mvgeos_runes.contract.RUNE_IMPORTABLE_MODULES`, and
+`mvge_runes.contract.RUNE_IMPORTABLE_MODULES`, and
 `tests/test_engine_import_contract.py` asserts nothing outside that set is
 imported. A package-root import is also checked against that package's `__all__`,
 so a symbol that resolves today can still be undeclared. Prefer the published
-spelling: `from mvgeos_provider import SSEStreamingRealm` is checked, while
-`from mvgeos_provider.sse import ...` is not, because `__all__` describes a
+spelling: `from mvge_provider import SSEStreamingRealm` is checked, while
+`from mvge_provider.sse import ...` is not, because `__all__` describes a
 namespace and a submodule has none.
 
-`mvgeos_agent` carries one extra rule, about **when** rather than **which**: do
-not import it at module scope. `mvgeos_agent/__init__` imports
-`mvgeos_runes.rune_runner`, which is the loader that loads Rune modules. A Rune
-loaded during that chain sees a half-built `mvgeos_agent` — `Mvge` unbound,
+`mvge_agent` carries one extra rule, about **when** rather than **which**: do
+not import it at module scope. `mvge_agent/__init__` imports
+`mvge_runes.rune_runner`, which is the loader that loads Rune modules. A Rune
+loaded during that chain sees a half-built `mvge_agent` — `Mvge` unbound,
 `__all__` unset — so the import fails and the Rune silently does not load.
-Import `mvgeos_agent` inside the function that uses it, which runs after the
+Import `mvge_agent` inside the function that uses it, which runs after the
 package is fully loaded. An import under `if TYPE_CHECKING:` is fine, because
 annotations are strings at runtime.
 
 `tests/test_rune_import_boundary.py` enforces both halves: no sibling imports,
-and no module-scope `mvgeos_agent` in a Rune's runtime source.
+and no module-scope `mvge_agent` in a Rune's runtime source.
 
 `tests/test_docs_version_claim.py` adds a third kind of gate over this
 repository's own documents, so a claim that names a version cannot outlive the
@@ -194,7 +194,7 @@ Realm as a reasoning-effort parameter. It is not the same as a run-level cap.
 Streaming a response from a Realm. The protocol method is `stream()`, and
 `StreamRenderer` draws it. The REPL and TUI both render channeled tokens as they
 arrive. (`channel` survives only as the module holding the vocabulary —
-`mvgeos_core/channel.py`.)
+`mvge_core/channel.py`.)
 
 ## Where this all lives
 
@@ -210,14 +210,14 @@ arrive. (`channel` survives only as the module holding the vocabulary —
 ```
 
 Every one of those directory names and wire fields is the open `.agents`
-protocol, not a MvgeOS invention. MvgeOS reserves its own vocabulary for
+protocol, not a Mvge invention. Mvge reserves its own vocabulary for
 internal abstractions, the persona, and presentation — so that the files it
 writes can be read by anything else that speaks the protocol.
 
 ## Further reading
 
-- [Architecture](https://github.com/IAmNo1Special/mvgeos/blob/main/docs/architecture/ARCHITECTURE.md) — how the loop is put together
-- [Domain glossary](https://github.com/IAmNo1Special/mvgeos/blob/main/CONTEXT.md) — the authoritative definitions
-- [The `.agents` protocol](https://dotagentsprotocol.com) — the open standard MvgeOS implements
+- [Architecture](https://github.com/IAmNo1Special/mvge/blob/main/docs/architecture/ARCHITECTURE.md) — how the loop is put together
+- [Domain glossary](https://github.com/IAmNo1Special/mvge/blob/main/CONTEXT.md) — the authoritative definitions
+- [The `.agents` protocol](https://dotagentsprotocol.com) — the open standard Mvge implements
 - [agent skills specification](https://agentskills.io) — the Skill format
 - [Rune catalog](index.md#rune-catalog) — what is available today

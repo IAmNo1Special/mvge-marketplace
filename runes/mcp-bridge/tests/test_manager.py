@@ -13,12 +13,12 @@ from mcp.types import (
     Tool,
 )
 from mvge.core.spells import SpellStatus
-from mvgeos_runes_mcp_bridge.manager import (
+from mvge_runes_mcp_bridge.manager import (
     MCPManager,
     extract_content,
     sanitize_tool_name,
 )
-from mvgeos_runes_mcp_bridge.types import (
+from mvge_runes_mcp_bridge.types import (
     MCPDiagnostic,
     MCPDiagnosticKind,
     MCPServerConfig,
@@ -85,7 +85,7 @@ async def test_connect_server_success_and_reconnect() -> None:
 
     with pytest.MonkeyPatch.context() as mp:
         mp.setattr(
-            "mvgeos_runes_mcp_bridge.manager.MCPServerSession",
+            "mvge_runes_mcp_bridge.manager.MCPServerSession",
             lambda conf: mock_session,
         )
 
@@ -120,7 +120,7 @@ async def test_connect_server_mcperror() -> None:
 
     with pytest.MonkeyPatch.context() as mp:
         mp.setattr(
-            "mvgeos_runes_mcp_bridge.manager.MCPServerSession",
+            "mvge_runes_mcp_bridge.manager.MCPServerSession",
             lambda conf: mock_session,
         )
         diagnostics: list[MCPDiagnostic] = []
@@ -192,7 +192,7 @@ async def test_connect_server_oserror() -> None:
 
     with pytest.MonkeyPatch.context() as mp:
         mp.setattr(
-            "mvgeos_runes_mcp_bridge.manager.MCPServerSession",
+            "mvge_runes_mcp_bridge.manager.MCPServerSession",
             lambda conf: mock_session,
         )
         diagnostics: list[MCPDiagnostic] = []

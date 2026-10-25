@@ -3,9 +3,9 @@
 import stat
 from pathlib import Path
 
-from mvgeos_runes_approval_rune.contracts import ApprovalRequest, SpellIdentity
-from mvgeos_runes_approval_rune.normalization import digest_arguments
-from mvgeos_runes_approval_rune.policy import (
+from mvge_runes_approval_rune.contracts import ApprovalRequest, SpellIdentity
+from mvge_runes_approval_rune.normalization import digest_arguments
+from mvge_runes_approval_rune.policy import (
     AllowRule,
     Policy,
     PolicyStore,

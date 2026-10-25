@@ -24,7 +24,7 @@ def runner():
 
 @pytest.fixture
 def skill_evolution_rune_loaded(runner):
-    from mvgeos_runes_skill_evolution import rune_factory
+    from mvge_runes_skill_evolution import rune_factory
 
     api = runner.create_api("skill_evolution")
     rune_factory(api)
@@ -136,10 +136,10 @@ class TestSkillEvolutionRuneIntegration:
 
         from mvge.core.spells import SpellStatus
 
-        from mvgeos_runes_skill_evolution.proposer_mvge.mvge import (
+        from mvge_runes_skill_evolution.proposer_mvge.mvge import (
             scoped_proposer_context,
         )
-        from mvgeos_runes_skill_evolution.proposer_mvge.spells.finish import (
+        from mvge_runes_skill_evolution.proposer_mvge.spells.finish import (
             finish,
         )
 
@@ -294,7 +294,7 @@ class TestSkillEvolutionRuneIntegration:
     ):
         from unittest.mock import AsyncMock, patch
 
-        from mvgeos_runes_skill_evolution.rune_factory import (
+        from mvge_runes_skill_evolution.rune_factory import (
             set_llm_client,
         )
 
@@ -324,7 +324,7 @@ class TestSkillEvolutionRuneIntegration:
 
         # Subagent runner run method
         with patch(
-            "mvgeos_runes_skill_evolution.rune_factory.run_proposer",
+            "mvge_runes_skill_evolution.rune_factory.run_proposer",
             AsyncMock(return_value={"success": True}),
         ):
             sub = skill_evolution_rune_loaded._skill_proposer_subagent
@@ -332,7 +332,7 @@ class TestSkillEvolutionRuneIntegration:
             assert res == {"success": True}
 
     def test_rune_partitions_evolution_by_workspace(self, runner, tmp_path):
-        from mvgeos_runes_skill_evolution import rune_factory
+        from mvge_runes_skill_evolution import rune_factory
 
         ws = tmp_path / "my_project"
         ws.mkdir()
@@ -355,7 +355,7 @@ class TestSkillEvolutionRuneIntegration:
         assert "my_project" in str(store.evolution_dir)
 
     def test_rune_standalone_no_workspace(self, runner):
-        from mvgeos_runes_skill_evolution import rune_factory
+        from mvge_runes_skill_evolution import rune_factory
 
         runner.bind_context(
             RuneContext(

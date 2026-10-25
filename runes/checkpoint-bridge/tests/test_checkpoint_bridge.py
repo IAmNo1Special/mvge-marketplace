@@ -9,7 +9,7 @@ import pytest
 from mvge.core.spells import SpellContext
 from mvge.runes.rune_api import RuneAPI
 from mvge.runes.types import SessionLeafChangedData, SigilHook
-from mvgeos_runes_checkpoint_bridge.rune import rune_factory
+from mvge_runes_checkpoint_bridge.rune import rune_factory
 
 
 @pytest.fixture

@@ -16,19 +16,19 @@ export OPENROUTER_API_KEY="sk-or-v1-..."
 (Or pass `--api-key`). No credential file is written to disk when using the environment variable. If you use a different provider (OpenCode Zen, etc.), you provide that provider's key instead — see
 [Use another Realm](quickstart.md#use-another-realm).
 
-### `uvx mvgeos` does not work. Why is the install line so long?
+### `uvx mvge` does not work. Why is the install line so long?
 
-It is short now, and that is recent. `uvx mvgeos --help` resolves against PyPI.
+It is short now, and that is recent. `uvx mvge --help` resolves against PyPI.
 The long `git+` form you may find in older answers names the CLI's subdirectory
 in the monorepo and is what the project used before the first published release:
 
 ```bash
-uvx --from "git+https://github.com/IAmNo1Special/mvgeos#subdirectory=mvgeos-cli" mvgeos --help
-uv tool install "git+https://github.com/IAmNo1Special/mvgeos#subdirectory=mvgeos-cli"
+uvx --from "git+https://github.com/IAmNo1Special/mvge#subdirectory=mvge-cli" mvge --help
+uv tool install "git+https://github.com/IAmNo1Special/mvge#subdirectory=mvge-cli"
 ```
 
 Use the short form unless you are contributing; see
-[Troubleshooting](troubleshooting.md#mvgeos-was-not-found-in-the-package-registry).
+[Troubleshooting](troubleshooting.md#mvge-was-not-found-in-the-package-registry).
 
 ### Do I need Python installed?
 
@@ -37,7 +37,7 @@ No. `uv` fetches Python 3.13 for you. You need `uv`, and nothing else.
 ### Do I need a clone of the repository?
 
 No — not to use it. The install commands pull what they need. Cloning is for
-contributing, and `uv sync && uv run mvgeos` is the contributor path. It also
+contributing, and `uv sync && uv run mvge` is the contributor path. It also
 pulls the desktop GUI's dependencies, so it is heavier.
 
 ### Why do I need to install two things — a Realm and a Mvge?
@@ -59,10 +59,10 @@ If you already pay for another provider directly (or prefer OpenCode Zen), insta
 ### Which Realm do I need?
 
 The one whose prefix matches your model's slug. The default model's prefix is
-`openrouter` (`openrouter/free`). Install `openrouter-realm` (or run `mvgeos setup --profile coding` which installs it along with `coding_mvge`). If you install `opencode-realm` instead and run with the default model, you get a working engine that cannot reach its own default:
+`openrouter` (`openrouter/free`). Install `openrouter-realm` (or run `mvge setup --profile coding` which installs it along with `coding_mvge`). If you install `opencode-realm` instead and run with the default model, you get a working engine that cannot reach its own default:
 
 ```text
-Error: No Realm factory registered for model 'openrouter/free'. Run 'mvgeos rune install openrouter-realm' to install it from the central marketplace.
+Error: No Realm factory registered for model 'openrouter/free'. Run 'mvge rune install openrouter-realm' to install it from the central marketplace.
 ```
 
 ### Which model should I use?
@@ -70,17 +70,17 @@ Error: No Realm factory registered for model 'openrouter/free'. Run 'mvgeos rune
 The one you get by default — `openrouter/free` — unless you have a reason. Check which one you actually got:
 
 ```bash
-mvgeos info --agent-name coding_mvge
+mvge info --agent-name coding_mvge
 ```
 
 The `Model:` line is the answer. Override it with `-m`, and remember the prefix
 in the slug names the Realm that has to serve it:
 
 ```bash
-mvgeos --agent-name coding_mvge -m "openrouter/free" "your task"
+mvge --agent-name coding_mvge -m "openrouter/free" "your task"
 ```
 
-MvgeOS never proxies your key anywhere except the Realm you installed.
+Mvge never proxies your key anywhere except the Realm you installed.
 
 ### It says "free" — why did my run fail?
 
@@ -127,7 +127,7 @@ a paid one. See
 for how to tell a spent allowance from a busy provider.
 
 This is the single most common reason the quickstart appears broken on day one.
-It is a limit at the provider, not a fault in MvgeOS.
+It is a limit at the provider, not a fault in Mvge.
 
 ### What does a run cost?
 
@@ -186,7 +186,7 @@ straight to the Realm you chose. Model choice is genuinely open — the engine
 programs against the Realm abstraction, not one vendor's SDK.
 
 What you give up is the polish of a product with a team behind it on a single
-code path. MvgeOS is pre-1.0 and the command surface moves.
+code path. Mvge is pre-1.0 and the command surface moves.
 
 ### Why does it use invented vocabulary — Mvge, Spell, Tome?
 
@@ -197,18 +197,18 @@ code reads unambiguously.
 
 It stops at the boundary. Directory names, wire fields, and CLI arguments follow
 the open `.agents` protocol, where the standard terms are "session",
-"extension", and "tools". So MvgeOS files stay readable by anything else that
+"extension", and "tools". So Mvge files stay readable by anything else that
 speaks the protocol, and `CONTEXT.md` is the authority on which word applies
 where.
 
 ### Is this a Pi fork?
 
-No, and the relationship is worth being precise about. MvgeOS is an independent
+No, and the relationship is worth being precise about. Mvge is an independent
 implementation of the architecture Pi introduced, and it tracks Pi closely in
 places — the loop, `StreamFn`, the frozen loop context, the queue-drain
 semantics. Tomes are Pi-inspired in format but explicitly **not**
-byte-compatible: Pi session files cannot be opened by MvgeOS and vice versa.
-[Provenance](https://github.com/IAmNo1Special/mvgeos/blob/main/docs/architecture/PROVENANCE.md)
+byte-compatible: Pi session files cannot be opened by Mvge and vice versa.
+[Provenance](https://github.com/IAmNo1Special/mvge/blob/main/docs/architecture/PROVENANCE.md)
 traces the sources, including the ADK, Eve, and the papers behind the skill
 evolution Rune.
 
@@ -228,14 +228,14 @@ MIT.
 ## Reporting problems
 
 Open an issue at
-[github.com/IAmNo1Special/mvgeos](https://github.com/IAmNo1Special/mvgeos/issues).
+[github.com/IAmNo1Special/mvge](https://github.com/IAmNo1Special/mvge/issues).
 Include the output of:
 
 ```bash
-mvgeos info --agent-name coding_mvge
-mvgeos setup check
+mvge info --agent-name coding_mvge
+mvge setup check
 uv --version && python3 --version
 ```
 
 That trio pins down almost anything. Security reports should follow
-[SECURITY.md](https://github.com/IAmNo1Special/mvgeos/blob/main/SECURITY.md).
+[SECURITY.md](https://github.com/IAmNo1Special/mvge/blob/main/SECURITY.md).

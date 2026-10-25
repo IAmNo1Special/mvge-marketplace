@@ -1,7 +1,7 @@
 {
   "version": "0.2.0",
   "name": "mvge-marketplace",
-  "description": "Official extension marketplace for MvgeOS runes and mvges",
+  "description": "Official extension marketplace for Mvge runes and mvges",
   "runes": {
     "approval-rune": {
       "name": "approval-rune",
@@ -26,7 +26,7 @@
     "openrouter-realm": {
       "name": "openrouter-realm",
       "version": "0.1.0",
-      "description": "Official OpenRouter provider realm for MvgeOS",
+      "description": "Official OpenRouter provider realm for Mvge",
       "types": [
         "RealmProvider"
       ],
@@ -46,7 +46,7 @@
     "opencode-realm": {
       "name": "opencode-realm",
       "version": "0.1.0",
-      "description": "Official OpenCode Zen provider realm for MvgeOS",
+      "description": "Official OpenCode Zen provider realm for Mvge",
       "types": [
         "RealmProvider"
       ],
@@ -113,7 +113,7 @@
     "mcp-bridge": {
       "name": "mcp-bridge",
       "version": "0.1.0",
-      "description": "Official Model Context Protocol (MCP) bridge for MvgeOS",
+      "description": "Official Model Context Protocol (MCP) bridge for Mvge",
       "types": [
         "Spell",
         "Spell Modifier",
@@ -138,7 +138,7 @@
     "opentelemetry-bridge": {
       "name": "opentelemetry-bridge",
       "version": "0.1.0",
-      "description": "Official OpenTelemetry GenAI tracing bridge for MvgeOS",
+      "description": "Official OpenTelemetry GenAI tracing bridge for Mvge",
       "types": [
         "Sigil",
         "Command"
@@ -169,7 +169,7 @@
     "okf-bridge": {
       "name": "okf-bridge",
       "version": "0.2.0",
-      "description": "Official Open Knowledge Format (OKF v0.2) knowledge bridge for MvgeOS",
+      "description": "Official Open Knowledge Format (OKF v0.2) knowledge bridge for Mvge",
       "types": [
         "Sigil",
         "Spell",
@@ -206,7 +206,7 @@
     "adr-bridge": {
       "name": "adr-bridge",
       "version": "0.1.0",
-      "description": "Official Markdown Architectural Decision Records (MADR 3.0) bridge for MvgeOS",
+      "description": "Official Markdown Architectural Decision Records (MADR 3.0) bridge for Mvge",
       "types": [
         "Sigil",
         "Spell",
@@ -240,7 +240,7 @@
     "skills-bridge": {
       "name": "skills-bridge",
       "version": "0.1.0",
-      "description": "Official Agent Skills (agentskills.io) and Agent Plugins bridge for MvgeOS",
+      "description": "Official Agent Skills (agentskills.io) and Agent Plugins bridge for Mvge",
       "types": [
         "Sigil",
         "Spell",
@@ -271,7 +271,7 @@
     "steering-bridge": {
       "name": "steering-bridge",
       "version": "0.1.0",
-      "description": "Official repository steering (AGENTS.md, .agents protocol) bridge for MvgeOS",
+      "description": "Official repository steering (AGENTS.md, .agents protocol) bridge for Mvge",
       "types": [
         "Sigil",
         "Command"
@@ -296,7 +296,7 @@
     "selfmod-bridge": {
       "name": "selfmod-bridge",
       "version": "0.1.0",
-      "description": "Official self-modification & customization bridge for MvgeOS",
+      "description": "Official self-modification & customization bridge for Mvge",
       "types": [
         "Sigil",
         "Spell",
@@ -317,7 +317,7 @@
     "pi-codec": {
       "name": "pi-codec",
       "version": "0.1.0",
-      "description": "Native Pi session codec: resume, append, fork, and validate Pi agent session logs (JSONL v3/v4) directly in MvgeOS with no conversion; pi-export copies a Tome v1 session to a Pi-native v4 file",
+      "description": "Native Pi session codec: resume, append, fork, and validate Pi agent session logs (JSONL v3/v4) directly in Mvge with no conversion; pi-export copies a Tome v1 session to a Pi-native v4 file",
       "types": [
         "Codec"
       ],
@@ -335,13 +335,13 @@
         "typer>=0.12"
       ],
       "session_codecs": [
-        "mvgeos_runes_pi_codec.codec:PiSessionCodec"
+        "mvge_runes_pi_codec.codec:PiSessionCodec"
       ]
     },
     "session-search": {
       "name": "session-search",
       "version": "0.1.0",
-      "description": "Full-text BM25 search over MvgeOS sessions: Tome v1, Pi sessions (via pi-codec), and Antigravity transcripts, indexed into local SQLite FTS5",
+      "description": "Full-text BM25 search over Mvge sessions: Tome v1, Pi sessions (via pi-codec), and Antigravity transcripts, indexed into local SQLite FTS5",
       "types": [
         "Spell"
       ],
@@ -481,7 +481,7 @@
     "coding_mvge": {
       "name": "coding_mvge",
       "version": "0.2.8",
-      "description": "Official coding agent for MvgeOS with built-in development spells",
+      "description": "Official coding agent for Mvge with built-in development spells",
       "runtime": "python",
       "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "mvges/coding_mvge",

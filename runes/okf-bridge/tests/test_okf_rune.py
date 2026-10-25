@@ -8,7 +8,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from mvge.runes.types import BeforeMvgeStartData, SigilHook, SpellDefinition
-from mvgeos_runes_okf_bridge.rune import rune_factory
+from mvge_runes_okf_bridge.rune import rune_factory
 
 
 class MockRuneAPI:
@@ -34,7 +34,7 @@ class MockRuneAPI:
 def isolated_global(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Keep the global knowledge layer out of the real home dir."""
     fake = tmp_path / "fake-global"
-    monkeypatch.setenv("MVGEOS_GLOBAL_DIR", str(fake))
+    monkeypatch.setenv("MVGE_GLOBAL_DIR", str(fake))
     return fake
 
 

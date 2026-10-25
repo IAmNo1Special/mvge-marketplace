@@ -1,7 +1,7 @@
 {
   "name": "skills-bridge",
   "version": "0.1.0",
-  "description": "Official Agent Skills (agentskills.io) and Agent Plugins bridge for MvgeOS",
+  "description": "Official Agent Skills (agentskills.io) and Agent Plugins bridge for Mvge",
   "types": [
     "Sigil",
     "Spell",

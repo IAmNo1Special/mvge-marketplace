@@ -1,10 +1,10 @@
-# 🔮 MvgeOS Marketplace
+# 🔮 Mvge Marketplace
 
-Official marketplace catalog for MvgeOS **Runes** (extensions), **Mvges** (agents), and runtime **Profiles**.
+Official marketplace catalog for Mvge **Runes** (extensions), **Mvges** (agents), and runtime **Profiles**.
 
 ## ✨ Overview
 
-The MvgeOS Marketplace hosts official extensions (`runes/`) and concrete agent packages (`mvges/`) for MvgeOS, separated from the engine microkernel by a strict contract-tested seam.
+The Mvge Marketplace hosts official extensions (`runes/`) and concrete agent packages (`mvges/`) for Mvge, separated from the engine microkernel by a strict contract-tested seam.
 
 ## 🧙‍♂️ Available Mvges (Agents)
 
@@ -22,25 +22,25 @@ mvge mvge install coding_mvge
 
 | Rune | Version | Description | Path |
 | --- | --- | --- | --- |
-| `adr-bridge` | `0.1.0` | Official Markdown Architectural Decision Records (MADR 3.0) bridge for MvgeOS | `runes/adr-bridge` |
+| `adr-bridge` | `0.1.0` | Official Markdown Architectural Decision Records (MADR 3.0) bridge for Mvge | `runes/adr-bridge` |
 | `approval-rune` | `0.1.0` | Fail-closed execution gate: pauses every uncovered mutating spell cast until the user approves it, with scoped persistent grants, deny rules, and a durable audit trail | `runes/approval-rune` |
 | `checkpoint-bridge` | `0.1.0` | Shadow-git workspace checkpoints, atomic leaf restoration, and file rollbacks | `runes/checkpoint-bridge` |
 | `codeact-rune` | `0.1.0` | CodeAct Python executor with AST safety, tool write-protection, and auto-dispatch | `runes/codeact-rune` |
 | `eval-bridge` | `0.1.0` | Evaluation harness and RL data exporter compatible with google/adk-python evalsets | `runes/eval-bridge` |
 | `lsp-bridge` | `0.1.0` | LSP diagnostics bridge providing debounced compiler errors on edit and write | `runes/lsp-bridge` |
-| `mcp-bridge` | `0.1.0` | Official Model Context Protocol (MCP) bridge for MvgeOS | `runes/mcp-bridge` |
-| `okf-bridge` | `0.2.0` | Official Open Knowledge Format (OKF v0.2) knowledge bridge for MvgeOS | `runes/okf-bridge` |
-| `opencode-realm` | `0.1.0` | Official OpenCode Zen provider realm for MvgeOS | `runes/opencode-realm` |
-| `openrouter-realm` | `0.1.0` | Official OpenRouter provider realm for MvgeOS | `runes/openrouter-realm` |
-| `opentelemetry-bridge` | `0.1.0` | Official OpenTelemetry GenAI tracing bridge for MvgeOS | `runes/opentelemetry-bridge` |
-| `pi-codec` | `0.1.0` | Native Pi session codec: resume, append, fork, and validate Pi agent session logs (JSONL v3/v4) directly in MvgeOS with no conversion; pi-export copies a Tome v1 session to a Pi-native v4 file | `runes/pi-codec` |
+| `mcp-bridge` | `0.1.0` | Official Model Context Protocol (MCP) bridge for Mvge | `runes/mcp-bridge` |
+| `okf-bridge` | `0.2.0` | Official Open Knowledge Format (OKF v0.2) knowledge bridge for Mvge | `runes/okf-bridge` |
+| `opencode-realm` | `0.1.0` | Official OpenCode Zen provider realm for Mvge | `runes/opencode-realm` |
+| `openrouter-realm` | `0.1.0` | Official OpenRouter provider realm for Mvge | `runes/openrouter-realm` |
+| `opentelemetry-bridge` | `0.1.0` | Official OpenTelemetry GenAI tracing bridge for Mvge | `runes/opentelemetry-bridge` |
+| `pi-codec` | `0.1.0` | Native Pi session codec: resume, append, fork, and validate Pi agent session logs (JSONL v3/v4) directly in Mvge with no conversion; pi-export copies a Tome v1 session to a Pi-native v4 file | `runes/pi-codec` |
 | `seeker` | `0.1.0` | Seeker Active Discovery+ Spell Gateway: unified `search`, `activate`, `execute`, and `unload` lifecycle across Spells, Skills, and MCP servers | `runes/seeker` |
-| `selfmod-bridge` | `0.1.0` | Official self-modification & customization bridge for MvgeOS | `runes/selfmod-bridge` |
-| `session-search` | `0.1.0` | Full-text BM25 search over MvgeOS sessions: Tome v1, Pi sessions (via pi-codec), and Antigravity transcripts, indexed into local SQLite FTS5 | `runes/session-search` |
+| `selfmod-bridge` | `0.1.0` | Official self-modification & customization bridge for Mvge | `runes/selfmod-bridge` |
+| `session-search` | `0.1.0` | Full-text BM25 search over Mvge sessions: Tome v1, Pi sessions (via pi-codec), and Antigravity transcripts, indexed into local SQLite FTS5 | `runes/session-search` |
 | `session-title` | `0.1.0` | Auto-generates session titles from conversation content with instant fallback and optional LLM upgrade | `runes/session-title` |
 | `skill-evolution` | `0.3.0` | Persistent experience consolidation and autonomous skill evolution: harvests raw experience, consolidates durable patterns, and proposes or applies agent-scoped skills | `runes/skill-evolution` |
-| `skills-bridge` | `0.1.0` | Official Agent Skills (agentskills.io) and Agent Plugins bridge for MvgeOS | `runes/skills-bridge` |
-| `steering-bridge` | `0.1.0` | Official repository steering (AGENTS.md, .agents protocol) bridge for MvgeOS | `runes/steering-bridge` |
+| `skills-bridge` | `0.1.0` | Official Agent Skills (agentskills.io) and Agent Plugins bridge for Mvge | `runes/skills-bridge` |
+| `steering-bridge` | `0.1.0` | Official repository steering (AGENTS.md, .agents protocol) bridge for Mvge | `runes/steering-bridge` |
 | `submvge-bridge` | `0.1.0` | Kernel sub-Mvge summoning, persistent sub-sessions, and reactive wakeup bridge | `runes/submvge-bridge` |
 
 Install via Mvge CLI:
@@ -119,7 +119,7 @@ artifact. CI runs bare `pytest` and so uses `testpaths`, making a local run and
 a CI run the same set of tests.
 
 Two layout shapes exist and both are supported: `runes/skills-bridge` keeps its
-manifest beside the `mvgeos_runes_skills_bridge` package, while
+manifest beside the `mvge_runes_skills_bridge` package, while
 `mvges/coding_mvge` *is* the package with the manifest inside it.
 
 ---

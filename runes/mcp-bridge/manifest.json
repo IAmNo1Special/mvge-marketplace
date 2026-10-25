@@ -1,7 +1,7 @@
 {
   "name": "mcp-bridge",
   "version": "0.1.0",
-  "description": "Official Model Context Protocol (MCP) bridge for MvgeOS",
+  "description": "Official Model Context Protocol (MCP) bridge for Mvge",
   "types": ["Spell", "Spell Modifier", "Command"],
   "runtime": "python",
   "entry_point": "rune.py",

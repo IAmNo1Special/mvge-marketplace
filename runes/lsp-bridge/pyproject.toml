@@ -1,5 +1,5 @@
 [project]
-name = "mvgeos-runes-lsp-bridge"
+name = "mvge-runes-lsp-bridge"
 version = "0.1.0"
 description = "LSP diagnostics bridge providing debounced compiler errors on edit and write"
 requires-python = ">=3.13"
@@ -11,7 +11,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 include = [
-    "mvgeos_runes_lsp_bridge/",
+    "mvge_runes_lsp_bridge/",
     "rune.py",
 ]
 

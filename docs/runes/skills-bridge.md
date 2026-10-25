@@ -1,6 +1,6 @@
 # Skills Bridge
 
-Official Agent Skills ([agentskills.io](https://agentskills.io)) and Agent Plugins ([agent-plugins.org](https://agent-plugins.org)) bridge for MvgeOS.
+Official Agent Skills ([agentskills.io](https://agentskills.io)) and Agent Plugins ([agent-plugins.org](https://agent-plugins.org)) bridge for Mvge.
 
 Discovers skill packages across scopes and loads them with progressive disclosure, so the model sees a compact catalog — not the full text of every skill — until it actually needs one.
 
@@ -24,8 +24,8 @@ Scans `PROJECT`, `USER`, `AGENT`, and `PLUGINS` (`plugin.json`) scopes. Preceden
 
 ## Commands
 
-- `mvgeos skill list` — show discovered skills.
-- `mvgeos skill dedupe` — report shadowed/duplicated skills.
+- `mvge skill list` — show discovered skills.
+- `mvge skill dedupe` — report shadowed/duplicated skills.
 
 ## Hooks
 

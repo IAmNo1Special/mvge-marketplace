@@ -4,7 +4,7 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
-from mvgeos_runes_steering_bridge.rune import SteeringBridgeRune, rune_factory
+from mvge_runes_steering_bridge.rune import SteeringBridgeRune, rune_factory
 
 
 def _write(path: Path, content: str) -> Path:
@@ -36,7 +36,7 @@ async def test_steering_bridge_session_start_resolves_paths(
     _write(tmp_path / "AGENTS.md", "Project rules")
     global_dir = tmp_path / "global"
     _write(global_dir / "AGENTS.md", "Global rules")
-    monkeypatch.setenv("MVGEOS_GLOBAL_DIR", str(global_dir))
+    monkeypatch.setenv("MVGE_GLOBAL_DIR", str(global_dir))
 
     mock_api = MagicMock()
     mock_api.context.cwd = str(tmp_path)
@@ -112,7 +112,7 @@ async def test_steering_bridge_empty_section_leaves_prompt_untouched(
 ) -> None:
     empty_repo = tmp_path / "empty_repo"
     empty_repo.mkdir()
-    monkeypatch.setenv("MVGEOS_GLOBAL_DIR", str(tmp_path / "empty_global"))
+    monkeypatch.setenv("MVGE_GLOBAL_DIR", str(tmp_path / "empty_global"))
     rune = SteeringBridgeRune()
     rune.refresh_steering(cwd=empty_repo, global_dir=tmp_path / "empty_global")
 
@@ -125,7 +125,7 @@ async def test_steering_bridge_lazy_refresh_from_event_cwd(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     _write(tmp_path / "AGENTS.md", "Lazy project rules.")
-    monkeypatch.setenv("MVGEOS_GLOBAL_DIR", str(tmp_path / "empty_global"))
+    monkeypatch.setenv("MVGE_GLOBAL_DIR", str(tmp_path / "empty_global"))
 
     rune = SteeringBridgeRune()
     out = await rune.on_before_mvge_start(
@@ -171,7 +171,7 @@ async def test_steering_bridge_slash_commands(tmp_path: Path) -> None:
 
 
 def test_steering_bridge_validate_flags_emptied_file(tmp_path: Path) -> None:
-    from mvgeos_runes_steering_bridge.types import SteeringState
+    from mvge_runes_steering_bridge.types import SteeringState
 
     agents_file = _write(tmp_path / "AGENTS.md", "Original rules.")
     rune = SteeringBridgeRune()

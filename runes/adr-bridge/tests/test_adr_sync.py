@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mvgeos_runes_adr_bridge.sync import sync_adr_index
+from mvge_runes_adr_bridge.sync import sync_adr_index
 
 
 def test_sync_adr_index_missing_dir(tmp_path: Path) -> None:

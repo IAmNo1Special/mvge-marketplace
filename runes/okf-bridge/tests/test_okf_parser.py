@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mvgeos_runes_okf_bridge.parser import (
+from mvge_runes_okf_bridge.parser import (
     _resolve_concept_link,
     extract_frontmatter_and_body,
     parse_concept_file,

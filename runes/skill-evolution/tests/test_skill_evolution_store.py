@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from mvgeos_runes_skill_evolution.queries import SkillEvolutionQueries
-from mvgeos_runes_skill_evolution.store import SkillEvolutionStore
+from mvge_runes_skill_evolution.queries import SkillEvolutionQueries
+from mvge_runes_skill_evolution.store import SkillEvolutionStore
 
 
 @pytest.fixture

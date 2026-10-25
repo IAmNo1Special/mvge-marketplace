@@ -1,7 +1,7 @@
 {
   "name": "opentelemetry-bridge",
   "version": "0.1.0",
-  "description": "Official OpenTelemetry GenAI tracing bridge for MvgeOS",
+  "description": "Official OpenTelemetry GenAI tracing bridge for Mvge",
   "types": ["Sigil", "Command"],
   "runtime": "python",
   "entry_point": "rune.py",

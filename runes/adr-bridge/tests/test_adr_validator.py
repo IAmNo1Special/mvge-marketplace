@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mvgeos_runes_adr_bridge.validator import validate_adrs
+from mvge_runes_adr_bridge.validator import validate_adrs
 
 
 def test_validator_missing_directory(tmp_path: Path) -> None:

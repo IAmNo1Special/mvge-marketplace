@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mvgeos_runes_steering_bridge.prompt import (
+from mvge_runes_steering_bridge.prompt import (
     build_project_context,
     build_steering_pointers,
     build_steering_section,
@@ -30,7 +30,7 @@ def test_build_project_context_workspace_and_global(tmp_path: Path) -> None:
         "# Project Guidelines\nWorkspace instructions here",
     )
 
-    from mvgeos_runes_steering_bridge.resolver import (
+    from mvge_runes_steering_bridge.resolver import (
         resolve_global_agents_file,
         resolve_workspace_agents_file,
     )
@@ -65,7 +65,7 @@ def test_build_project_context_ignores_empty_files(tmp_path: Path) -> None:
     cwd_dir.mkdir()
     _write(cwd_dir / "AGENTS.md", "---\nkind: empty\n---\n   ")
 
-    from mvgeos_runes_steering_bridge.resolver import (
+    from mvge_runes_steering_bridge.resolver import (
         resolve_global_agents_file,
         resolve_workspace_agents_file,
     )
@@ -84,8 +84,8 @@ def test_discover_subpackage_pointers(tmp_path: Path) -> None:
     cwd_dir.mkdir()
     _write(cwd_dir / "AGENTS.md", "Root rules")
 
-    _write(cwd_dir / "mvgeos-core" / "AGENTS.md", "Core secret internals")
-    _write(cwd_dir / "mvgeos-gui" / "agents.md", "GUI secret internals")
+    _write(cwd_dir / "mvge-core" / "AGENTS.md", "Core secret internals")
+    _write(cwd_dir / "mvge-gui" / "agents.md", "GUI secret internals")
     (cwd_dir / "regular_folder").mkdir()
     (cwd_dir / ".hidden_pkg" / "AGENTS.md").parent.mkdir(parents=True)
     _write(cwd_dir / ".hidden_pkg" / "AGENTS.md", "Hidden rules")
@@ -93,8 +93,8 @@ def test_discover_subpackage_pointers(tmp_path: Path) -> None:
 
     pointers = discover_subpackage_pointers(cwd_dir)
 
-    assert ("mvgeos-core", "mvgeos-core/AGENTS.md") in pointers
-    assert ("mvgeos-gui", "mvgeos-gui/agents.md") in pointers
+    assert ("mvge-core", "mvge-core/AGENTS.md") in pointers
+    assert ("mvge-gui", "mvge-gui/agents.md") in pointers
     assert all(name != "regular_folder" for name, _ in pointers)
     assert all(not name.startswith(".") for name, _ in pointers)
     assert all(name != "__pycache__" for name, _ in pointers)
@@ -105,7 +105,7 @@ def test_build_steering_pointers_format(tmp_path: Path) -> None:
     _write(tmp_path / "pkg" / "AGENTS.md", "Pkg rules")
     _write(tmp_path / "g" / "AGENTS.md", "Global rules")
 
-    from mvgeos_runes_steering_bridge.resolver import (
+    from mvge_runes_steering_bridge.resolver import (
         resolve_global_agents_file,
         resolve_workspace_agents_file,
     )
@@ -122,12 +122,12 @@ def test_build_steering_pointers_format(tmp_path: Path) -> None:
 def test_build_steering_section_inlines_root_not_subpackages(
     tmp_path: Path,
 ) -> None:
-    from mvgeos_runes_steering_bridge.resolver import (
+    from mvge_runes_steering_bridge.resolver import (
         resolve_workspace_agents_file,
     )
 
     _write(tmp_path / "AGENTS.md", "Root rules")
-    _write(tmp_path / "mvgeos-core" / "AGENTS.md", "Core secret internals")
+    _write(tmp_path / "mvge-core" / "AGENTS.md", "Core secret internals")
 
     ws_ref = resolve_workspace_agents_file(tmp_path)
     subs = discover_subpackage_pointers(tmp_path)
@@ -137,7 +137,7 @@ def test_build_steering_section_inlines_root_not_subpackages(
     assert '<project_instructions path="AGENTS.md">' in section
     assert "Root rules" in section
     # Subpackages must be listed as on-demand pointers only
-    assert "- Subpackage Rules (mvgeos-core): mvgeos-core/AGENTS.md" in section
+    assert "- Subpackage Rules (mvge-core): mvge-core/AGENTS.md" in section
     # Subpackage internals must NOT be inlined (token budget protection)
     assert "Core secret internals" not in section
 

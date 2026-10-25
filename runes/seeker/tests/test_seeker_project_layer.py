@@ -25,8 +25,8 @@ from pathlib import Path
 
 import pytest
 from mvge.core import GLOBAL_DIR_ENV, project_skills_dir
-from mvgeos_runes_seeker.dci_matcher import _get_skill_roots, _skill_root_candidates
-from mvgeos_runes_seeker.paths import missing, skill_roots
+from mvge_runes_seeker.dci_matcher import _get_skill_roots, _skill_root_candidates
+from mvge_runes_seeker.paths import missing, skill_roots
 
 
 @pytest.fixture
@@ -110,7 +110,7 @@ def test_relocated_global_layer_and_unrelated_cwd_together(
 ) -> None:
     """Both halves of the relocation hazard, in one run.
 
-    ``$MVGEOS_GLOBAL_DIR`` moves our own layer; the cwd moves nothing,
+    ``$MVGE_GLOBAL_DIR`` moves our own layer; the cwd moves nothing,
     because nothing is anchored to it. Getting both right is the property
     that matters -- either alone passes against half a fix.
     """

@@ -5,11 +5,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from mvgeos_runes_adr_bridge.prompt import (
+from mvge_runes_adr_bridge.prompt import (
     render_adr_catalog,
     update_invocations_with_adr_catalog,
 )
-from mvgeos_runes_adr_bridge.types import ADREntry
+from mvge_runes_adr_bridge.types import ADREntry
 
 
 @dataclass

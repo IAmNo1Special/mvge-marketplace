@@ -1,6 +1,6 @@
 # submvge-bridge
 
-Kernel sub-Mvge summoning, persistent sub-sessions, and reactive wakeup bridge for MvgeOS.
+Kernel sub-Mvge summoning, persistent sub-sessions, and reactive wakeup bridge for Mvge.
 
 ## Features
 - **Sub-Agent Delegation**: Summons isolated sub-agents with dedicated workspaces and scoped tools.

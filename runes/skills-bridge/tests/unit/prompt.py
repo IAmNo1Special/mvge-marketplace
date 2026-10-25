@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from mvgeos_runes_skills_bridge.prompt import (
+from mvge_runes_skills_bridge.prompt import (
     build_skill_catalog,
     update_invocations_with_skill_catalog,
 )
-from mvgeos_runes_skills_bridge.types import SkillManifest
+from mvge_runes_skills_bridge.types import SkillManifest
 
 
 @dataclass

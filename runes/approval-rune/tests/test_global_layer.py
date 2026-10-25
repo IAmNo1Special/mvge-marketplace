@@ -19,9 +19,9 @@ from mvge.core import (
 )
 from mvge.runes.installer import APPROVAL_RUNE_NAME, _approval_dir
 
-from mvgeos_runes_approval_rune.contracts import SpellIdentity
-from mvgeos_runes_approval_rune.gate import ApprovalGate, default_data_dir
-from mvgeos_runes_approval_rune.policy import DenyRule
+from mvge_runes_approval_rune.contracts import SpellIdentity
+from mvge_runes_approval_rune.gate import ApprovalGate, default_data_dir
+from mvge_runes_approval_rune.policy import DenyRule
 
 
 @pytest.fixture

@@ -8,7 +8,7 @@ import pytest
 from mvge.agent.sub_mvge import SubMvgeRecord, SubMvgeState
 from mvge.core.spells import SpellContext
 from mvge.runes.rune_api import RuneAPI
-from mvgeos_runes_submvge_bridge.rune import rune_factory
+from mvge_runes_submvge_bridge.rune import rune_factory
 
 
 @pytest.fixture

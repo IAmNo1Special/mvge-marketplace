@@ -4,10 +4,10 @@ import asyncio
 from pathlib import Path
 from typing import Any
 
-from mvgeos_runes_approval_rune.contracts import SpellIdentity
-from mvgeos_runes_approval_rune.gate import ApprovalGate, PresenterResponse
-from mvgeos_runes_approval_rune.policy import AllowRule, Constraint, DenyRule
-from mvgeos_runes_approval_rune.views import PermissionsView
+from mvge_runes_approval_rune.contracts import SpellIdentity
+from mvge_runes_approval_rune.gate import ApprovalGate, PresenterResponse
+from mvge_runes_approval_rune.policy import AllowRule, Constraint, DenyRule
+from mvge_runes_approval_rune.views import PermissionsView
 
 
 class FakeContext:
@@ -53,7 +53,7 @@ def _seed(tmp_path: Path) -> ApprovalGate:
     gate.policy.always_deny.append(
         DenyRule(spell=_identity("deploy"), id="deny-0")
     )
-    from mvgeos_runes_approval_rune.policy import ProjectApproval
+    from mvge_runes_approval_rune.policy import ProjectApproval
 
     gate.policy.approved_projects.append(
         ProjectApproval(root="/workspace/proj", enabled=True)

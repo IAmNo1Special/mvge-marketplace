@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mvgeos_runes_okf_bridge.validator import validate_okf_bundle
+from mvge_runes_okf_bridge.validator import validate_okf_bundle
 
 
 def test_validator_missing_directory(tmp_path: Path) -> None:

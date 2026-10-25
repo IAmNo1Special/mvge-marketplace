@@ -1,6 +1,6 @@
 # Seeker Protocol Rune
 
-Direct Corpus Interaction (DCI) on-demand capability discovery for MvgeOS.
+Direct Corpus Interaction (DCI) on-demand capability discovery for Mvge.
 
 ## Prerequisites
 
@@ -22,7 +22,7 @@ it is there and falls back to a Python scan when it is not.
 | Windows (scoop) | `scoop install ripgrep` |
 | Any (Rust toolchain) | `cargo install ripgrep` |
 
-Check with `rg --version`. `mvgeos setup` reads the declaration and reports the
+Check with `rg --version`. `mvge setup` reads the declaration and reports the
 dependency as missing or present.
 
 ## Spells

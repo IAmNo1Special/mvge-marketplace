@@ -117,7 +117,7 @@ def test_index_key_matches_manifest_name(artifact: Artifact) -> None:
     """The index key names the install directory the user will type.
 
     ``install_rune`` derives the destination from ``manifest.name``, so a
-    mismatch means ``mvgeos rune install <index-key>`` produces a directory
+    mismatch means ``mvge rune install <index-key>`` produces a directory
     the user did not ask for.
     """
     manifest_name = artifact.manifest.get("name")
@@ -133,7 +133,7 @@ def test_index_and_manifest_declare_the_same_system_deps(artifact: Artifact) -> 
     """A binary dependency has to be declared in both places that are read.
 
     ``index.json`` is what the engine fetches to resolve an artifact for
-    install, and ``manifest.json`` is what ``mvgeos setup`` reads when it
+    install, and ``manifest.json`` is what ``mvge setup`` reads when it
     warns about a missing system dependency -- it maps ``ripgrep`` to ``rg``
     before checking ``PATH``, so the manifest value is a tool name rather
     than the program name. A dependency that appears in one of the two and
@@ -343,7 +343,7 @@ def test_every_rune_entry_point_actually_loads() -> None:
     Layout and manifest checks pass for a rune whose module raises on import --
     ``session-title`` shipped with a module-level ``@dataclass`` that the
     engine's loader could not execute, so the manifest looked perfect and the
-    rune did nothing. ``mvgeos rune list`` would still have shown it.
+    rune did nothing. ``mvge rune list`` would still have shown it.
 
     A missing ``python_dep`` is *not* a failure here: the loader reports it as
     a dependency diagnostic and that is a legitimate, explainable state. A
@@ -374,7 +374,7 @@ def test_every_rune_entry_point_actually_loads() -> None:
         finally:
             with contextlib.suppress(ValueError):
                 sys.path.remove(entry_root)
-            sys.modules.pop(f"mvgeos_rune_{artifact.name}", None)
+            sys.modules.pop(f"mvge_rune_{artifact.name}", None)
 
     assert not failures, "These runes install but cannot be loaded:\n" + "\n".join(
         f"  {f}" for f in failures

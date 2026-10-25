@@ -1,7 +1,7 @@
 """No artifact may reach the global ``.agents`` layer through ``Path.home()``.
 
 The global layer has exactly one resolver: ``global_agents_dir()`` from
-``mvge.core``, which honours ``$MVGEOS_GLOBAL_DIR`` and otherwise returns
+``mvge.core``, which honours ``$MVGE_GLOBAL_DIR`` and otherwise returns
 ``~/.agents``. Import it from the package root rather than
 ``mvge.core.constants``: the root is the public surface, and it re-exports
 the resolvers whether they live in ``constants`` or in the newer ``layers``
@@ -12,10 +12,10 @@ under a relocated global dir the two disagree, and the divergence is silent.
 The serious direction of that silence is ``approval-rune``. The engine's
 installer resolves the purge target through ``global_agents_dir()``
 (``mvge.runes/installer.py::_approval_dir``), so under
-``MVGEOS_GLOBAL_DIR=/tmp/x``:
+``MVGE_GLOBAL_DIR=/tmp/x``:
 
 - the gate wrote its grants to ``~/.agents/approval/policy.toml``
-- ``mvgeos rune uninstall approval-rune`` deleted
+- ``mvge rune uninstall approval-rune`` deleted
   ``/tmp/x/approval/policy.toml``
 
 **The grants the uninstall claims to delete survive.** Security-relevant
@@ -232,7 +232,7 @@ def test_no_artifact_reaches_the_global_layer_through_home() -> None:
         "These modules resolve the global "
         f"{GLOBAL_LAYER_SEGMENT!r} layer through Path.home() instead of "
         "mvge.core.global_agents_dir(), so they ignore "
-        "$MVGEOS_GLOBAL_DIR:\n"
+        "$MVGE_GLOBAL_DIR:\n"
         + "\n".join(f"  {v.describe()}" for v in violations)
         + "\nRoute these through global_agents_dir() (or a named helper such "
         "as approval_dir(), skills_dir() or auth_dir()), imported from the "
@@ -264,7 +264,7 @@ def test_the_gate_would_catch_a_regression() -> None:
         # rune auth path: split across two statements
         (
             "home_dir = Path.home()\n"
-            'auth = home_dir / ".agents" / ".mvgeos"\n'
+            'auth = home_dir / ".agents" / ".mvge"\n'
             'auth = auth / "auth" / "openrouter.json"\n'
         ),
         # deeper than one segment, and nested several joins deep
@@ -286,7 +286,7 @@ def test_the_gate_does_not_flag_home_paths_outside_the_layer() -> None:
         # home-relative, sharing a list literal with a project-relative path
         (
             '_DEFAULT_SKILL_DIRS = [Path.home() / ".claude/skills", '
-            'Path(".agents/.mvgeos/skills")]\n'
+            'Path(".agents/.mvge/skills")]\n'
         ),
         'D = (Path.home() / ".claude" / "skills").resolve()\n',
         # session-search: a home path that is not our layer

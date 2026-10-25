@@ -15,7 +15,7 @@ import pytest
 from mvge.runes import AuditError
 from selfmod_bridge_conftest import make_rune
 
-from mvgeos_runes_selfmod_bridge.rune import SelfmodBridgeRune
+from mvge_runes_selfmod_bridge.rune import SelfmodBridgeRune
 
 # (op, params): params chosen to fail fast without mutating (self_snapshot
 # succeeds — its snapshots land in the tmp state dir).

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from mvgeos_runes_mcp_bridge.types import (
+from mvge_runes_mcp_bridge.types import (
     MCPDiagnosticKind,
     MCPTransport,
 )

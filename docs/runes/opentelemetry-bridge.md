@@ -1,6 +1,6 @@
 # OpenTelemetry Bridge
 
-Official OpenTelemetry GenAI tracing bridge for MvgeOS.
+Official OpenTelemetry GenAI tracing bridge for Mvge.
 
 Instruments the agent lifecycle end to end: sessions, turns, provider requests/responses, and individual spell casts all become trace spans you can inspect in any OpenTelemetry-compatible backend. When something behaves oddly three turns in, the trace tells you exactly which call, which tool, and which tokens were involved.
 
@@ -10,7 +10,7 @@ Instruments the agent lifecycle end to end: sessions, turns, provider requests/r
 
 ## Commands
 
-- `mvgeos otel …` — tracing controls.
+- `mvge otel …` — tracing controls.
 
 ## Dependencies
 

@@ -1,6 +1,6 @@
 # steering-bridge Rune
 
-Official **repository steering ([.agents protocol](https://dotagentsprotocol.com))** bridge for MvgeOS.
+Official **repository steering ([.agents protocol](https://dotagentsprotocol.com))** bridge for Mvge.
 
 ## Features
 - **Layered discovery**: global `~/.agents/AGENTS.md`, workspace `<project>/AGENTS.md` (fallback `<project>/.agents/AGENTS.md`).
@@ -8,4 +8,4 @@ Official **repository steering ([.agents protocol](https://dotagentsprotocol.com
 - **Prompt injection**: renders `<project_context>` with `<global_instructions>` and `<project_instructions>` (frontmatter stripped) via the `BEFORE_MVGE_START` sigil.
 - **Progressive disclosure**: first-level subpackage `AGENTS.md` files are declared as on-demand `Repository Steering:` pointers, never inlined.
 - **Zero overhead**: silent bypass when no steering files resolve.
-- **CLI commands**: `mvgeos steering status`, `mvgeos steering show`, `mvgeos steering validate`.
+- **CLI commands**: `mvge steering status`, `mvge steering show`, `mvge steering validate`.

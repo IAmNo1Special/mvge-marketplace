@@ -1,7 +1,7 @@
 """The one claim the docs make about versions must be true.
 
 The Quickstart used to name a current version -- "The published distribution
-on PyPI. `v0.6.27`, installed as `mvgeos-cli v0.6.27`" -- and a test asserted
+on PyPI. `v0.6.27`, installed as `mvge-cli v0.6.27`" -- and a test asserted
 that the number equalled the engine's. It could not hold. The number named the
 engine's newest *source* commit while the install line installs the newest
 *published* wheel, and those two agree only in the moment a release is cut. It
@@ -41,8 +41,8 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DOCS = REPO_ROOT / "docs"
 # The engine checkout, in both of the places it can be. CI runs its pre-commands
-# with the working directory at this repository's root, so `git clone ... mvgeos`
-# lands at ./mvgeos -- INSIDE the repo. A developer workspace holds the two
+# with the working directory at this repository's root, so `git clone ... mvge`
+# lands at ./mvge -- INSIDE the repo. A developer workspace holds the two
 # repositories side by side instead, one level up.
 #
 # Both are checked because a guard that silently finds neither disables itself,
@@ -53,8 +53,8 @@ DOCS = REPO_ROOT / "docs"
 # arithmetic showed it: 1209 passed / 3 skipped locally against 1204 / 8 in CI, a
 # difference of exactly the 5 tests this file adds.
 ENGINE_PYPROJECT_CANDIDATES = (
-    REPO_ROOT / "mvgeos" / "pyproject.toml",
-    REPO_ROOT.parent / "mvgeos" / "pyproject.toml",
+    REPO_ROOT / "mvge" / "pyproject.toml",
+    REPO_ROOT.parent / "mvge" / "pyproject.toml",
 )
 
 ANY_VERSION = re.compile(r"v\d+\.\d+\.\d+")

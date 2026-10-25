@@ -1,5 +1,5 @@
 [project]
-name = "mvgeos-runes-codeact"
+name = "mvge-runes-codeact"
 version = "0.1.0"
 description = "CodeAct Python executor with AST safety, tool write-protection, and auto-dispatch"
 requires-python = ">=3.13"
@@ -11,7 +11,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 include = [
-    "mvgeos_runes_codeact/",
+    "mvge_runes_codeact/",
     "rune.py",
 ]
 

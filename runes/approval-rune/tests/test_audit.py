@@ -4,7 +4,7 @@ import json
 import stat
 from pathlib import Path
 
-from mvgeos_runes_approval_rune.audit import AuditError, AuditLog
+from mvge_runes_approval_rune.audit import AuditError, AuditLog
 
 
 def _record(**overrides: object) -> dict[str, object]:

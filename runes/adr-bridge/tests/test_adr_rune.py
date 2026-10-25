@@ -8,7 +8,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from mvge.runes.types import BeforeMvgeStartData, SigilHook, SpellDefinition
-from mvgeos_runes_adr_bridge.rune import rune_factory
+from mvge_runes_adr_bridge.rune import rune_factory
 
 
 class MockRuneAPI:

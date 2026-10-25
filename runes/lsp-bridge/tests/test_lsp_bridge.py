@@ -9,7 +9,7 @@ from mvge.core.invocations import ContentType
 from mvge.core.spells import SpellResultMessage
 from mvge.runes.rune_api import RuneAPI
 from mvge.runes.types import AfterSpellResultData, SigilHook
-from mvgeos_runes_lsp_bridge.rune import LspBridge, LspClient, rune_factory
+from mvge_runes_lsp_bridge.rune import LspBridge, LspClient, rune_factory
 
 
 @pytest.fixture

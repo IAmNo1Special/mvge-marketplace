@@ -1,7 +1,7 @@
 {
   "name": "adr-bridge",
   "version": "0.1.0",
-  "description": "Official Markdown Architectural Decision Records (MADR 3.0) bridge for MvgeOS",
+  "description": "Official Markdown Architectural Decision Records (MADR 3.0) bridge for Mvge",
   "types": ["Sigil", "Spell", "Command"],
   "runtime": "python",
   "entry_point": "rune.py",

@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 from mvge.tome.types import TomeEntry, TomeEntryType, TomeVersionError
-from mvgeos_runes_pi_codec.codec import PiCodecError, PiSessionCodec
+from mvge_runes_pi_codec.codec import PiCodecError, PiSessionCodec
 
 UUIDV7_RE = re.compile(
     r"^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
@@ -931,9 +931,7 @@ class TestLoaderContract:
         manifest = _json.loads(
             (Path(__file__).parent.parent / "manifest.json").read_text()
         )
-        assert (
-            "mvgeos_runes_pi_codec.codec:PiSessionCodec" in manifest["session_codecs"]
-        )
+        assert "mvge_runes_pi_codec.codec:PiSessionCodec" in manifest["session_codecs"]
         assert "Codec" in manifest["types"]
 
     def test_structural_members(self):

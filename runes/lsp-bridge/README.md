@@ -1,6 +1,6 @@
 # lsp-bridge
 
-Language Server Protocol (LSP) diagnostics bridge providing debounced compiler errors on edit and write for MvgeOS.
+Language Server Protocol (LSP) diagnostics bridge providing debounced compiler errors on edit and write for Mvge.
 
 ## Features
 - **LSP Diagnostics**: Integrates with language servers (Pyright, rust-analyzer, etc.) to capture real-time diagnostics.

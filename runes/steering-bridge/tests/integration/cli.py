@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import patch
 
-from mvgeos_runes_steering_bridge.cli import steering_app
+from mvge_runes_steering_bridge.cli import steering_app
 from typer.testing import CliRunner
 
 runner = CliRunner()
@@ -128,7 +128,7 @@ def test_cli_steering_validate_missing(tmp_path: Path) -> None:
 
 def test_cli_steering_validate_fail_exits_nonzero(tmp_path: Path) -> None:
     _write(tmp_path / "AGENTS.md", "Valid rules.")
-    with patch("mvgeos_runes_steering_bridge.cli.SteeringBridgeRune") as mock_cls:
+    with patch("mvge_runes_steering_bridge.cli.SteeringBridgeRune") as mock_cls:
         mock_cls.return_value.validate.return_value = [
             "FAIL: Project steering file is empty: AGENTS.md"
         ]

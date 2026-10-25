@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 import pytest
-from mvgeos_runes_okf_bridge.cli import app
+from mvge_runes_okf_bridge.cli import app
 from typer.testing import CliRunner
 
 runner = CliRunner()
@@ -15,7 +15,7 @@ runner = CliRunner()
 @pytest.fixture()
 def isolated_global(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     fake = tmp_path / "fake-global"
-    monkeypatch.setenv("MVGEOS_GLOBAL_DIR", str(fake))
+    monkeypatch.setenv("MVGE_GLOBAL_DIR", str(fake))
     return fake
 
 

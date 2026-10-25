@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mvgeos_runes_okf_bridge.types import (
+from mvge_runes_okf_bridge.types import (
     AttestedComputation,
     Concept,
     Source,

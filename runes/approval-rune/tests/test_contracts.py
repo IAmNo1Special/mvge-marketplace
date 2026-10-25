@@ -4,7 +4,7 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from mvgeos_runes_approval_rune.contracts import (
+from mvge_runes_approval_rune.contracts import (
     ApprovalDecision,
     ApprovalRequest,
     SpellIdentity,

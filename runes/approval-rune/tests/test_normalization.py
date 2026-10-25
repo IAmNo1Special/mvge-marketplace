@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-from mvgeos_runes_approval_rune.normalization import (
+from mvge_runes_approval_rune.normalization import (
     NonSerializableArguments,
     argument_summary,
     digest_arguments,

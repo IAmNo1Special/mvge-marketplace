@@ -5,7 +5,7 @@ module-level ``rune_factory(api)``. The factory is constructed inside the
 package and re-exported here, matching the skills-bridge convention.
 """
 
-from mvgeos_runes_selfmod_bridge.rune import (
+from mvge_runes_selfmod_bridge.rune import (
     SelfmodBridgeRune,
     create_rune,
     rune_factory,

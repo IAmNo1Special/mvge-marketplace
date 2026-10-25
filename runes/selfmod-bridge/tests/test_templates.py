@@ -17,7 +17,7 @@ import pytest
 from mvge.agent.function_spell import discover_spells_from_dir
 from selfmod_bridge_conftest import read_skill_frontmatter
 
-from mvgeos_runes_selfmod_bridge.templates import (
+from mvge_runes_selfmod_bridge.templates import (
     rune_tree,
     skill_markdown,
     spell_source,
@@ -95,7 +95,7 @@ def test_rune_tree_golden_manifest() -> None:
 
 def test_rune_tree_required_files() -> None:
     tree = rune_tree("myrune", "Does things.")
-    pkg = "mvgeos_runes_myrune"
+    pkg = "mvge_runes_myrune"
     assert set(tree) == {
         "manifest.json",
         "pyproject.toml",
@@ -106,7 +106,7 @@ def test_rune_tree_required_files() -> None:
         f"{pkg}/rune.py",
         "tests/test_skeleton.py",
     }
-    assert ".install-id" not in tree  # never written — owned by `mvgeos rune install`
+    assert ".install-id" not in tree  # never written — owned by `mvge rune install`
 
 
 def test_rune_tree_pyproject_contract() -> None:
@@ -114,7 +114,7 @@ def test_rune_tree_pyproject_contract() -> None:
     text = tree["pyproject.toml"]
     assert 'requires-python = ">=3.13"' in text
     assert "hatchling" in text
-    assert "mvgeos_runes_myrune/" in text
+    assert "mvge_runes_myrune/" in text
     assert '"rune.py"' in text and '"cli.py"' in text
     assert 'python_files = ["*.py"]' in text
     assert "importlib" in text
@@ -140,7 +140,7 @@ def test_rune_tree_root_rune_reexports_factory(tmp_path: Path) -> None:
     assert callable(getattr(module, "rune_factory", None))
     # The package skeleton imports cleanly too.
     pkg_spec = importlib.util.spec_from_file_location(
-        "mvgeos_runes_myrune.rune", tmp_path / "mvgeos_runes_myrune" / "rune.py"
+        "mvge_runes_myrune.rune", tmp_path / "mvge_runes_myrune" / "rune.py"
     )
     assert pkg_spec is not None and pkg_spec.loader is not None
     pkg_module = importlib.util.module_from_spec(pkg_spec)

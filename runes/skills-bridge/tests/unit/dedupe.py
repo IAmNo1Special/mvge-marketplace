@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mvgeos_runes_skills_bridge.dedupe import (
+from mvge_runes_skills_bridge.dedupe import (
     execute_skill_dedupe,
     plan_skill_dedupe,
     render_dedupe_plan_table,
 )
-from mvgeos_runes_skills_bridge.types import SkillScope
+from mvge_runes_skills_bridge.types import SkillScope
 
 
 def _create_skill(root: Path, name: str) -> Path:

@@ -9,6 +9,6 @@ reads ``<rune-dir>/manifest.json`` when installing; a manifest nested in the
 package makes the rune uninstallable.
 """
 
-from mvgeos_runes_skill_evolution.rune_factory import rune_factory
+from mvge_runes_skill_evolution.rune_factory import rune_factory
 
 __all__ = ["rune_factory"]

@@ -1,10 +1,10 @@
 # session-search
 
-Full-text BM25 search over MvgeOS sessions, inspired by
+Full-text BM25 search over Mvge sessions, inspired by
 [search-antigravity](https://github.com/kingjulian24/search-antigravity)
 (a FastMCP search engine for Google Antigravity transcripts).
 
-This is a native reimplementation for the MvgeOS rune system — no code is
+This is a native reimplementation for the Mvge rune system — no code is
 shared with the upstream project. It indexes three session sources into a
 local SQLite FTS5 database:
 

@@ -1,7 +1,7 @@
 [project]
 name = "opentelemetry-bridge"
 version = "0.1.0"
-description = "Official OpenTelemetry GenAI tracing bridge for MvgeOS"
+description = "Official OpenTelemetry GenAI tracing bridge for Mvge"
 requires-python = ">=3.13"
 dependencies = [
     "opentelemetry-api>=1.30.0",

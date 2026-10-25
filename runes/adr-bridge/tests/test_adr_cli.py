@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from mvgeos_runes_adr_bridge.cli import app
+from mvge_runes_adr_bridge.cli import app
 from typer.testing import CliRunner
 
 runner = CliRunner()

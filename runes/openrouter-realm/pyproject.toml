@@ -1,7 +1,7 @@
 [project]
 name = "openrouter-realm"
 version = "0.1.0"
-description = "Official OpenRouter provider realm for MvgeOS"
+description = "Official OpenRouter provider realm for Mvge"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [

@@ -14,15 +14,15 @@ datasets.
 
 ## Commands
 
-- `mvgeos eval run <path-to-evalset>` — run evaluation cases against trajectories.
+- `mvge eval run <path-to-evalset>` — run evaluation cases against trajectories.
   - `--output`, `-o`: save evaluation report JSON.
   - `--verbose`, `-v`: detailed per-case results.
-- `mvgeos eval export-rl <tome-id-or-path>` — export a session Tome to RL dataset formats.
+- `mvge eval export-rl <tome-id-or-path>` — export a session Tome to RL dataset formats.
   - `--format`, `-f`: format type (`sharegpt` or `atropos`, default `sharegpt`).
   - `--output`, `-o`: output dataset destination file.
 
 ## Installation
 
 ```bash
-mvgeos rune install eval-bridge --confirm-python-deps
+mvge rune install eval-bridge --confirm-python-deps
 ```

@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from mvgeos_runes_steering_bridge.resolver import (
+from mvge_runes_steering_bridge.resolver import (
     read_steering_text,
     resolve_global_agents_file,
     resolve_scoped_agents_file,
@@ -99,7 +99,7 @@ def test_resolve_global_agents_file_defaults_to_the_global_dir_env(
     global dir it would name a path that was never read.
     """
     global_dir = tmp_path / "relocated_agents"
-    monkeypatch.setenv("MVGEOS_GLOBAL_DIR", str(global_dir))
+    monkeypatch.setenv("MVGE_GLOBAL_DIR", str(global_dir))
     global_dir.mkdir()
     steering_file = global_dir / "AGENTS.md"
     steering_file.write_text("relocated steering", encoding="utf-8")

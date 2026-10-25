@@ -1,6 +1,6 @@
 # codeact-rune
 
-CodeAct Python executor with AST safety, tool write-protection, and auto-dispatch for MvgeOS.
+CodeAct Python executor with AST safety, tool write-protection, and auto-dispatch for Mvge.
 
 ## Features
 - **CodeAct Execution**: Model executes arbitrary Python snippets in a sandboxed session environment.

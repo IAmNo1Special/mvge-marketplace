@@ -2,7 +2,7 @@
 
 ``get_prioritized_mcp_configs`` honoured a ``global_dir`` *argument* but fell
 back to ``Path.home()`` when it was omitted, so the user layer was read from
-the real home directory even under ``$MVGEOS_GLOBAL_DIR``.
+the real home directory even under ``$MVGE_GLOBAL_DIR``.
 
 There is a second trap here that the obvious one-line fix walks into.
 ``global_agents_dir()`` already *is* the ``.agents`` layer, so joining
@@ -19,7 +19,7 @@ from pathlib import Path
 
 import pytest
 from mvge.core import GLOBAL_DIR_ENV, global_agents_dir
-from mvgeos_runes_mcp_bridge.config import (
+from mvge_runes_mcp_bridge.config import (
     _global_mcp_config_path,
     get_prioritized_mcp_configs,
 )

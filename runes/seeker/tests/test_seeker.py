@@ -97,8 +97,8 @@ async def test_seeker_session_start_does_not_touch_global_allowlist() -> None:
 @pytest.mark.asyncio
 async def test_tool_search_widens_global_allowlist(tmp_path: Path) -> None:
     from mvge.provider.registry import RealmRegistry
-    from mvgeos_runes_seeker.router import SpellFileMatch
-    from mvgeos_runes_seeker.spell import ToolSearchSpell
+    from mvge_runes_seeker.router import SpellFileMatch
+    from mvge_runes_seeker.spell import ToolSearchSpell
 
     rune_api = MagicMock()
     rune_api.widen_global_allowlist = MagicMock()
@@ -122,8 +122,8 @@ async def test_tool_search_widens_global_allowlist(tmp_path: Path) -> None:
         ),
     ]
     with (
-        patch("mvgeos_runes_seeker.spell.DCIRouter") as mock_router_cls,
-        patch("mvgeos_runes_seeker.spell.NLTSelector") as mock_selector_cls,
+        patch("mvge_runes_seeker.spell.DCIRouter") as mock_router_cls,
+        patch("mvge_runes_seeker.spell.NLTSelector") as mock_selector_cls,
     ):
         mock_router_cls.return_value.route = AsyncMock(return_value=matches)
         mock_selector_cls.return_value.select = AsyncMock(return_value=matches)
@@ -141,8 +141,8 @@ async def test_tool_search_widens_global_allowlist(tmp_path: Path) -> None:
 
 @pytest.mark.asyncio
 async def test_connector_registers_mcp_spells_under_seeker() -> None:
-    from mvgeos_runes_seeker.connector import MCPConnector
-    from mvgeos_runes_seeker.discovery import MCPServerInfo
+    from mvge_runes_seeker.connector import MCPConnector
+    from mvge_runes_seeker.discovery import MCPServerInfo
 
     rune_api = MagicMock()
     info = MCPServerInfo(
@@ -163,7 +163,7 @@ async def test_connector_registers_mcp_spells_under_seeker() -> None:
 
 @pytest.mark.asyncio
 async def test_search_grimoires_matches_hint(tmp_path: Path) -> None:
-    from mvgeos_runes_seeker.router import DCIRouter
+    from mvge_runes_seeker.router import DCIRouter
 
     (tmp_path / "my_grimoire").mkdir()
     (tmp_path / "other").mkdir()

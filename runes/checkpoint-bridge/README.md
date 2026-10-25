@@ -1,6 +1,6 @@
 # checkpoint-bridge
 
-Shadow-git workspace checkpoints, atomic leaf restoration, and file rollbacks for MvgeOS.
+Shadow-git workspace checkpoints, atomic leaf restoration, and file rollbacks for Mvge.
 
 ## Features
 - **Deterministic Checkpoints**: Snapshots workspace state across turns using lightweight shadow git trees.

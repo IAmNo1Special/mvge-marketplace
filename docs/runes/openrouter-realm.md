@@ -1,6 +1,6 @@
 # OpenRouter Realm
 
-Official OpenRouter provider realm for MvgeOS.
+Official OpenRouter provider realm for Mvge.
 
 Connects agents to the OpenRouter API gateway — one realm, hundreds of foundation models — with SSE streaming, tool calls, and reasoning-parameter handling.
 
@@ -9,7 +9,7 @@ Connects agents to the OpenRouter API gateway — one realm, hundreds of foundat
 - A realm factory for the `openrouter` provider.
 - Provider configuration with base URL `https://openrouter.ai/api/v1`.
 
-When installed into `~/.agents/extensions/openrouter-realm`, MvgeOS discovers and activates it automatically.
+When installed into `~/.agents/extensions/openrouter-realm`, Mvge discovers and activates it automatically.
 
 ## Hooks
 

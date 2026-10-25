@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mvgeos_runes_adr_bridge.parser import (
+from mvge_runes_adr_bridge.parser import (
     load_adrs,
     parse_adr_file,
     resolve_adr_dir,

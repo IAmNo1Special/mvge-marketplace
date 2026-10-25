@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from mvgeos_runes_pi_codec.cli import export_app as pi_export
-from mvgeos_runes_pi_codec.cli import validate_app as pi_validate
+from mvge_runes_pi_codec.cli import export_app as pi_export
+from mvge_runes_pi_codec.cli import validate_app as pi_validate
 
 __all__ = ["pi_export", "pi_validate"]

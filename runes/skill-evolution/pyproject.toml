@@ -1,7 +1,7 @@
 [project]
 name = "skill-evolution"
 version = "0.3.0"
-description = "Persistent experience consolidation and autonomous skill evolution for MvgeOS"
+description = "Persistent experience consolidation and autonomous skill evolution for Mvge"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -15,7 +15,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 include = [
-    "mvgeos_runes_skill_evolution/",
+    "mvge_runes_skill_evolution/",
     "manifest.json",
     "rune.py",
 ]

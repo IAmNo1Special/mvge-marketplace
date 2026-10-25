@@ -13,8 +13,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mvgeos_runes_okf_bridge.graph import KnowledgeGraph
-from mvgeos_runes_okf_bridge.prompt import estimate_tokens, render_working_concepts
+from mvge_runes_okf_bridge.graph import KnowledgeGraph
+from mvge_runes_okf_bridge.prompt import estimate_tokens, render_working_concepts
 
 CONCEPT_TMPL = """---
 type: Note

@@ -3,11 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import patch
 
-from mvgeos_runes_skills_bridge.parser import (
+from mvge_runes_skills_bridge.parser import (
     parse_skill_manifest,
     repair_yaml_unquoted_colons,
 )
-from mvgeos_runes_skills_bridge.types import (
+from mvge_runes_skills_bridge.types import (
     SkillDiagnostic,
     SkillDiagnosticKind,
 )

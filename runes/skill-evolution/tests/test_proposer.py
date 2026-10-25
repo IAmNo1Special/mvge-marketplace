@@ -13,14 +13,14 @@ from mvge.runes.types import (
     SkillScope,
 )
 
-from mvgeos_runes_skill_evolution.proposer_mvge import (
+from mvge_runes_skill_evolution.proposer_mvge import (
     create_proposer_mvge,
     get_proposer_mvge,
     run_proposer,
     scoped_proposer_context,
 )
-from mvgeos_runes_skill_evolution.proposer_mvge.spells.finish import finish
-from mvgeos_runes_skill_evolution.proposer_mvge.spells.read_file import (
+from mvge_runes_skill_evolution.proposer_mvge.spells.finish import finish
+from mvge_runes_skill_evolution.proposer_mvge.spells.read_file import (
     read_file,
 )
 

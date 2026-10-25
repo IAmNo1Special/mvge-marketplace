@@ -3,8 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import patch
 
-from mvgeos_runes_skills_bridge.cli import skill_app
-from mvgeos_runes_skills_bridge.types import (
+from mvge_runes_skills_bridge.cli import skill_app
+from mvge_runes_skills_bridge.types import (
     SkillDiagnostic,
     SkillDiagnosticKind,
     SkillLoad,
@@ -37,7 +37,7 @@ def test_cli_skill_list_and_show(tmp_path: Path) -> None:
     _write_skill(project_skills, "cli-skill", "CLI test skill")
 
     with patch(
-        "mvgeos_runes_skills_bridge.cli.get_prioritized_skill_search_paths",
+        "mvge_runes_skills_bridge.cli.get_prioritized_skill_search_paths",
         return_value=[(project_skills, SkillScope.PROJECT)],
     ):
         # List
@@ -57,11 +57,11 @@ def test_cli_skill_list_and_show(tmp_path: Path) -> None:
 def test_cli_skill_list_empty() -> None:
     with (
         patch(
-            "mvgeos_runes_skills_bridge.cli.get_prioritized_skill_search_paths",
+            "mvge_runes_skills_bridge.cli.get_prioritized_skill_search_paths",
             return_value=[],
         ),
         patch(
-            "mvgeos_runes_skills_bridge.cli.discover_plugin_skill_paths",
+            "mvge_runes_skills_bridge.cli.discover_plugin_skill_paths",
             return_value=[],
         ),
     ):
@@ -84,7 +84,7 @@ def test_cli_skill_list_with_shadowed() -> None:
         )
     ]
     with patch(
-        "mvgeos_runes_skills_bridge.cli.load_skills_from_paths",
+        "mvge_runes_skills_bridge.cli.load_skills_from_paths",
         return_value=(loads, diags),
     ):
         res = runner.invoke(skill_app, ["list"])
@@ -120,7 +120,7 @@ def test_cli_skill_dedupe_flow(tmp_path: Path) -> None:
     ]
 
     with patch(
-        "mvgeos_runes_skills_bridge.dedupe.get_prioritized_skill_search_paths",
+        "mvge_runes_skills_bridge.dedupe.get_prioritized_skill_search_paths",
         return_value=paths,
     ):
         # Dry-run
@@ -144,7 +144,7 @@ def test_cli_skill_dedupe_flow(tmp_path: Path) -> None:
 
 def test_cli_skill_dedupe_no_shadows() -> None:
     with patch(
-        "mvgeos_runes_skills_bridge.cli.plan_skill_dedupe",
+        "mvge_runes_skills_bridge.cli.plan_skill_dedupe",
         return_value=[],
     ):
         res = runner.invoke(skill_app, ["dedupe"])
@@ -154,7 +154,7 @@ def test_cli_skill_dedupe_no_shadows() -> None:
 
 def test_cli_skill_show_not_found() -> None:
     with patch(
-        "mvgeos_runes_skills_bridge.cli.load_skills_from_paths",
+        "mvge_runes_skills_bridge.cli.load_skills_from_paths",
         return_value=([], []),
     ):
         res = runner.invoke(skill_app, ["show", "nonexistent"])

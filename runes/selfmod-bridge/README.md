@@ -1,6 +1,6 @@
 # selfmod-bridge Rune
 
-Official **self-modification & customization** bridge for MvgeOS. Gives the
+Official **self-modification & customization** bridge for Mvge. Gives the
 agent the ability to extend itself — scaffold spells, runes, and skills from
 normative templates, revise its own instructions, and snapshot / roll back
 the files that define it.
@@ -8,7 +8,7 @@ the files that define it.
 ## Install
 
 ```bash
-mvgeos rune install selfmod-bridge
+mvge rune install selfmod-bridge
 ```
 
 On `before_mvge_start` the rune appends a `Self-Modification &
@@ -58,7 +58,7 @@ execution gate**):
   project scope precedence).
 - `scaffold_skill(name, description, scope="agent")` — generate
   `<root>/<name>/SKILL.md` at `agent` (`<config_dir>/skills`), `user`
-  (`$MVGEOS_GLOBAL_DIR/skills`), or `project` scope. `description` is
+  (`$MVGE_GLOBAL_DIR/skills`), or `project` scope. `description` is
   required — the skills-bridge loader skips skills with a missing or empty
   description.
 - `revise_persona(old_text, new_text, path=None)` — replace one exact span
@@ -128,7 +128,7 @@ rune-op audit trail — successes and structured failures alike
 not audited.
 
 - **Location.** `<user-scope>/.agents/extensions/audit.jsonl` — the global
-  per-user layer (`$MVGEOS_GLOBAL_DIR` when set, else `~/.agents`),
+  per-user layer (`$MVGE_GLOBAL_DIR` when set, else `~/.agents`),
   following the skills-bridge scope convention. Self-mod ops are
   agent-level mutations that outlive any single session, so
   session-scoped tome storage is the wrong home. The log is append-only

@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 import pytest
-from mvgeos_runes_skills_bridge.loader import (
+from mvge_runes_skills_bridge.loader import (
     clear_skill_manifest_cache,
     discover_plugin_skill_paths,
     get_prioritized_skill_search_paths,
@@ -12,7 +12,7 @@ from mvgeos_runes_skills_bridge.loader import (
     load_plugin_manifest,
     load_skills_from_paths,
 )
-from mvgeos_runes_skills_bridge.types import (
+from mvge_runes_skills_bridge.types import (
     SkillDiagnostic,
     SkillDiagnosticKind,
     SkillScope,
@@ -56,14 +56,14 @@ def test_get_prioritized_skill_search_paths(tmp_path: Path) -> None:
 def test_skill_search_paths_follow_the_global_dir_env(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """The user and agent skill layers come from $MVGEOS_GLOBAL_DIR.
+    """The user and agent skill layers come from $MVGE_GLOBAL_DIR.
 
     This used to be a second, hand-rolled copy of the precedence rule. It
     drifted from the engine's, so a run with the override set searched the
     real home for user and agent skills while everything else was isolated.
     """
     global_dir = tmp_path / "relocated_agents"
-    monkeypatch.setenv("MVGEOS_GLOBAL_DIR", str(global_dir))
+    monkeypatch.setenv("MVGE_GLOBAL_DIR", str(global_dir))
     (global_dir / "skills").mkdir(parents=True)
     (global_dir / "agents" / "my_agent" / "skills").mkdir(parents=True)
     cwd = tmp_path / "project"

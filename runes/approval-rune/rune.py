@@ -16,9 +16,9 @@ from typing import Any
 from mvge.runes.rune_api import RuneAPI
 from mvge.runes.types import SigilHook
 
-from mvgeos_runes_approval_rune.gate import ApprovalGate
-from mvgeos_runes_approval_rune.policy import PolicyStore
-from mvgeos_runes_approval_rune.views import PermissionsView
+from mvge_runes_approval_rune.gate import ApprovalGate
+from mvge_runes_approval_rune.policy import PolicyStore
+from mvge_runes_approval_rune.views import PermissionsView
 
 _RUNES: weakref.WeakKeyDictionary[Any, ApprovalRune] = (
     weakref.WeakKeyDictionary()

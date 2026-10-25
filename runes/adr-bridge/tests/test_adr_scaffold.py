@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mvgeos_runes_adr_bridge.scaffold import scaffold_new_adr, slugify
+from mvge_runes_adr_bridge.scaffold import scaffold_new_adr, slugify
 
 
 def test_slugify() -> None:

@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mvgeos_runes_selfmod_bridge.prompt import build_selfmod_section
+from mvge_runes_selfmod_bridge.prompt import build_selfmod_section
 
 INTRO = (
     "You can extend and self-modify your capabilities by editing files with "

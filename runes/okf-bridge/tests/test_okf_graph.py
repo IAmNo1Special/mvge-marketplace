@@ -5,12 +5,12 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from mvgeos_runes_okf_bridge.graph import KnowledgeGraph
+from mvge_runes_okf_bridge.graph import KnowledgeGraph
 
 
 @pytest.fixture()
 def isolated_global(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
-    monkeypatch.setenv("MVGEOS_GLOBAL_DIR", str(tmp_path / "fake-global"))
+    monkeypatch.setenv("MVGE_GLOBAL_DIR", str(tmp_path / "fake-global"))
     return tmp_path / "fake-global"
 
 

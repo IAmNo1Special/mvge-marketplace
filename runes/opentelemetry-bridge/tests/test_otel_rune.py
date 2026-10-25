@@ -14,12 +14,12 @@ from mvge.runes.types import (
     TurnEndData,
     TurnStartData,
 )
-from mvgeos_runes_opentelemetry_bridge.rune import rune_factory
+from mvge_runes_opentelemetry_bridge.rune import rune_factory
 
 
 @pytest.mark.asyncio
 async def test_rune_factory_registers_hooks_and_commands(monkeypatch) -> None:
-    monkeypatch.setenv("MVGEOS_OTEL_IN_MEMORY", "1")
+    monkeypatch.setenv("MVGE_OTEL_IN_MEMORY", "1")
 
     hooks: dict[SigilHook, Any] = {}
     commands: dict[str, Any] = {}
@@ -155,7 +155,7 @@ async def test_rune_factory_dict_payloads_and_runner_context(tmp_path) -> None:
 
     cmd = commands["otel"]
     with patch(
-        "mvgeos_runes_opentelemetry_bridge.tracer.OTelTracer.start_turn",
+        "mvge_runes_opentelemetry_bridge.tracer.OTelTracer.start_turn",
         side_effect=ValueError("bad turn"),
     ):
         fail_out = await cmd("test")

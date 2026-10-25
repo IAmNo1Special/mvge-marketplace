@@ -22,16 +22,16 @@ from mvge.core.approval import (
     deny as core_deny,
 )
 
-from mvgeos_runes_approval_rune.contracts import (
+from mvge_runes_approval_rune.contracts import (
     SpellIdentity,
 )
-from mvgeos_runes_approval_rune.gate import (
+from mvge_runes_approval_rune.gate import (
     ApprovalGate,
     PresenterResponse,
     build_request,
     from_core_request,
 )
-from mvgeos_runes_approval_rune.normalization import (
+from mvge_runes_approval_rune.normalization import (
     argument_summary,
     digest_arguments,
     redact,
@@ -152,7 +152,7 @@ def test_deny_rule_denies_without_prompt(tmp_path: Path) -> None:
         raise AssertionError("presenter must not be called")
 
     gate = _gate(tmp_path, presenter=must_not_prompt)
-    from mvgeos_runes_approval_rune.policy import DenyRule
+    from mvge_runes_approval_rune.policy import DenyRule
 
     gate.policy.always_deny.append(DenyRule(spell=_identity(), id="deny-0"))
     gate._store.save(gate.policy)  # noqa: SLF001 - persist like the GUI would
@@ -371,7 +371,7 @@ def test_schemaless_cast_denies_without_presenter(tmp_path: Path) -> None:
 def test_audit_failure_denies_unless_override(tmp_path: Path) -> None:
     """Test audit failure denies unless override."""
     gate = _gate(tmp_path, presenter=_allow_once)
-    from mvgeos_runes_approval_rune.audit import AuditError
+    from mvge_runes_approval_rune.audit import AuditError
 
     def _fail(record: dict[str, Any]) -> None:
         raise AuditError("disk full")

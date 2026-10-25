@@ -1,6 +1,6 @@
 # skills-bridge Rune
 
-Official **Agent Skills ([agentskills.io](https://agentskills.io))** and **Agent Plugins ([agent-plugins.org](https://agent-plugins.org))** bridge for MvgeOS.
+Official **Agent Skills ([agentskills.io](https://agentskills.io))** and **Agent Plugins ([agent-plugins.org](https://agent-plugins.org))** bridge for Mvge.
 
 ## Features
 - **Three-tier progressive disclosure**:
@@ -11,4 +11,4 @@ Official **Agent Skills ([agentskills.io](https://agentskills.io))** and **Agent
 - **Precedence**: `PROJECT > USER > AGENT`. Deterministic first-wins with shadow tracking.
 - **Tolerant Parsing**: Resilient YAML colon repair and lenient validation.
 - **Context Protection**: Anti-bloat regex turn updates; deduplicated activations.
-- **CLI Commands**: `mvgeos skill list`, `mvgeos skill dedupe`, `mvgeos skill validate`, `mvgeos skill show`.
+- **CLI Commands**: `mvge skill list`, `mvge skill dedupe`, `mvge skill validate`, `mvge skill show`.

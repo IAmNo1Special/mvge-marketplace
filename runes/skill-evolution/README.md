@@ -1,6 +1,6 @@
 # skill-evolution
 
-Persistent experience consolidation and autonomous skill evolution for MvgeOS.
+Persistent experience consolidation and autonomous skill evolution for Mvge.
 An implementation of the WikiSkill approach: raw experience is consolidated into
 patterns, and patterns are proposed and applied as agent-scoped skills.
 
@@ -19,7 +19,7 @@ State lives under the agent scope:
 ## Installation
 
 ```bash
-mvgeos rune install skill-evolution
+mvge rune install skill-evolution
 ```
 
 It is no longer bundled with `coding_mvge`. Install it explicitly if you want

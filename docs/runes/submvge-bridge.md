@@ -30,5 +30,5 @@ message them in background sub-sessions, and coordinate parallel workflows.
 ## Installation
 
 ```bash
-mvgeos rune install submvge-bridge
+mvge rune install submvge-bridge
 ```

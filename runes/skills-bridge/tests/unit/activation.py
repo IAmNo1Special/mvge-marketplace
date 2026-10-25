@@ -3,11 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from mvgeos_runes_skills_bridge.activation import (
+from mvge_runes_skills_bridge.activation import (
     activate_skill,
     enumerate_skill_resources,
 )
-from mvgeos_runes_skills_bridge.types import SkillManifest
+from mvge_runes_skills_bridge.types import SkillManifest
 
 
 def test_enumerate_skill_resources(tmp_path: Path) -> None:

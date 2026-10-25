@@ -6,14 +6,14 @@ from mvge.core import extensions_dir
 from mvge.provider.registry import RealmRegistry
 from mvge.runes.rune_api import RuneAPI
 from mvge.runes.types import SigilHook
-from mvgeos_runes_seeker.activate_spell import ActivateSpell
-from mvgeos_runes_seeker.discovery import MCPConfigDiscovery
-from mvgeos_runes_seeker.ledger import SeekerLedger
-from mvgeos_runes_seeker.mcp_spell import MCPSearchSpell
-from mvgeos_runes_seeker.skill_execute import SkillExecuteSpell
-from mvgeos_runes_seeker.skill_spell import SkillSearchSpell
-from mvgeos_runes_seeker.spell import SearchSpell, ToolSearchSpell
-from mvgeos_runes_seeker.unload_spell import UnloadSpell
+from mvge_runes_seeker.activate_spell import ActivateSpell
+from mvge_runes_seeker.discovery import MCPConfigDiscovery
+from mvge_runes_seeker.ledger import SeekerLedger
+from mvge_runes_seeker.mcp_spell import MCPSearchSpell
+from mvge_runes_seeker.skill_execute import SkillExecuteSpell
+from mvge_runes_seeker.skill_spell import SkillSearchSpell
+from mvge_runes_seeker.spell import SearchSpell, ToolSearchSpell
+from mvge_runes_seeker.unload_spell import UnloadSpell
 
 
 def rune_factory(api: RuneAPI) -> None:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mvgeos_runes_skills_bridge.types import (
+from mvge_runes_skills_bridge.types import (
     PluginManifest,
     SkillActivationResult,
     SkillDiagnostic,

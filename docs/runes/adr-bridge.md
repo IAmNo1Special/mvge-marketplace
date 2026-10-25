@@ -1,6 +1,6 @@
 # ADR Bridge
 
-Official Markdown Architectural Decision Records (MADR 3.0) bridge for MvgeOS.
+Official Markdown Architectural Decision Records (MADR 3.0) bridge for Mvge.
 
 Keeps your architecture decisions as versioned Markdown files in `docs/adr/`, enforces the MADR 3.0 heading structure, and injects the decision catalog into the model prompt at session start — so the agent always knows *why* things are the way they are.
 
@@ -15,8 +15,8 @@ Keeps your architecture decisions as versioned Markdown files in `docs/adr/`, en
 
 ## Commands
 
-- `mvgeos adr new "<title>"` — generates `docs/adr/0001-<slug>.md` from the MADR 3.0 template.
-- `mvgeos adr sync` — maintains the deterministic Markdown index table in `docs/adr/README.md`.
+- `mvge adr new "<title>"` — generates `docs/adr/0001-<slug>.md` from the MADR 3.0 template.
+- `mvge adr sync` — maintains the deterministic Markdown index table in `docs/adr/README.md`.
 
 ## Hooks
 

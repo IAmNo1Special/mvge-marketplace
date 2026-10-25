@@ -1,7 +1,7 @@
 [project]
 name = "opencode-realm"
 version = "0.1.0"
-description = "Official OpenCode Zen provider realm for MvgeOS"
+description = "Official OpenCode Zen provider realm for Mvge"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -14,7 +14,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 include = [
-    "mvgeos_runes_opencode_realm/",
+    "mvge_runes_opencode_realm/",
     "rune.py",
 ]
 

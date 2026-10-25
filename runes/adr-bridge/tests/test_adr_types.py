@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mvgeos_runes_adr_bridge.types import (
+from mvge_runes_adr_bridge.types import (
     ADREntry,
     ADRStatus,
     ADRValidationReport,

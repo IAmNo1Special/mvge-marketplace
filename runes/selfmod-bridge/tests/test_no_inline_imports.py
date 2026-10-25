@@ -10,7 +10,7 @@ import ast
 from pathlib import Path
 
 PACKAGE_DIR = Path(__file__).resolve().parent.parent
-PACKAGE_NAME = "mvgeos_runes_selfmod_bridge"
+PACKAGE_NAME = "mvge_runes_selfmod_bridge"
 
 
 def _iter_modules() -> list[Path]:

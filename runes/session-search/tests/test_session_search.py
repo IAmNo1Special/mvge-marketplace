@@ -3,7 +3,7 @@
 TDD: written before the implementation. Covers the SQLite FTS5 engine, the
 Tome v1 and Antigravity indexers, and the rune factory wiring.
 
-The Pi codec test is NOT here. It imports ``mvgeos_runes_pi_codec``, a sibling
+The Pi codec test is NOT here. It imports ``mvge_runes_pi_codec``, a sibling
 Rune, and it used to reach it through ``pytest.importorskip`` -- which does not
 fail when the sibling is absent, it just stops running. That is a boundary
 violation wearing a skip marker: nothing goes red, and the coverage quietly
@@ -24,7 +24,7 @@ import pytest
 from mvge.runes.types import SigilHook
 from mvge.tome.handle import TomeHandleFactory
 from mvge.tome.types import TomeEntry, TomeEntryType
-from mvgeos_runes_session_search.db import (
+from mvge_runes_session_search.db import (
     get_database_stats,
     get_db_connection,
     get_step_context,
@@ -33,14 +33,14 @@ from mvgeos_runes_session_search.db import (
     sanitize_fts5_query,
     search_messages,
 )
-from mvgeos_runes_session_search.indexer import (
+from mvge_runes_session_search.indexer import (
     extract_text_content,
     get_brain_dir,
     get_db_path,
     get_tome_dir,
     sync_index,
 )
-from mvgeos_runes_session_search.rune import _extension_dirs, rune_factory
+from mvge_runes_session_search.rune import _extension_dirs, rune_factory
 
 
 def _message(i: int, parent: str | None, role: str, **payload: Any) -> TomeEntry:
@@ -89,7 +89,7 @@ def test_extension_dirs_follow_the_global_dir_env(
     extensions out of the developer's real home.
     """
     global_dir = tmp_path / "relocated_agents"
-    monkeypatch.setenv("MVGEOS_GLOBAL_DIR", str(global_dir))
+    monkeypatch.setenv("MVGE_GLOBAL_DIR", str(global_dir))
     (global_dir / "extensions" / "some-rune").mkdir(parents=True)
     (global_dir / "agents" / "my_agent" / "extensions").mkdir(parents=True)
 

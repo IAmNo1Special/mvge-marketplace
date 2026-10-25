@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from mvgeos_runes_opentelemetry_bridge.genai_attributes import (
+from mvge_runes_opentelemetry_bridge.genai_attributes import (
     GEN_AI_CONVERSATION_ID,
     GEN_AI_OPERATION_NAME,
     GEN_AI_REQUEST_MAX_TOKENS,
@@ -15,7 +15,7 @@ from mvgeos_runes_opentelemetry_bridge.genai_attributes import (
     GEN_AI_USAGE_INPUT_TOKENS,
     GEN_AI_USAGE_OUTPUT_TOKENS,
     GEN_AI_USAGE_TOTAL_TOKENS,
-    MVGEOS_ORCHESTRATOR,
+    MVGE_ORCHESTRATOR,
     derive_provider_from_model,
 )
 
@@ -35,7 +35,7 @@ def test_genai_semantic_convention_constants() -> None:
     assert GEN_AI_TOOL_NAME == "gen_ai.tool.name"
     assert GEN_AI_TOOL_CALL_ID == "gen_ai.tool.call.id"
     assert GEN_AI_TOOL_TYPE == "gen_ai.tool.type"
-    assert MVGEOS_ORCHESTRATOR == "mvgeos.orchestrator"
+    assert MVGE_ORCHESTRATOR == "mvge.orchestrator"
 
 
 def test_derive_provider_from_model_with_vendor_prefix() -> None:

@@ -1,7 +1,7 @@
 """Tests for two-layer OKF bundle discovery: global + workspace merge.
 
 Layers follow the established .agents convention (same as skills-bridge):
-  - global:    $MVGEOS_GLOBAL_DIR/knowledge  (default ~/.agents/knowledge)
+  - global:    $MVGE_GLOBAL_DIR/knowledge  (default ~/.agents/knowledge)
   - workspace: <cwd>/.agents/knowledge
 
 Workspace wins on concept-id collisions. Explicit bundle_path keeps
@@ -13,7 +13,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from mvgeos_runes_okf_bridge.graph import KnowledgeGraph, global_knowledge_root
+from mvge_runes_okf_bridge.graph import KnowledgeGraph, global_knowledge_root
 
 CONCEPT_TMPL = """---
 type: Note
@@ -44,7 +44,7 @@ def _write_concept(root: Path, name: str, **kwargs) -> None:
 def isolated_global(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Point the global .agents dir at a tmp dir so tests never touch ~."""
     fake_global = tmp_path / "fake-global-agents"
-    monkeypatch.setenv("MVGEOS_GLOBAL_DIR", str(fake_global))
+    monkeypatch.setenv("MVGE_GLOBAL_DIR", str(fake_global))
     return fake_global
 
 
@@ -57,7 +57,7 @@ def test_global_knowledge_root_respects_env(
 def test_global_knowledge_root_defaults_to_home(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.delenv("MVGEOS_GLOBAL_DIR", raising=False)
+    monkeypatch.delenv("MVGE_GLOBAL_DIR", raising=False)
     assert global_knowledge_root() == Path("~/.agents").expanduser() / "knowledge"
 
 

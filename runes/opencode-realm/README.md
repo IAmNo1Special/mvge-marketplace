@@ -1,10 +1,10 @@
 # opencode-realm
 
-Official OpenCode Zen provider realm for MvgeOS.
+Official OpenCode Zen provider realm for Mvge.
 
 ## Overview
 
-Zen is an OpenAI Chat Completions compatible gateway. This Rune points MvgeOS
+Zen is an OpenAI Chat Completions compatible gateway. This Rune points Mvge
 at it, so any model Zen serves is reachable with an `opencode/<model-id>` slug.
 Zen's free tier is served from the same endpoint with the same key -- there is
 no separate free path.
@@ -19,7 +19,7 @@ no separate free path.
 ## Install
 
 ```bash
-mvgeos rune install opencode-realm
+mvge rune install opencode-realm
 ```
 
 ## Configure
@@ -29,7 +29,7 @@ Set the key and pick a model. The key is the same credential you use with
 
 ```bash
 export OPENCODE_API_KEY="..."
-mvgeos --model opencode/space-bunny-free
+mvge --model opencode/space-bunny-free
 ```
 
 The model catalog is at `https://opencode.ai/zen/v1/models`, in the standard
@@ -47,7 +47,7 @@ the base URL from the registration.
 
 ## Request handling
 
-- MvgeOS slugs carry a realm prefix (`opencode/space-bunny-free`) but Zen
+- Mvge slugs carry a realm prefix (`opencode/space-bunny-free`) but Zen
   publishes bare ids (`space-bunny-free`), so the prefix is stripped on the way
   out. Both spellings work in configuration.
 - Spells are offered as standard `tools`, and a cast in the transcript leaves

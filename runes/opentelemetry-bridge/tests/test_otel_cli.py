@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from mvgeos_runes_opentelemetry_bridge.cli import app
+from mvge_runes_opentelemetry_bridge.cli import app
 from typer.testing import CliRunner
 
 runner = CliRunner()
@@ -29,7 +29,7 @@ def test_otel_cli_status(monkeypatch) -> None:
 
 def test_otel_cli_test_success(monkeypatch) -> None:
     monkeypatch.delenv("OTEL_SDK_DISABLED", raising=False)
-    monkeypatch.setenv("MVGEOS_OTEL_IN_MEMORY", "1")
+    monkeypatch.setenv("MVGE_OTEL_IN_MEMORY", "1")
     result = runner.invoke(app, ["test"])
     assert result.exit_code == 0
     assert "OK: OpenTelemetry tracing operational." in result.stdout
@@ -48,7 +48,7 @@ def test_otel_cli_test_exception(monkeypatch) -> None:
     from unittest.mock import patch
 
     with patch(
-        "mvgeos_runes_opentelemetry_bridge.cli.OTelTracer.start_session",
+        "mvge_runes_opentelemetry_bridge.cli.OTelTracer.start_session",
         side_effect=RuntimeError("disk full"),
     ):
         result = runner.invoke(app, ["test"])

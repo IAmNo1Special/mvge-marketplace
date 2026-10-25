@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from mvgeos_runes_steering_bridge.cli import steering_app
+from mvge_runes_steering_bridge.cli import steering_app
 
 __all__ = ["steering_app"]
 

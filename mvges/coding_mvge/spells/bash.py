@@ -118,7 +118,7 @@ def _utf8_safe_suffix(data: bytes, limit: int) -> bytes:
 
 def _spill_path() -> str:
     handle = tempfile.NamedTemporaryFile(  # noqa: SIM115 - handle outlives call; closed in finally
-        prefix="mvgeos-bash-",
+        prefix="mvge-bash-",
         suffix=".log",
         dir=tempfile.gettempdir(),
         delete=False,

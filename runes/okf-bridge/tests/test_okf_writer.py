@@ -10,9 +10,9 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from mvgeos_runes_okf_bridge.graph import KnowledgeGraph
-from mvgeos_runes_okf_bridge.validator import validate_okf_bundle
-from mvgeos_runes_okf_bridge.writer import (
+from mvge_runes_okf_bridge.graph import KnowledgeGraph
+from mvge_runes_okf_bridge.validator import validate_okf_bundle
+from mvge_runes_okf_bridge.writer import (
     deprecate_concept,
     ensure_bundle,
     set_concept_context,
@@ -44,13 +44,13 @@ def test_write_concept_creates_conformant_file(bundle: Path) -> None:
         body="# My Note\n\nSome body text.",
         tags=["a", "b"],
         context="auto",
-        generated_by="mvgeos/okf-bridge",
+        generated_by="mvge/okf-bridge",
     )
     target = bundle / "notes" / "my-note.md"
     assert target.is_file()
     assert concept.id == "notes/my-note"
     assert concept.context == "auto"
-    assert concept.generated["by"] == "mvgeos/okf-bridge"
+    assert concept.generated["by"] == "mvge/okf-bridge"
     assert concept.generated["at"]  # timestamp stamped
 
     report = validate_okf_bundle(bundle)
@@ -98,14 +98,14 @@ def test_backup_rotation_keeps_ten(bundle: Path) -> None:
 
 
 def test_write_appends_log_entry(bundle: Path) -> None:
-    write_concept(bundle, "note", type="Note", generated_by="mvgeos/okf-bridge")
+    write_concept(bundle, "note", type="Note", generated_by="mvge/okf-bridge")
     log = (bundle / "log.md").read_text(encoding="utf-8")
     assert "note" in log
-    assert "mvgeos/okf-bridge" in log
+    assert "mvge/okf-bridge" in log
 
 
 def test_verify_concept_appends_verified_entry(bundle: Path) -> None:
-    write_concept(bundle, "note", type="Note", generated_by="mvgeos/okf-bridge")
+    write_concept(bundle, "note", type="Note", generated_by="mvge/okf-bridge")
     concept = verify_concept(bundle, "note", by="human:malcom")
 
     assert concept.trust_tier.value == "human-reviewed"

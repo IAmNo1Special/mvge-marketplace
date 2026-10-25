@@ -90,14 +90,14 @@ async def test_read_url_html_conversion() -> None:
     html_content = """
     <!DOCTYPE html>
     <html>
-      <head><title>MvgeOS Guide</title></head>
+      <head><title>Mvge Guide</title></head>
       <body>
         <nav><a href="/home">Home</a></nav>
         <script>console.log("bad");</script>
         <style>.bad { color: red; }</style>
-        <h1>Welcome to MvgeOS</h1>
+        <h1>Welcome to Mvge</h1>
         <p>This is a paragraph with a
-           <a href="https://mvgeos.dev/docs">link to docs</a>.</p>
+           <a href="https://mvge.dev/docs">link to docs</a>.</p>
         <ul>
           <li>First item</li>
           <li>Second item</li>
@@ -114,12 +114,12 @@ async def test_read_url_html_conversion() -> None:
         )
 
     client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
-    result = await read_url("https://mvgeos.dev/guide", client=client)
+    result = await read_url("https://mvge.dev/guide", client=client)
     assert result.status == SpellStatus.SUCCESS
     content = result.content or ""
-    assert "# MvgeOS Guide" in content
-    assert "# Welcome to MvgeOS" in content
-    assert "[link to docs](https://mvgeos.dev/docs)" in content
+    assert "# Mvge Guide" in content
+    assert "# Welcome to Mvge" in content
+    assert "[link to docs](https://mvge.dev/docs)" in content
     assert "- First item" in content
     assert "console.log" not in content
     assert ".bad {" not in content

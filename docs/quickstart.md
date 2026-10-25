@@ -22,18 +22,18 @@ OpenCode Realm closed its free tier to callers outside OpenCode, and OpenRouter'
 The model is still **free**. The key identifies you to a provider that has
 stopped serving anonymous callers; it does not introduce a cost.
 
-**It does not promise the model call always answers, and no version of MvgeOS
-can.** The default Realm's free tier is not MvgeOS's to give you, and it is
+**It does not promise the model call always answers, and no version of Mvge
+can.** The default Realm's free tier is not Mvge's to give you, and it is
 shared with everyone else on it. Steps 1-3 are your side of the line and they
 work; step 4 is somebody else's, and when it says no, that is not your setup.
 
 ## Checking your version
 
-There is no `mvgeos --version` yet — the flag does not exist, so this is how you
+There is no `mvge --version` yet — the flag does not exist, so this is how you
 check what you have:
 
 ```console
-$ uv tool list | grep mvgeos
+$ uv tool list | grep mvge
 ```
 
 If a command on this page is missing when you run it, you have an older version.
@@ -68,7 +68,7 @@ You need two things:
 
 | Requirement | Why |
 | --- | --- |
-| [`uv`](https://docs.astral.sh/uv/) | MvgeOS installs and runs entirely through `uv` / `uvx`. There is no `pip` path. |
+| [`uv`](https://docs.astral.sh/uv/) | Mvge installs and runs entirely through `uv` / `uvx`. There is no `pip` path. |
 | Python 3.13+ | Pulled in automatically by `uv`. You do not need to install it yourself. |
 
 You do not need an account, a Python environment, a virtualenv, or a clone of
@@ -91,25 +91,25 @@ Realm below and this key are what step 4 needs.
 ## 1. Install the CLI
 
 Pick one. The first is for trying it; the second gives you a persistent
-`mvgeos` command.
+`mvge` command.
 
 ```bash
 # Try it without installing anything -- runs from a throwaway environment
-uvx mvgeos --help
+uvx mvge --help
 ```
 
 ```bash
-# Or install it once and get a real `mvgeos` command on your PATH
-uv tool install mvgeos
-mvgeos --help
+# Or install it once and get a real `mvge` command on your PATH
+uv tool install mvge
+mvge --help
 ```
 
 Both spellings print the command table and exit 0:
 
 ```text
- Usage: mvgeos [OPTIONS] COMMAND [ARGS]...
+ Usage: mvge [OPTIONS] COMMAND [ARGS]...
 
- MvgeOS - a Python-based AI coding agent
+ Mvge - a Python-based AI coding agent
 
 ╭─ Commands ────────────────────────────────────────────────────────────────────╮
 │ build   Serialise the resolved runtime manifest (read-only).                 │
@@ -123,23 +123,23 @@ Both spellings print the command table and exit 0:
 ```
 
 Every command on the rest of this page works with either spelling: write `uvx
-mvgeos …` if you did not install, `mvgeos …` if you did. `uvx` adds a few
+mvge …` if you did not install, `mvge …` if you did. `uvx` adds a few
 seconds per call because it re-resolves the environment; `uv tool install` does
 not.
 
 !!! note "Running from source instead"
-    Cloning the monorepo and running `uv sync && uv run mvgeos` also works, and
+    Cloning the monorepo and running `uv sync && uv run mvge` also works, and
     is what contributors want. It pulls in the desktop GUI's dependencies too,
     so it is noticeably heavier than the two commands above.
 
 ## 2. Give it access to a model
 
-MvgeOS reaches models through a **Realm** — an extension that speaks one
+Mvge reaches models through a **Realm** — an extension that speaks one
 provider's API. No Realm is installed yet, and the CLI will not talk to a model
 without one.
 
 ```bash
-uvx mvgeos rune install openrouter-realm --confirm-python-deps
+uvx mvge rune install openrouter-realm --confirm-python-deps
 ```
 
 ```text
@@ -155,9 +155,9 @@ model. Reproduced on a clean `$HOME` with the wrong install exiting 0 and the
 task then failing:
 
 ```text
-$ uvx mvgeos --agent-name coding_mvge "Create a file named hello.txt containing exactly the text: hello from mvgeos"
+$ uvx mvge --agent-name coding_mvge "Create a file named hello.txt containing exactly the text: hello from mvge"
 Error: No Realm factory registered for model 'openrouter/free'. Run
-'mvgeos rune install openrouter-realm' to install it from the central marketplace.
+'mvge rune install openrouter-realm' to install it from the central marketplace.
 ```
 
 Current builds name the Rune to install in that message. Older builds named only
@@ -179,7 +179,7 @@ ships nine built-in Spells: `bash`, `edit`, `find`, `grep`, `list_files`,
 `read`, `read_url`, `search_web`, `write`.
 
 ```bash
-uvx mvgeos mvge install coding_mvge
+uvx mvge mvge install coding_mvge
 ```
 
 That is the whole step. It takes no flag, and on a terminal it may ask one
@@ -189,8 +189,8 @@ question you do not have to care about.
     `coding_mvge` declares four `python_deps`, and installing a Mvge gates them
     the same way `rune install` does. On a TTY you get a `[y/N]` prompt.
 
-    **The four packages it names — `mvgeos-agent`, `mvgeos-core`,
-    `mvgeos-provider`, `mvgeos-runes` — are already installed as dependencies of
+    **The four packages it names — `mvge-agent`, `mvge-core`,
+    `mvge-provider`, `mvge-runes` — are already installed as dependencies of
     the engine you installed in step 1.** So answering `n`, or skipping
     automatically in a script, costs you nothing here. Measured on a clean
     machine, the resolved Spell set is the same nine either way:
@@ -207,7 +207,7 @@ question you do not have to care about.
     added in `v0.1.0`:
 
     ```bash
-    uvx mvgeos mvge install --confirm-python-deps coding_mvge
+    uvx mvge mvge install --confirm-python-deps coding_mvge
     ```
 
     This matters for a Mvge whose dependencies are **not** already covered by
@@ -215,7 +215,7 @@ question you do not have to care about.
 
 ```text
 Non-interactive session: skipping install of unreviewed python dependencies
-['mvgeos-agent', 'mvgeos-core', 'mvgeos-provider', 'mvgeos-runes'].
+['mvge-agent', 'mvge-core', 'mvge-provider', 'mvge-runes'].
 Re-run with confirm=True to install.
 Successfully installed mvge 'coding_mvge' to ~/.agents/agents/coding_mvge
 ```
@@ -228,7 +228,7 @@ want a Realm that needs a different key, see
 [Use another Realm](#use-another-realm).
 
 ```bash
-uvx mvgeos --agent-name coding_mvge "Create a file named hello.txt containing exactly the text: hello from mvgeos"
+uvx mvge --agent-name coding_mvge "Create a file named hello.txt containing exactly the text: hello from mvge"
 ```
 
 This is real output, pasted unedited from a run on a clean machine. The only
@@ -236,7 +236,7 @@ change is that the terminal's own line wrapping is preserved rather than
 reflowed:
 
 ```text
-Created hello.txt containing exactly hello from mvgeos — verified byte-for-byte
+Created hello.txt containing exactly hello from mvge — verified byte-for-byte
 with od -c (17 bytes, no trailing newline).
 Stop reason: stop
 ```
@@ -270,7 +270,7 @@ There is no `auth/`. Step 0 exported the key in your environment, so no credenti
 
 !!! warning "The default free model is the fragile part of this page"
     Every install and inspect command above was verified on a clean machine and
-    works. This model call is not, because the free tier is not MvgeOS's to give
+    works. This model call is not, because the free tier is not Mvge's to give
     you. When it is at capacity the message is:
 
     ```text
@@ -290,8 +290,8 @@ There is no `auth/`. Step 0 exported the key in your environment, so no credenti
     have:
 
     ```bash
-    ls -l hello.txt && cat hello.txt || uvx mvgeos --agent-name coding_mvge \
-      "Create a file named hello.txt containing exactly the text: hello from mvgeos"
+    ls -l hello.txt && cat hello.txt || uvx mvge --agent-name coding_mvge \
+      "Create a file named hello.txt containing exactly the text: hello from mvge"
     ```
 
     The check comes first on purpose. A run that dies *after* a `write` can leave
@@ -308,10 +308,10 @@ you want. Here is the run above as recorded in its Tome, unedited:
 
 ```text
 think  I'll create that file.
-cast   write({"path": "hello.txt", "content": "hello from mvgeos"})
+cast   write({"path": "hello.txt", "content": "hello from mvge"})
 result Wrote to hello.txt
 think  Let me verify the file content. The user asked for "exactly the text: hello from
-       mvgeos". I wrote it without a trailing newline. Let me verify.
+       mvge". I wrote it without a trailing newline. Let me verify.
 cast   bash({"command": "cat -A hello.txt; echo \"---\"; wc -c hello.txt"})
 result Invalid arguments for spell bash: 3 validation errors for bash_Schema
        cwd
@@ -322,9 +322,9 @@ result Invalid arguments for spell bash: 3 validation errors for bash_Schema
          Input should be a valid string
 cast   bash({"command": "cat -A hello.txt; ...", "cwd": "<workdir>",
             "timeout_ms": 10000, "workspace_root": "<workdir>"})
-result hello from mvgeos---
+result hello from mvge---
        17 hello.txt
-say    Created `<workdir>/hello.txt` containing `hello from mvgeos` (17 bytes, no
+say    Created `<workdir>/hello.txt` containing `hello from mvge` (17 bytes, no
        trailing newline).
 ```
 
@@ -345,8 +345,8 @@ expect a slightly higher Mana bill than the transcript implies.
 Every run is recorded. To see what the Mvge cast and concluded:
 
 ```bash
-uvx mvgeos tome list
-uvx mvgeos tome show <id>
+uvx mvge tome list
+uvx mvge tome show <id>
 ```
 
 ## 5. Check what you actually have
@@ -356,7 +356,7 @@ and prints it: which Spells are loaded, which Runes are enabled and which
 Sigils they hooked, and where every config value came from.
 
 ```bash
-uvx mvgeos info --agent-name coding_mvge
+uvx mvge info --agent-name coding_mvge
 ```
 
 ```text
@@ -372,7 +372,7 @@ Config, Prompt, Skills, and Diagnostics tables. All elided here for width. For
 the full parameter schemas as JSON:
 
 ```bash
-uvx mvgeos build --agent-name coding_mvge
+uvx mvge build --agent-name coding_mvge
 ```
 
 ## Use another Realm
@@ -383,10 +383,10 @@ abstraction. Install the Realm you want, give it its key, and name a model its
 slug space:
 
 ```bash
-uvx mvgeos rune install openrouter-realm --confirm-python-deps
+uvx mvge rune install openrouter-realm --confirm-python-deps
 export OPENROUTER_API_KEY="sk-or-..."
-uvx mvgeos --agent-name coding_mvge -m nvidia/nemotron-3-super-120b-a12b:free \
-  "Create a file named hello.txt containing exactly the text: hello from mvgeos"
+uvx mvge --agent-name coding_mvge -m nvidia/nemotron-3-super-120b-a12b:free \
+  "Create a file named hello.txt containing exactly the text: hello from mvge"
 ```
 
 Each Realm reads its own variable — `OPENROUTER_API_KEY` for OpenRouter,
@@ -405,16 +405,16 @@ Two Realms ship today:
 `-m` accepts only ids from the model list shipped in the repository, and that
 list is a drifting snapshot — see
 [Troubleshooting](troubleshooting.md#error-unknown-model). Run
-`mvgeos info --agent-name coding_mvge` to see the slug you would otherwise get,
+`mvge info --agent-name coding_mvge` to see the slug you would otherwise get,
 and read the shipped list before you name a different one.
 
 !!! warning "Scripting step 3 needs the flag, not a piped `y`"
-    `mvgeos mvge install` takes `--confirm-python-deps`, the same flag
+    `mvge mvge install` takes `--confirm-python-deps`, the same flag
     `rune install` takes — see step 3. Use it in a script or CI job, where stdin
     is not a TTY and nothing is prompted:
 
     ```bash
-    mvgeos mvge install --confirm-python-deps coding_mvge
+    mvge mvge install --confirm-python-deps coding_mvge
     ```
 
     Without the flag, a non-interactive session skips the fetch and says so
@@ -422,7 +422,7 @@ and read the shipped list before you name a different one.
 
     ```text
     Non-interactive session: skipping install of unreviewed python dependencies
-    ['mvgeos-agent', 'mvgeos-core', 'mvgeos-provider', 'mvgeos-runes'].
+    ['mvge-agent', 'mvge-core', 'mvge-provider', 'mvge-runes'].
     ```
 
     For `coding_mvge` that skip is harmless — the four packages are already
@@ -447,11 +447,11 @@ on disk. Export one per Realm you use.
 
 ## Interactive use
 
-The one-shot form above is for scripting. For a conversation, run `mvgeos` with
+The one-shot form above is for scripting. For a conversation, run `mvge` with
 no prompt:
 
 ```bash
-uvx mvgeos --agent-name coding_mvge
+uvx mvge --agent-name coding_mvge
 ```
 
 Add `--tui` for the full-screen terminal interface. Spell casts that mutate
@@ -468,7 +468,7 @@ including the model call in step 4. Empty `$HOME`, empty `XDG` directories,
 private `uv` cache, only the step-0 key exported, stdin not a TTY. The run
 that succeeded is the one pasted above.
 
-The model call was not reliable on the day it was checked, and that is not MvgeOS
+The model call was not reliable on the day it was checked, and that is not Mvge
 to fix. What remains true:
 
 - **Step 4 can be refused, and the message names the cause.** Measured on that
@@ -492,8 +492,8 @@ to fix. What remains true:
     re-run rather than assuming:
 
     ```bash
-    ls -l hello.txt && cat hello.txt || uvx mvgeos --agent-name coding_mvge \
-      "Create a file named hello.txt containing exactly the text: hello from mvgeos"
+    ls -l hello.txt && cat hello.txt || uvx mvge --agent-name coding_mvge \
+      "Create a file named hello.txt containing exactly the text: hello from mvge"
     ```
 
     The check comes first on purpose, so a re-run cannot overwrite work you
@@ -506,14 +506,14 @@ to fix. What remains true:
 
 - **Model choice is narrower than either Realm's live catalog.** `-m` resolves
   against a static list shipped in the repository. You can refresh it from OpenRouter
-  at any time via `mvgeos config refresh-models` (or `--force` to bypass the 24h cache TTL).
+  at any time via `mvge config refresh-models` (or `--force` to bypass the 24h cache TTL).
   Real failures are documented under [`Error: Unknown model`](troubleshooting.md#error-unknown-model).
 
 - The Spell bug described in step 4 is open (SOM-23). Until it is fixed, expect
   one extra model round-trip whenever a Mvge checks its own work. It is not
   limited to `read` — the run pasted above hit it on `bash`.
 
-- MvgeOS is pre-1.0. The command surface moves, and the version moves faster
+- Mvge is pre-1.0. The command surface moves, and the version moves faster
   than this page does — see
   [Checking your version](#checking-your-version).
 

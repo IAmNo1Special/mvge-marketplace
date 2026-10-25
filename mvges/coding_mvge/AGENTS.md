@@ -70,8 +70,8 @@ mvges/coding_mvge/
 
 ## Dependencies
 
-- `mvgeos-agent` — Mvge, harness, prompt engine, and auto-discovery
-- `mvgeos-core` — spell and invocation vocabulary
-- `mvgeos-provider` — Realm protocol and providers
-- `mvgeos-runes` — Rune extension system
+- `mvge-agent` — Mvge, harness, prompt engine, and auto-discovery
+- `mvge-core` — spell and invocation vocabulary
+- `mvge-provider` — Realm protocol and providers
+- `mvge-runes` — Rune extension system
 

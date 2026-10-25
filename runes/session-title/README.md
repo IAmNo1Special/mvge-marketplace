@@ -1,6 +1,6 @@
 # session-title
 
-Auto-generates session titles from conversation content for MvgeOS.
+Auto-generates session titles from conversation content for Mvge.
 
 ## Features
 - **Instant Fallback**: Derives an immediate clean title from the first turn prompt without token cost.

@@ -1,6 +1,6 @@
 # eval-bridge
 
-Evaluation harness and RL data exporter for MvgeOS, compatible with google/adk-python evalsets.
+Evaluation harness and RL data exporter for Mvge, compatible with google/adk-python evalsets.
 
 ## Features
 - **Evaluation Harness**: Automated evaluation of agent runs against standardized tasks.

@@ -97,7 +97,7 @@ class Artifact:
         Two layouts exist in this marketplace and both are legitimate:
 
         ``runes/skills-bridge``
-            ``manifest.json`` sits beside the ``mvgeos_runes_skills_bridge``
+            ``manifest.json`` sits beside the ``mvge_runes_skills_bridge``
             package, so the artifact directory is the import root. This is the
             convention every rune follows.
 

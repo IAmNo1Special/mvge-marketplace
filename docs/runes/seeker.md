@@ -1,6 +1,6 @@
 # Seeker
 
-Seeker Protocol — DCI-based (Direct Corpus Interaction) on-demand capability discovery for MvgeOS.
+Seeker Protocol — DCI-based (Direct Corpus Interaction) on-demand capability discovery for Mvge.
 
 Instead of stuffing every tool description into the prompt, Seeker keeps the model's context lean and lets it *search* for capabilities when it needs them: ripgrep over the spell corpus, skill packages without vector databases or embeddings, and MCP servers mounted on demand.
 
@@ -32,7 +32,7 @@ Seeker declares `"spell_gateway": true` in its manifest, which makes it the engi
 
 ## Prerequisites
 
-`rg` (ripgrep) on `PATH`. It is a system binary, so it is declared as `system_deps` in `manifest.json` and `index.json` rather than installed alongside the Python dependencies, and `mvgeos setup` reports it as present or missing.
+`rg` (ripgrep) on `PATH`. It is a system binary, so it is declared as `system_deps` in `manifest.json` and `index.json` rather than installed alongside the Python dependencies, and `mvge setup` reports it as present or missing.
 
 `tool_search` shells out to `rg` and has no fallback: without it the Spell returns `rg not found on PATH` instead of raising, so nothing else names the cause. `skill_search` prefers `rg` and falls back to a Python scan when it is absent.
 

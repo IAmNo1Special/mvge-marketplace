@@ -18,9 +18,9 @@ import pytest
 from mvge.runes.types import ExecutionMode, SigilHook
 from selfmod_bridge_conftest import FakeApi, load_root_module, make_rune, make_state
 
-from mvgeos_runes_selfmod_bridge.prompt import build_selfmod_section
-from mvgeos_runes_selfmod_bridge.rune import SelfmodBridgeRune
-from mvgeos_runes_selfmod_bridge.status import describe_extensions
+from mvge_runes_selfmod_bridge.prompt import build_selfmod_section
+from mvge_runes_selfmod_bridge.rune import SelfmodBridgeRune
+from mvge_runes_selfmod_bridge.status import describe_extensions
 
 
 @dataclass
@@ -246,7 +246,7 @@ def test_factory_and_registration(tmp_path: Path) -> None:
     # The registered command must carry a string description and the real
     # handler — the engine builds the CLI command's help text from the
     # description and dispatches through the handler. A handler passed in
-    # the description slot breaks `mvgeos selfmod --help` and dispatches
+    # the description slot breaks `mvge selfmod --help` and dispatches
     # nothing (caught by installed CLI proof).
     description, handler = api.commands["selfmod"]
     assert isinstance(description, str) and description

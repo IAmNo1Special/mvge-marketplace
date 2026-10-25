@@ -6,17 +6,17 @@ from typing import Any
 from unittest.mock import MagicMock
 
 from mvge.runes.rune_api import RuneAPI
-from mvgeos_runes_eval_bridge.cli import app
-from mvgeos_runes_eval_bridge.evaluator import (
+from mvge_runes_eval_bridge.cli import app
+from mvge_runes_eval_bridge.evaluator import (
     evaluate_case,
     evaluate_set,
     load_evalset,
     score_keywords,
     score_trajectory,
 )
-from mvgeos_runes_eval_bridge.exporter import export_rl_data, export_tome_to_records
-from mvgeos_runes_eval_bridge.rune import rune_factory
-from mvgeos_runes_eval_bridge.schema import EvalCase, EvalSet, TrajectoryMatchType
+from mvge_runes_eval_bridge.exporter import export_rl_data, export_tome_to_records
+from mvge_runes_eval_bridge.rune import rune_factory
+from mvge_runes_eval_bridge.schema import EvalCase, EvalSet, TrajectoryMatchType
 from typer.testing import CliRunner
 
 runner = CliRunner()

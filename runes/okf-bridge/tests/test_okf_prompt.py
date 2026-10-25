@@ -5,8 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from mvgeos_runes_okf_bridge.graph import KnowledgeGraph
-from mvgeos_runes_okf_bridge.prompt import (
+from mvge_runes_okf_bridge.graph import KnowledgeGraph
+from mvge_runes_okf_bridge.prompt import (
     render_working_concepts,
     update_invocations_with_concepts,
 )

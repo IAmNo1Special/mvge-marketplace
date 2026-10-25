@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "name": "mvgeos-marketplace",
+  "name": "mvge-marketplace",
   "description": "Official extension marketplace for MvgeOS runes and mvges",
   "runes": {
     "approval-rune": {
@@ -12,7 +12,7 @@
         "Spell Gate"
       ],
       "runtime": "python",
-      "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",
+      "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "runes/approval-rune",
       "created_at": "2026-09-20T00:00:00Z",
       "updated_at": "2026-09-20T00:00:00Z",
@@ -31,7 +31,7 @@
         "RealmProvider"
       ],
       "runtime": "python",
-      "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",
+      "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "runes/openrouter-realm",
       "created_at": "2026-08-01T00:00:00Z",
       "updated_at": "2026-09-01T00:00:00Z",
@@ -51,7 +51,7 @@
         "RealmProvider"
       ],
       "runtime": "python",
-      "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",
+      "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "runes/opencode-realm",
       "created_at": "2026-10-05T00:00:00Z",
       "updated_at": "2026-10-05T00:00:00Z",
@@ -72,7 +72,7 @@
         "Spell Modifier"
       ],
       "runtime": "python",
-      "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",
+      "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "runes/seeker",
       "created_at": "2026-09-05T00:00:00Z",
       "updated_at": "2026-09-19T00:00:00Z",
@@ -97,7 +97,7 @@
         "SessionTitleGenerator"
       ],
       "runtime": "python",
-      "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",
+      "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "runes/session-title",
       "created_at": "2026-09-13T00:00:00Z",
       "updated_at": "2026-09-13T00:00:00Z",
@@ -120,7 +120,7 @@
         "Command"
       ],
       "runtime": "python",
-      "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",
+      "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "runes/mcp-bridge",
       "created_at": "2026-09-17T00:00:00Z",
       "updated_at": "2026-09-17T00:00:00Z",
@@ -144,7 +144,7 @@
         "Command"
       ],
       "runtime": "python",
-      "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",
+      "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "runes/opentelemetry-bridge",
       "created_at": "2026-09-18T00:00:00Z",
       "updated_at": "2026-09-18T00:00:00Z",
@@ -176,7 +176,7 @@
         "Command"
       ],
       "runtime": "python",
-      "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",
+      "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "runes/okf-bridge",
       "created_at": "2026-09-18T00:00:00Z",
       "updated_at": "2026-09-18T00:00:00Z",
@@ -213,7 +213,7 @@
         "Command"
       ],
       "runtime": "python",
-      "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",
+      "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "runes/adr-bridge",
       "created_at": "2026-09-18T00:00:00Z",
       "updated_at": "2026-09-18T00:00:00Z",
@@ -247,7 +247,7 @@
         "Command"
       ],
       "runtime": "python",
-      "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",
+      "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "runes/skills-bridge",
       "created_at": "2026-09-18T00:00:00Z",
       "updated_at": "2026-09-18T00:00:00Z",
@@ -277,7 +277,7 @@
         "Command"
       ],
       "runtime": "python",
-      "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",
+      "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "runes/steering-bridge",
       "created_at": "2026-09-18T00:00:00Z",
       "updated_at": "2026-09-18T00:00:00Z",
@@ -303,7 +303,7 @@
         "Command"
       ],
       "runtime": "python",
-      "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",
+      "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "runes/selfmod-bridge",
       "created_at": "2026-09-21T00:00:00Z",
       "updated_at": "2026-09-21T00:00:00Z",
@@ -322,7 +322,7 @@
         "Codec"
       ],
       "runtime": "python",
-      "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",
+      "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "runes/pi-codec",
       "created_at": "2026-09-19T00:00:00Z",
       "updated_at": "2026-09-19T00:00:00Z",
@@ -346,7 +346,7 @@
         "Spell"
       ],
       "runtime": "python",
-      "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",
+      "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "runes/session-search",
       "created_at": "2026-09-22T00:00:00Z",
       "updated_at": "2026-09-22T00:00:00Z",
@@ -371,7 +371,7 @@
         "Rune"
       ],
       "runtime": "python",
-      "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",
+      "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "runes/skill-evolution",
       "created_at": "2026-10-03T00:00:00Z",
       "updated_at": "2026-10-03T00:00:00Z",
@@ -394,7 +394,7 @@
         "Spell"
       ],
       "runtime": "python",
-      "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",
+      "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "runes/submvge-bridge",
       "created_at": "2026-10-19T00:00:00Z",
       "updated_at": "2026-10-19T00:00:00Z",
@@ -413,7 +413,7 @@
         "Spell"
       ],
       "runtime": "python",
-      "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",
+      "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "runes/checkpoint-bridge",
       "created_at": "2026-10-19T00:00:00Z",
       "updated_at": "2026-10-19T00:00:00Z",
@@ -431,7 +431,7 @@
         "Sigil"
       ],
       "runtime": "python",
-      "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",
+      "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "runes/lsp-bridge",
       "created_at": "2026-10-19T00:00:00Z",
       "updated_at": "2026-10-19T00:00:00Z",
@@ -448,7 +448,7 @@
         "Spell"
       ],
       "runtime": "python",
-      "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",
+      "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "runes/codeact-rune",
       "created_at": "2026-10-19T00:00:00Z",
       "updated_at": "2026-10-19T00:00:00Z",
@@ -465,7 +465,7 @@
         "Command"
       ],
       "runtime": "python",
-      "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",
+      "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "runes/eval-bridge",
       "created_at": "2026-10-19T00:00:00Z",
       "updated_at": "2026-10-19T00:00:00Z",
@@ -483,7 +483,7 @@
       "version": "0.2.8",
       "description": "Official coding agent for MvgeOS with built-in development spells",
       "runtime": "python",
-      "git": "https://github.com/IAmNo1Special/mvgeos-marketplace.git",
+      "git": "https://github.com/IAmNo1Special/mvge-marketplace.git",
       "path": "mvges/coding_mvge",
       "created_at": "2026-09-12T00:00:00Z",
       "updated_at": "2026-09-12T00:00:00Z",

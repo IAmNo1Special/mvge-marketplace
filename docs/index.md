@@ -188,6 +188,6 @@ The site deploys to GitHub Pages from `main` via `.github/workflows/docs.yml`.
 
 ## The repository
 
-- Engine and CLI — [github.com/IAmNo1Special/mvgeos](https://github.com/IAmNo1Special/mvgeos)
-- This marketplace — [github.com/IAmNo1Special/mvgeos-marketplace](https://github.com/IAmNo1Special/mvgeos-marketplace)
+- Engine and CLI — [github.com/IAmNo1Special/mvge](https://github.com/IAmNo1Special/mvge)
+- This marketplace — [github.com/IAmNo1Special/mvge-marketplace](https://github.com/IAmNo1Special/mvge-marketplace)
 - Licence — MIT

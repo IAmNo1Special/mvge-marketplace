@@ -917,8 +917,8 @@ wheels = [
 
 [[package]]
 name = "mvge"
-version = "0.8.0"
-source = { editable = "../mvgeos" }
+version = "0.1.2"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
     { name = "httpx" },
@@ -932,36 +932,13 @@ dependencies = [
     { name = "typer" },
     { name = "watchdog" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "click", specifier = ">=8.0" },
-    { name = "httpx", specifier = ">=0.28.1" },
-    { name = "packaging", specifier = ">=24.0" },
-    { name = "portalocker", specifier = ">=3.0.0" },
-    { name = "prompt-toolkit", specifier = ">=3.0" },
-    { name = "pydantic", specifier = ">=2.0" },
-    { name = "python-dotenv", specifier = ">=1.2.2" },
-    { name = "pyyaml", specifier = ">=6.0" },
-    { name = "rich", specifier = ">=13.0" },
-    { name = "typer", specifier = ">=0.27.1" },
-    { name = "watchdog", specifier = ">=6.0.0" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "git-cliff", specifier = ">=2.13.1" },
-    { name = "mypy", specifier = ">=2.3.1" },
-    { name = "pre-commit", specifier = ">=4.6.2" },
-    { name = "pytest", specifier = ">=9.1.1" },
-    { name = "pytest-asyncio", specifier = ">=1.4.0" },
-    { name = "pytest-cov", specifier = ">=7.1.0" },
-    { name = "ruff", specifier = ">=0.16.2" },
-    { name = "types-pyyaml", specifier = ">=6.0.12.20260815" },
+sdist = { url = "https://files.pythonhosted.org/packages/14/c5/b596a62ddb15c032bf07958b94a8dc106e6bd6cb5a19d5a5de6515866f74/mvge-0.1.2.tar.gz", hash = "sha256:f5f58ce437958f100ad4a4847e02f6739907906f21140fa2f118cc1eec54cd68", size = 270008, upload-time = "2026-10-25T07:41:29.049Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c4/b0/8075d9257554940f5f79a31352ab4fbc8c1170a20552715633b96f48369f/mvge-0.1.2-py3-none-any.whl", hash = "sha256:7f84b228a82ff4c653fe1da945570080c9cf28655a204b69d232a693330afff8", size = 317954, upload-time = "2026-10-25T07:41:27.591Z" },
 ]
 
 [[package]]
-name = "mvgeos-marketplace"
+name = "mvge-marketplace"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
@@ -969,6 +946,7 @@ dependencies = [
     { name = "goapauto" },
     { name = "httpx" },
     { name = "mcp" },
+    { name = "mvge" },
     { name = "opentelemetry-api" },
     { name = "opentelemetry-sdk" },
     { name = "psutil" },
@@ -996,6 +974,7 @@ requires-dist = [
     { name = "goapauto", specifier = ">=0.4.0" },
     { name = "httpx", specifier = ">=0.27" },
     { name = "mcp", specifier = ">=2.2.0" },
+    { name = "mvge", specifier = ">=0.1.2" },
     { name = "opentelemetry-api", specifier = ">=1.30.0" },
     { name = "opentelemetry-sdk", specifier = ">=1.30.0" },
     { name = "psutil", specifier = ">=6.0.0" },
@@ -1010,7 +989,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "mvge", editable = "../mvgeos" },
+    { name = "mvge", specifier = ">=0.1.2" },
     { name = "mypy", specifier = ">=2.3.1" },
     { name = "pytest-cov", specifier = ">=7.1.0" },
     { name = "ruff", specifier = ">=0.16.8" },

@@ -1,9 +1,10 @@
 [project]
-name = "mvgeos-marketplace"
+name = "mvge-marketplace"
 version = "0.1.0"
-description = "Official MvgeOS catalog of Runes (extensions) and Mvges (agents)"
+description = "Official Mvge catalog of Runes (extensions) and Mvges (agents)"
 requires-python = ">=3.13"
 dependencies = [
+    "mvge>=0.1.2",
     "pytest>=8.0",
     "pytest-asyncio>=0.24",
     "aiohttp>=3.9",
@@ -21,8 +22,8 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/IAmNo1Special/mvgeos-marketplace"
-Documentation = "https://iamno1special.github.io/mvgeos-marketplace/"
+Repository = "https://github.com/IAmNo1Special/mvge-marketplace"
+Documentation = "https://iamno1special.github.io/mvge-marketplace/"
 
 [tool.pytest.ini_options]
 testpaths = [
@@ -81,12 +82,9 @@ omit = [
     "*/AppData/Local/Temp/**",
 ]
 
-[tool.uv.sources]
-mvge = { path = "../mvgeos", editable = true }
-
 [dependency-groups]
 dev = [
-    "mvge",
+    "mvge>=0.1.2",
 
     "mypy>=2.3.1",
     "pytest-cov>=7.1.0",

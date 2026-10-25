@@ -12,10 +12,10 @@ The MvgeOS Marketplace hosts official extensions (`runes/`) and concrete agent p
 | --- | --- | --- | --- |
 | `coding_mvge` | `0.2.6` | Official coding agent with built-in development spells | `mvges/coding_mvge` |
 
-Install via MvgeOS CLI:
+Install via Mvge CLI:
 
 ```bash
-mvgeos mvge install coding_mvge
+mvge mvge install coding_mvge
 ```
 
 ## 🧩 Available Runes (Extensions)
@@ -43,10 +43,10 @@ mvgeos mvge install coding_mvge
 | `steering-bridge` | `0.1.0` | Official repository steering (AGENTS.md, .agents protocol) bridge for MvgeOS | `runes/steering-bridge` |
 | `submvge-bridge` | `0.1.0` | Kernel sub-Mvge summoning, persistent sub-sessions, and reactive wakeup bridge | `runes/submvge-bridge` |
 
-Install via MvgeOS CLI:
+Install via Mvge CLI:
 
 ```bash
-mvgeos rune install openrouter-realm --confirm-python-deps
+mvge rune install openrouter-realm --confirm-python-deps
 ```
 
 `openrouter-realm` is the Realm a first run needs: the engine's default model is
@@ -57,7 +57,7 @@ requires an `OPENROUTER_API_KEY` — see
 ## Structure
 
 ```text
-mvgeos-marketplace/
+mvge-marketplace/
 |-- index.json          # single source of truth: what we publish, and what kind
 |-- marketplace_index.py # reads index.json; the only place the index is parsed
 |-- conftest.py         # pins first-party imports to this checkout (index-driven)
@@ -103,7 +103,7 @@ cosmetic:
 | installed to | `~/.agents/extensions/<name>` | `~/.agents/agents/<name>` |
 | manifest marker | `types` | `spells` |
 | loaded by | `RuneRunner` — a `rune_factory(api)` plus sigil `hooks` | resolved *by name*; spells found by directory convention |
-| CLI | `mvgeos rune install` | `mvgeos mvge install` |
+| CLI | `mvge rune install` | `mvge mvge install` |
 
 An mvge never passes through the rune lifecycle and registers no sigils, so it
 is not "a rune of the mvge type" — it is an agent package. The sections keep
@@ -126,5 +126,5 @@ manifest beside the `mvgeos_runes_skills_bridge` package, while
 
 ## License
 
-MIT — same terms as the [MvgeOS engine](https://github.com/IAmNo1Special/mvgeos/blob/main/LICENSE).
+MIT — same terms as the [Mvge engine](https://github.com/IAmNo1Special/mvge/blob/main/LICENSE).
 See [LICENSE](LICENSE).

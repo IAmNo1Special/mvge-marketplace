@@ -36,9 +36,9 @@ check what you have:
 $ uv tool list | grep mvgeos
 ```
 
-If a command on this page is missing when you run it, you have something older
-than `v0.6.8`. The newest command here, `mvge install --confirm-python-deps` in
-step 3, landed in `v0.6.7` — it is not in `v0.6.6`.
+If a command on this page is missing when you run it, you have an older version.
+The newest command here, `mvge install --confirm-python-deps` in
+step 3, landed in `v0.1.0`.
 
 This page deliberately does not name a version. It used to, and the number was
 wrong for six releases running, because it named the engine's newest source
@@ -204,7 +204,7 @@ question you do not have to care about.
     is not one.
 
     To fetch them anyway, `mvge install` takes the same flag `rune install` does,
-    added in `v0.6.7`:
+    added in `v0.1.0`:
 
     ```bash
     uvx mvgeos mvge install --confirm-python-deps coding_mvge

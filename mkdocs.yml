@@ -1,9 +1,9 @@
-site_name: MvgeOS Marketplace
-site_url: https://iamno1special.github.io/mvgeos-marketplace/
-site_description: Official extension marketplace for MvgeOS — runes, realms, and bridges.
+site_name: Mvge Marketplace
+site_url: https://iamno1special.github.io/mvge-marketplace/
+site_description: Official extension marketplace for Mvge — runes, realms, and bridges.
 site_author: IAmNo1Special
-repo_url: https://github.com/IAmNo1Special/mvgeos-marketplace
-repo_name: IAmNo1Special/mvgeos-marketplace
+repo_url: https://github.com/IAmNo1Special/mvge-marketplace
+repo_name: IAmNo1Special/mvge-marketplace
 
 theme:
   name: material

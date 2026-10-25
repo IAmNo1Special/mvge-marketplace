@@ -917,8 +917,8 @@ wheels = [
 
 [[package]]
 name = "mvge"
-version = "0.1.2"
-source = { editable = "../mvge" }
+version = "0.1.3"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
     { name = "httpx" },
@@ -932,32 +932,9 @@ dependencies = [
     { name = "typer" },
     { name = "watchdog" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "click", specifier = ">=8.0" },
-    { name = "httpx", specifier = ">=0.28.1" },
-    { name = "packaging", specifier = ">=24.0" },
-    { name = "portalocker", specifier = ">=3.0.0" },
-    { name = "prompt-toolkit", specifier = ">=3.0" },
-    { name = "pydantic", specifier = ">=2.0" },
-    { name = "python-dotenv", specifier = ">=1.2.2" },
-    { name = "pyyaml", specifier = ">=6.0" },
-    { name = "rich", specifier = ">=13.0" },
-    { name = "typer", specifier = ">=0.27.1" },
-    { name = "watchdog", specifier = ">=6.0.0" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "git-cliff", specifier = ">=2.13.1" },
-    { name = "mypy", specifier = ">=2.3.1" },
-    { name = "pre-commit", specifier = ">=4.6.2" },
-    { name = "pytest", specifier = ">=9.1.1" },
-    { name = "pytest-asyncio", specifier = ">=1.4.0" },
-    { name = "pytest-cov", specifier = ">=7.1.0" },
-    { name = "ruff", specifier = ">=0.16.2" },
-    { name = "types-pyyaml", specifier = ">=6.0.12.20260815" },
+sdist = { url = "https://files.pythonhosted.org/packages/46/c0/21db0713e5fdd58d8758bcd7bfd0d6858fdd51fbd779147255bad0c94244/mvge-0.1.3.tar.gz", hash = "sha256:9ef2d43d3a53f6164df124c2ad09380e6015b2a1cad383b52cbcdc7785c7cc97", size = 269945, upload-time = "2026-10-25T10:25:46.188Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/91/41/19da35b52fc7f69526c2a876532ef7bae6a286f2a10a8330728972445ec2/mvge-0.1.3-py3-none-any.whl", hash = "sha256:1b04a0840fded131403dec2417778796e048113eca9ae3c79cf86d14b49ad332", size = 317904, upload-time = "2026-10-25T10:25:44.909Z" },
 ]
 
 [[package]]
@@ -997,7 +974,7 @@ requires-dist = [
     { name = "goapauto", specifier = ">=0.4.0" },
     { name = "httpx", specifier = ">=0.27" },
     { name = "mcp", specifier = ">=2.2.0" },
-    { name = "mvge", editable = "../mvge" },
+    { name = "mvge", specifier = ">=0.1.3" },
     { name = "opentelemetry-api", specifier = ">=1.30.0" },
     { name = "opentelemetry-sdk", specifier = ">=1.30.0" },
     { name = "psutil", specifier = ">=6.0.0" },
@@ -1012,7 +989,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "mvge", editable = "../mvge" },
+    { name = "mvge", specifier = ">=0.1.3" },
     { name = "mypy", specifier = ">=2.3.1" },
     { name = "pytest-cov", specifier = ">=7.1.0" },
     { name = "ruff", specifier = ">=0.16.8" },

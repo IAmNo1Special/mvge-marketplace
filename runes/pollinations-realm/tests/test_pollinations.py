@@ -1,5 +1,11 @@
 from __future__ import annotations
 
+# Load this Rune's own rune.py by file path, not by bare `from rune import`.
+# Every realm Rune names its entry point rune.py, so a bare import resolves
+# to whichever rune module pytest collected first -- openrouter-realm's
+# rune.py when both suites run together, which fails this file's import.
+# Loading by path makes collection order irrelevant.
+import importlib.util
 import json
 from pathlib import Path
 from unittest.mock import MagicMock
@@ -11,12 +17,22 @@ from mvge.core.invocations import SummonerRequest
 from mvge.runes.rune_api import RuneAPI
 from mvge.runes.types import SigilHook
 from pollinations import PollinationsRealm, _invocations_to_messages, wire_model_id
-from rune import (
-    after_provider_response,
-    before_provider_request,
-    pollinations_realm_factory,
-    rune_factory,
-)
+
+
+def _load_rune_module():  # type: ignore[no-untyped-def]
+    path = Path(__file__).parent.parent / "rune.py"
+    spec = importlib.util.spec_from_file_location("pollinations_rune", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+_rune = _load_rune_module()
+after_provider_response = _rune.after_provider_response
+before_provider_request = _rune.before_provider_request
+pollinations_realm_factory = _rune.pollinations_realm_factory
+rune_factory = _rune.rune_factory
 
 
 def _model(**overrides: object) -> Model:

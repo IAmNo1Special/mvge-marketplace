@@ -10,7 +10,6 @@ from mvge.core.channel import ChannelConfig, Model
 from mvge.core.invocations import SummonerRequest
 from mvge.runes.rune_api import RuneAPI
 from mvge.runes.types import SigilHook
-
 from pollinations import PollinationsRealm, _invocations_to_messages, wire_model_id
 from rune import (
     after_provider_response,
@@ -53,7 +52,7 @@ def test_manifest_structure() -> None:
     assert manifest["enabled"] is True
 
 
-def test_pollinations_realm_factory() -> None:
+def test_pollinations_realm_factory(monkeypatch: pytest.MonkeyPatch) -> None:
     for var in (
         "HTTP_PROXY",
         "HTTPS_PROXY",
@@ -64,9 +63,7 @@ def test_pollinations_realm_factory() -> None:
         "all_proxy",
         "no_proxy",
     ):
-        import os
-
-        os.environ.pop(var, None)
+        monkeypatch.delenv(var, raising=False)
     realm = pollinations_realm_factory()
     assert isinstance(realm, PollinationsRealm)
     assert realm.realm_name == "pollinations"
@@ -198,3 +195,34 @@ def test_parse_sse_chunk_reads_reasoning_as_contemplation() -> None:
     assert chunk is not None
     assert chunk.content == "hi"
     assert chunk.contemplation == "thinking"
+
+
+def test_parse_sse_chunk_reads_reasoning_content_as_contemplation() -> None:
+    realm = pollinations_realm_factory()
+    chunk = realm._parse_sse_chunk(
+        {"choices": [{"delta": {"content": "hi", "reasoning_content": "thinking"}}]}
+    )
+    assert chunk is not None
+    assert chunk.contemplation == "thinking"
+
+
+def test_stream_request_omits_reasoning_and_keeps_tools() -> None:
+    model = _model()
+    config = ChannelConfig(
+        model=model,
+        max_tokens=50,
+        temperature=0.0,
+        tools=[{"type": "function", "function": {"name": "echo"}}],
+    )
+    realm = pollinations_realm_factory()
+    url, headers, payload = realm._prepare_request(
+        model,
+        [SummonerRequest(role="user", content="hello")],
+        config,
+    )
+    assert url == "https://text.pollinations.ai/openai/chat/completions"
+    assert "authorization" not in headers
+    assert payload["model"] == "openai"
+    assert payload["stream"] is True
+    assert "reasoning" not in payload
+    assert payload["tools"][0]["function"]["name"] == "echo"

@@ -101,6 +101,7 @@ nav:
       - OpenRouter Realm: runes/openrouter-realm.md
       - OpenTelemetry Bridge: runes/opentelemetry-bridge.md
       - Pi Codec: runes/pi-codec.md
+      - Pollinations Realm: runes/pollinations-realm.md
       - Seeker: runes/seeker.md
       - Self-Mod Bridge: runes/selfmod-bridge.md
       - Session Search: runes/session-search.md

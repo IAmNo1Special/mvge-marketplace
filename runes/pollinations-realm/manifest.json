@@ -1,0 +1,19 @@
+{
+    "description": "Pollinations provider realm for Mvge (anonymous bootstrap fallback)",
+    "enabled": true,
+    "entry_point": "rune.py",
+    "execution_mode": "parallel",
+    "hooks": [
+        "before_provider_request",
+        "after_provider_response"
+    ],
+    "name": "pollinations-realm",
+    "python_deps": [
+        "httpx>=0.27"
+    ],
+    "runtime": "python",
+    "types": [
+        "RealmProvider"
+    ],
+    "version": "0.1.0"
+}

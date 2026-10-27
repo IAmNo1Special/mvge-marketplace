@@ -10,7 +10,7 @@ from coding_mvge.spells import bash, read
 from mvge.agent import Mvge
 from mvge.agent.config_manager import ConfigManager
 from mvge.agent.environment import MvgeEnvironment, PromptSource
-from mvge.core.constants import DEFAULT_AGENT_NAME, DEFAULT_MODEL
+from mvge.core.constants import DEFAULT_AGENT_NAME
 from mvge.runes.rune_runner import RuneRunner
 from mvge.runes.types import (
     Diagnostic,
@@ -42,12 +42,12 @@ def _make_runner() -> RuneRunner:
 class TestBuildSnapshotNoRunes:
     def test_builtin_spells_only(self, tmp_path: Path) -> None:
         agent = Mvge(
-            api_key="key", name=DEFAULT_AGENT_NAME, spells=[bash, read]
+            api_key="key", name=DEFAULT_AGENT_NAME, spells=[bash, read], model_id="openrouter/free"
         )
         snap = agent.build_snapshot()
 
         assert snap.agent_name == DEFAULT_AGENT_NAME
-        assert snap.model == DEFAULT_MODEL
+        assert snap.model == "openrouter/free"
         assert len(snap.spells) == 2
         assert all(s.source == "builtin" for s in snap.spells)
         assert {s.name for s in snap.spells} == {"bash", "read"}
@@ -88,6 +88,7 @@ class TestBuildSnapshotWithRunner:
             api_key="key",
             name=DEFAULT_AGENT_NAME,
             spells=[bash],
+            model_id="openrouter/free",
         )
         runner = _make_runner()
 
@@ -124,7 +125,7 @@ class TestBuildSnapshotWithRunner:
 
         snap = agent.build_snapshot()
 
-        assert snap.model == DEFAULT_MODEL
+        assert snap.model == "openrouter/free"
 
         spell_map = {s.name: s for s in snap.spells}
         assert "bash" in spell_map
@@ -301,6 +302,7 @@ class TestBuildSnapshotSerialisation:
             api_key="key",
             name=DEFAULT_AGENT_NAME,
             spells=[bash, read],
+            model_id="openrouter/free",
         )
         snap = agent.build_snapshot()
 
@@ -308,7 +310,7 @@ class TestBuildSnapshotSerialisation:
         parsed = json.loads(json_str)
 
         assert parsed["agent_name"] == DEFAULT_AGENT_NAME
-        assert parsed["model"] == DEFAULT_MODEL
+        assert parsed["model"] == "openrouter/free"
         assert len(parsed["spells"]) == 2
         assert all(s["source"] == "builtin" for s in parsed["spells"])
 

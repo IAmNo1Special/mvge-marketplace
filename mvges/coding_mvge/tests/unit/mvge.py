@@ -23,7 +23,7 @@ from mvge.core.channel import (
     MvgeResponse,
     StopReason,
 )
-from mvge.core.constants import DEFAULT_AGENT_NAME, DEFAULT_MODEL
+from mvge.core.constants import DEFAULT_AGENT_NAME
 from mvge.core.events import ContemplationLevel
 from mvge.runes.types import SpellDefinition
 
@@ -153,8 +153,8 @@ class TestMvgeInit:
     ) -> None:
         monkeypatch.setenv("HOME", str(tmp_path))
         monkeypatch.setenv("USERPROFILE", str(tmp_path))
-        agent = Mvge(api_key="k")
-        assert agent._model_id == DEFAULT_MODEL
+        agent = Mvge(api_key="k", model_id="openrouter/free")
+        assert agent._model_id == "openrouter/free"
         assert agent._spells == []
         assert agent._custom_system_prompt == ""
         assert agent._temperature == 0.7
@@ -455,6 +455,7 @@ class TestMvgeSwitchModel:
         with tempfile.TemporaryDirectory() as tmpdir:
             agent = Mvge(
                 api_key="test-key",
+                model_id="openrouter/free",
                 tome_dir=Path(tmpdir),
                 spells=[],
             )
@@ -465,9 +466,9 @@ class TestMvgeSwitchModel:
                 await agent.switch_model("unknown/model")
 
             assert agent.tome_id == tome_before
-            assert agent._model_id == DEFAULT_MODEL
+            assert agent._model_id == "openrouter/free"
             assert agent._model is not None
-            assert agent._model.id == DEFAULT_MODEL
+            assert agent._model.id == "openrouter/free"
             await agent.close()
 
     @pytest.mark.asyncio
@@ -475,19 +476,20 @@ class TestMvgeSwitchModel:
         with tempfile.TemporaryDirectory() as tmpdir:
             agent = Mvge(
                 api_key="test-key",
+                model_id="openrouter/free",
                 tome_dir=Path(tmpdir),
                 spells=[],
             )
             await agent.initialize()
-            await agent.switch_model(DEFAULT_MODEL)
-            assert agent._model_id == DEFAULT_MODEL
+            await agent.switch_model("openrouter/free")
+            assert agent._model_id == "openrouter/free"
             await agent.close()
 
     @pytest.mark.asyncio
     async def test_switch_model_before_init(self) -> None:
         from mvge.provider import list_models
 
-        target = next(m.id for m in list_models() if m.id != DEFAULT_MODEL)
+        target = next(m.id for m in list_models() if m.id != "openrouter/free")
         agent = Mvge(api_key="test-key")
         await agent.switch_model(target)
         assert agent._model_id == target

@@ -23,7 +23,11 @@ from mvge.core.channel import (
     MvgeResponse,
     StopReason,
 )
-from mvge.core.constants import DEFAULT_AGENT_NAME, DEFAULT_MODEL
+from mvge.core.constants import DEFAULT_AGENT_NAME
+
+# Named explicitly: ADR-0028 removed the engine's global default model, so
+# tests that need a model name it instead of importing one.
+OPENROUTER_FREE = "openrouter/free"
 from mvge.core.events import ContemplationLevel
 from mvge.runes.types import SpellDefinition
 
@@ -153,8 +157,8 @@ class TestMvgeInit:
     ) -> None:
         monkeypatch.setenv("HOME", str(tmp_path))
         monkeypatch.setenv("USERPROFILE", str(tmp_path))
-        agent = Mvge(api_key="k")
-        assert agent._model_id == DEFAULT_MODEL
+        agent = Mvge(api_key="k", model_id=OPENROUTER_FREE)
+        assert agent._model_id == OPENROUTER_FREE
         assert agent._spells == []
         assert agent._custom_system_prompt == ""
         assert agent._temperature == 0.7
@@ -432,6 +436,7 @@ class TestMvgeSwitchModel:
         )
         with tempfile.TemporaryDirectory() as tmpdir:
             agent = Mvge(
+                model_id=OPENROUTER_FREE,
                 api_key="test-key",
                 tome_dir=Path(tmpdir),
                 spells=[],
@@ -454,6 +459,7 @@ class TestMvgeSwitchModel:
     async def test_switch_model_unknown_raises(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             agent = Mvge(
+                model_id=OPENROUTER_FREE,
                 api_key="test-key",
                 tome_dir=Path(tmpdir),
                 spells=[],
@@ -465,29 +471,30 @@ class TestMvgeSwitchModel:
                 await agent.switch_model("unknown/model")
 
             assert agent.tome_id == tome_before
-            assert agent._model_id == DEFAULT_MODEL
+            assert agent._model_id == OPENROUTER_FREE
             assert agent._model is not None
-            assert agent._model.id == DEFAULT_MODEL
+            assert agent._model.id == OPENROUTER_FREE
             await agent.close()
 
     @pytest.mark.asyncio
     async def test_switch_model_same_model_noop(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             agent = Mvge(
+                model_id=OPENROUTER_FREE,
                 api_key="test-key",
                 tome_dir=Path(tmpdir),
                 spells=[],
             )
             await agent.initialize()
-            await agent.switch_model(DEFAULT_MODEL)
-            assert agent._model_id == DEFAULT_MODEL
+            await agent.switch_model(OPENROUTER_FREE)
+            assert agent._model_id == OPENROUTER_FREE
             await agent.close()
 
     @pytest.mark.asyncio
     async def test_switch_model_before_init(self) -> None:
         from mvge.provider import list_models
 
-        target = next(m.id for m in list_models() if m.id != DEFAULT_MODEL)
+        target = next(m.id for m in list_models() if m.id != OPENROUTER_FREE)
         agent = Mvge(api_key="test-key")
         await agent.switch_model(target)
         assert agent._model_id == target

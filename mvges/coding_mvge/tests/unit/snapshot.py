@@ -10,7 +10,11 @@ from coding_mvge.spells import bash, read
 from mvge.agent import Mvge
 from mvge.agent.config_manager import ConfigManager
 from mvge.agent.environment import MvgeEnvironment, PromptSource
-from mvge.core.constants import DEFAULT_AGENT_NAME, DEFAULT_MODEL
+from mvge.core.constants import DEFAULT_AGENT_NAME
+
+# Named explicitly: ADR-0028 removed the engine's global default model, so
+# tests that need a model name it instead of importing one.
+OPENROUTER_FREE = "openrouter/free"
 from mvge.runes.rune_runner import RuneRunner
 from mvge.runes.types import (
     Diagnostic,
@@ -42,12 +46,13 @@ def _make_runner() -> RuneRunner:
 class TestBuildSnapshotNoRunes:
     def test_builtin_spells_only(self, tmp_path: Path) -> None:
         agent = Mvge(
+            model_id=OPENROUTER_FREE,
             api_key="key", name=DEFAULT_AGENT_NAME, spells=[bash, read]
         )
         snap = agent.build_snapshot()
 
         assert snap.agent_name == DEFAULT_AGENT_NAME
-        assert snap.model == DEFAULT_MODEL
+        assert snap.model == OPENROUTER_FREE
         assert len(snap.spells) == 2
         assert all(s.source == "builtin" for s in snap.spells)
         assert {s.name for s in snap.spells} == {"bash", "read"}
@@ -85,6 +90,7 @@ class TestBuildSnapshotWithRunner:
         monkeypatch.setattr(Mvge, "config_dir", property(lambda self: tmp_path))
 
         agent = Mvge(
+            model_id=OPENROUTER_FREE,
             api_key="key",
             name=DEFAULT_AGENT_NAME,
             spells=[bash],
@@ -124,7 +130,7 @@ class TestBuildSnapshotWithRunner:
 
         snap = agent.build_snapshot()
 
-        assert snap.model == DEFAULT_MODEL
+        assert snap.model == OPENROUTER_FREE
 
         spell_map = {s.name: s for s in snap.spells}
         assert "bash" in spell_map
@@ -298,6 +304,7 @@ class TestBuildSnapshotSerialisation:
     ) -> None:
         monkeypatch.setattr(Mvge, "config_dir", property(lambda self: tmp_path))
         agent = Mvge(
+            model_id=OPENROUTER_FREE,
             api_key="key",
             name=DEFAULT_AGENT_NAME,
             spells=[bash, read],
@@ -308,7 +315,7 @@ class TestBuildSnapshotSerialisation:
         parsed = json.loads(json_str)
 
         assert parsed["agent_name"] == DEFAULT_AGENT_NAME
-        assert parsed["model"] == DEFAULT_MODEL
+        assert parsed["model"] == OPENROUTER_FREE
         assert len(parsed["spells"]) == 2
         assert all(s["source"] == "builtin" for s in parsed["spells"])
 

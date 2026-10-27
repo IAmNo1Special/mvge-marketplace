@@ -433,6 +433,7 @@ class TestMvgeSwitchModel:
         with tempfile.TemporaryDirectory() as tmpdir:
             agent = Mvge(
                 api_key="test-key",
+                model_id="openrouter/free",
                 tome_dir=Path(tmpdir),
                 spells=[],
             )

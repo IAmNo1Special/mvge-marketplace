@@ -1,0 +1,22 @@
+[project]
+name = "pollinations-realm"
+version = "0.1.0"
+description = "Pollinations provider realm for Mvge (anonymous bootstrap fallback)"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "httpx>=0.27",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+include = [
+    "pollinations.py",
+    "rune.py",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

@@ -74,6 +74,7 @@ class SkillLoad:
     """A loaded skill container."""
 
     manifest: SkillManifest
+    source_rune: str | None = None
 
 
 @dataclass

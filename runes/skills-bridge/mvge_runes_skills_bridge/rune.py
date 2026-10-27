@@ -50,7 +50,16 @@ class SkillsBridgeRune:
         if self._api is not None:
             runner = getattr(self._api, "_runner", None)
             if runner is not None and hasattr(runner, "skill_catalog"):
-                runner.skill_catalog.load_skills(loads, diagnostics=diags)
+                catalog = runner.skill_catalog
+                # Drop the previous skills-bridge loads first so a
+                # refresh does not duplicate them in the engine catalog.
+                # Guarded: unpatched engines have no clear_rune method.
+                if hasattr(catalog, "clear_rune"):
+                    catalog.clear_rune("skills-bridge")
+                for load in loads:
+                    if getattr(load, "source_rune", None) is None:
+                        load.source_rune = "skills-bridge"
+                catalog.load_skills(loads, diagnostics=diags)
 
     async def on_session_start(self, data: Any = None) -> None:
         """Discover skills on session startup."""

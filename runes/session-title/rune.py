@@ -133,6 +133,11 @@ class SessionTitleRune:
                 await self._task
             except asyncio.CancelledError:
                 pass
+        # A task cancelled before it ever ran never executes its own
+        # finally block, so shutdown must clear the flag itself -- otherwise
+        # the state still claims an LLM title is pending after the session
+        # is gone.
+        self._state.llm_pending = False
 
     def _extract_text(self, content: str | list[dict[str, Any]] | None) -> str:
         if content is None:

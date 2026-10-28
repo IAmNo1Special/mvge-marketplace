@@ -27,7 +27,9 @@ The assertion is the point. A silent wrong-tree import is worse than no test.
 from __future__ import annotations
 
 import importlib
+import os
 import sys
+from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
@@ -97,6 +99,85 @@ def _assert_no_shadowing(stage: str) -> None:
         f"First-party modules resolved outside {_REPO_ROOT} at {stage}. Tests "
         f"would run against an installed copy instead of this checkout:\n{detail}"
     )
+
+
+def _strip_bracketed_no_proxy_entries(value: str) -> str:
+    """Drop bracketed IPv6 literals from a no-proxy list.
+
+    httpx parses ``NO_PROXY``/``no_proxy`` when constructing a client and
+    raises ``InvalidURL`` on bracketed entries such as ``[::1]`` (it reads
+    the ``:1]`` as a port). Sandboxes commonly export exactly that form,
+    so any test that builds an httpx client fails for environmental
+    reasons. Bracketed entries are the only tokens removed; plain hosts,
+    CIDRs, and unbracketed IPv6 literals pass through untouched.
+    """
+    kept = [
+        token.strip()
+        for token in value.split(",")
+        if token.strip() and "[" not in token and "]" not in token
+    ]
+    return ",".join(kept)
+
+
+@pytest.fixture(autouse=True)
+def _isolate_global_agents_dir(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> Iterator[None]:
+    """Point the global ``.agents`` layer at an empty directory.
+
+    Runes that take no explicit ``global_dir`` resolve the user and agent
+    layers through ``global_agents_dir()``, which defaults to the
+    developer's real ``~/.agents``. A skills-bridge rune started in a test
+    therefore loaded whatever skills the developer happened to have
+    installed (``typesafe-ai`` on this machine), so test outcomes depended
+    on the developer's home directory. The suite was green or red
+    depending on what was installed, which is the worst property for a
+    test to have.
+
+    A test that wants the real global layer, or wants to assert the
+    default resolution, sets or deletes ``MVGE_GLOBAL_DIR`` itself; this
+    fixture only supplies a harmless default and restores whatever was
+    there before. The resolvers read the variable on every call rather
+    than caching it at import, which is what makes this work without
+    reimporting anything.
+
+    This fixture only applies to runs from the repository root. A suite
+    run from inside a rune directory never loads this file (each rune is
+    an independently installable, independently testable package), so
+    tests that must be hermetic on their own still isolate explicitly.
+    """
+    previous = os.environ.get("MVGE_GLOBAL_DIR")
+    os.environ["MVGE_GLOBAL_DIR"] = str(tmp_path_factory.mktemp("global-agents"))
+    try:
+        yield
+    finally:
+        if previous is None:
+            os.environ.pop("MVGE_GLOBAL_DIR", None)
+        else:
+            os.environ["MVGE_GLOBAL_DIR"] = previous
+
+
+@pytest.fixture(autouse=True)
+def _sanitize_no_proxy_env() -> Iterator[None]:
+    """Keep a bracketed ``NO_PROXY`` from breaking httpx clients in tests.
+
+    Same family as the global-dir fixture: the value a developer's shell
+    exports must not decide whether the suite passes. Tests that assert
+    proxy behaviour itself set the variables explicitly and are
+    unaffected, because this only strips the bracketed tokens.
+    """
+    previous = {name: os.environ.get(name) for name in ("NO_PROXY", "no_proxy")}
+    for name, value in previous.items():
+        if value is not None:
+            os.environ[name] = _strip_bracketed_no_proxy_entries(value)
+    try:
+        yield
+    finally:
+        for name, value in previous.items():
+            if value is None:
+                os.environ.pop(name, None)
+            else:
+                os.environ[name] = value
 
 
 def pytest_configure(config: pytest.Config) -> None:

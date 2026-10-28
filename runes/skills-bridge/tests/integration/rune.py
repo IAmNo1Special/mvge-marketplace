@@ -9,7 +9,14 @@ from mvge_runes_skills_bridge.types import SkillManifest
 
 
 @pytest.mark.asyncio
-async def test_skills_bridge_rune_lifecycle(tmp_path: Path) -> None:
+async def test_skills_bridge_rune_lifecycle(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Isolate explicitly: a run from inside this rune directory never
+    # loads the repository-root conftest, so this test must not rely on
+    # its global-dir fixture. Without this, on_session_start reads the
+    # developer's real ~/.agents/skills into skills_map.
+    monkeypatch.setenv("MVGE_GLOBAL_DIR", str(tmp_path / "global"))
     skill_dir = tmp_path / "lifecycle-skill"
     skill_dir.mkdir()
     (skill_dir / "SKILL.md").write_text(
@@ -23,6 +30,9 @@ async def test_skills_bridge_rune_lifecycle(tmp_path: Path) -> None:
 
     rune = SkillsBridgeRune(mock_api)
     await rune.on_session_start()
+    # Nothing from the developer's real home directory may leak in: the
+    # isolated global layer is empty and the tmp cwd holds no skills.
+    assert rune.skills_map == {}
     # Manually register the test skill in skills_map
     m = SkillManifest(
         name="lifecycle-skill",

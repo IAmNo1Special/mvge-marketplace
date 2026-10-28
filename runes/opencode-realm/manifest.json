@@ -1,7 +1,7 @@
 {
   "name": "opencode-realm",
   "version": "0.1.0",
-  "description": "Official OpenCode Zen provider realm for Mvge",
+  "description": "Official OpenCode Zen and Go provider realms for Mvge",
   "types": [
     "RealmProvider"
   ],

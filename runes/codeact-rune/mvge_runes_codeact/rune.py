@@ -360,6 +360,7 @@ class CodeActExecutor:
             )
             if hasattr(builtins, k)
         }
+        exec_globals["__builtins__"]["__import__"] = _restricted_import
 
         try:
             exec(compiled, exec_globals)  # noqa: S102
@@ -392,15 +393,46 @@ class CodeActExecutor:
             )
 
 
+def _restricted_import(
+    name: str,
+    globals: dict[str, Any] | None = None,
+    locals: dict[str, Any] | None = None,
+    fromlist: tuple[str, ...] = (),
+    level: int = 0,
+) -> Any:
+    """Import hook for the CodeAct sandbox.
+
+    Only top-level modules in ``SAFE_STDLIB_MODULES`` may be imported;
+    everything else raises, matching the AST-validation allowlist at
+    runtime. Without this, the restricted ``__builtins__`` dict has no
+    ``__import__`` at all and even allowlisted imports fail.
+    """
+    top = name.split(".")[0]
+    if top not in SAFE_STDLIB_MODULES:
+        raise ImportError(f"Import of '{name}' is not allowed in the CodeAct sandbox")
+    return builtins.__import__(name, globals, locals, fromlist, level)
+
+
 def rune_factory(api: RuneAPI) -> CodeActExecutor:
     executor = CodeActExecutor(api)
 
     async def execute_python_handler(
-        code: str,
+        params: dict[str, Any] | None = None,
         ctx: SpellContext | None = None,
         *args: Any,
         **kwargs: Any,
     ) -> SpellResult:
+        # SpellDefinition.execute passes the params dict as the first
+        # positional argument (checkpoint-bridge handlers take the same
+        # shape); the previous `code: str` signature received the dict
+        # and crashed the spell path with a TypeError.
+        code = (params or {}).get("code")
+        if not isinstance(code, str):
+            return SpellResult(
+                spell_name="execute_python",
+                status=SpellStatus.ERROR,
+                error_message=("execute_python requires a 'code' string parameter"),
+            )
         return await executor.execute(code, ctx=ctx)
 
     api.register_spell(

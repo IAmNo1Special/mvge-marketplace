@@ -265,3 +265,63 @@ answer = 999  # Should not be reached
     assert res.status == SpellStatus.SUCCESS
     assert res.content == "100"
     assert res.terminate is True
+
+
+@pytest.mark.asyncio
+async def test_codeact_spell_path_executes_code(mock_api: Any) -> None:
+    rune_factory(mock_api)
+    spell = mock_api._registered["execute_python"]
+    result = await spell.execute(
+        spell_cast_id="cast-1",
+        params={"code": "1 + 2"},
+    )
+    assert isinstance(result, SpellResult)
+    assert result.status == SpellStatus.SUCCESS
+    assert result.content == "3"
+
+
+@pytest.mark.asyncio
+async def test_codeact_spell_path_missing_code_is_error_not_crash(
+    mock_api: Any,
+) -> None:
+    rune_factory(mock_api)
+    spell = mock_api._registered["execute_python"]
+    result = await spell.execute(spell_cast_id="cast-1", params={})
+    assert isinstance(result, SpellResult)
+    assert result.status == SpellStatus.ERROR
+
+
+@pytest.mark.asyncio
+async def test_codeact_allows_safe_stdlib_import(mock_api: Any) -> None:
+    executor = CodeActExecutor(mock_api)
+    res = await executor.execute("import math\nmath.sqrt(16)")
+    assert res.status == SpellStatus.SUCCESS
+    assert res.content == "4.0"
+
+
+@pytest.mark.asyncio
+async def test_codeact_allows_safe_stdlib_from_import(mock_api: Any) -> None:
+    executor = CodeActExecutor(mock_api)
+    res = await executor.execute("from json import dumps\ndumps({'a': 1})")
+    assert res.status == SpellStatus.SUCCESS
+    assert res.content == '{"a": 1}'
+
+
+@pytest.mark.asyncio
+async def test_codeact_blocks_import_outside_allowlist_at_runtime(
+    mock_api: Any,
+) -> None:
+    executor = CodeActExecutor(mock_api)
+    res = await executor.execute("import sys\nsys.version")
+    assert res.status == SpellStatus.ERROR
+
+
+@pytest.mark.asyncio
+async def test_codeact_direct_import_call_is_forbidden(
+    mock_api: Any,
+) -> None:
+    # Direct __import__ calls are forbidden at AST level; the import
+    # hook in builtins exists only so import statements can run.
+    executor = CodeActExecutor(mock_api)
+    blocked = await executor.execute("__import__('os')")
+    assert blocked.status == SpellStatus.ERROR

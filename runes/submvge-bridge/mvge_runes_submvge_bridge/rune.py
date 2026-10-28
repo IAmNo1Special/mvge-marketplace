@@ -97,6 +97,7 @@ def rune_factory(
 ) -> None:
     """Initialize and register sub-Mvge summoning spells."""
     state = SubMvgeBridgeState(api, manager_factory=manager_factory)
+    api.on_dispose(state.shutdown)
 
     async def handle_summon(
         params: dict[str, Any] | None = None,

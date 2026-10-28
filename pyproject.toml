@@ -44,6 +44,7 @@ testpaths = [
     "runes/skill-evolution/tests",
     "mvges/coding_mvge/tests",
     "runes/session-search/tests",
+    "runes/session-title/tests",
     "runes/submvge-bridge/tests",
     "runes/checkpoint-bridge/tests",
     "runes/lsp-bridge/tests",

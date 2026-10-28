@@ -176,7 +176,10 @@ class TestMvgeInit:
             "read_url",
         }
 
-    def test_default_tome_dir(self) -> None:
+    def test_default_tome_dir(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        # The root conftest isolates MVGE_GLOBAL_DIR for every test; this
+        # test asserts the default resolution, so it opts out explicitly.
+        monkeypatch.delenv("MVGE_GLOBAL_DIR", raising=False)
         agent = Mvge(api_key="k")
         assert agent._tome_dir == Path.home() / ".agents" / "sessions"
         assert agent.tome_dir == Path.home() / ".agents" / "sessions"

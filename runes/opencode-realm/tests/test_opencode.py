@@ -171,7 +171,7 @@ def test_registered_base_url_is_zens_own() -> None:
     itself defaults to, a slug resolves to a Realm pointed somewhere else and
     nothing reports the disagreement.
     """
-    assert ZEN_BASE_URL == "https://opencode.ai/zen/v1"
+    assert ZEN_BASE_URL == "https://opencode.ai/inference/openai/v1"
 
 
 def test_registered_base_url_is_gos_own() -> None:
@@ -181,7 +181,7 @@ def test_registered_base_url_is_gos_own() -> None:
     product, and nothing in the provider name would explain it -- which is
     the failure the two-entry split exists to prevent.
     """
-    assert GO_BASE_URL == "https://opencode.ai/zen/go/v1"
+    assert GO_BASE_URL == "https://opencode.ai/inference/go/v1"
 
 
 def test_factory_falls_back_to_zen_when_the_base_url_is_empty() -> None:
@@ -213,9 +213,9 @@ def test_zen_is_not_reported_as_a_router() -> None:
 
 
 def test_the_realm_prefix_is_stripped_from_the_model_id() -> None:
-    """Zen publishes slash-free ids, so a forwarded slug cannot be resolved.
+    """The gateways publish slash-free ids, so a forwarded slug cannot be resolved.
 
-    Every entry in ``/zen/v1/models`` is a bare id. Asking the gateway for
+    Every entry in a gateway catalog is a bare id. Asking the gateway for
     ``opencode/space-bunny-free`` fails on model lookup with an error that names
     the wrong thing, which is why this cannot be left to the caller.
     """
@@ -259,6 +259,7 @@ async def test_request_goes_to_the_zen_chat_completions_endpoint() -> None:
     assert str(seen[0].url) == f"{ZEN_BASE_URL}/chat/completions"
     assert seen[0].headers["Authorization"] == "Bearer test-key"
     assert seen[0].headers["Content-Type"] == "application/json"
+    assert seen[0].headers["x-opencode-session"]
 
 
 @pytest.mark.asyncio
@@ -279,9 +280,101 @@ async def test_go_request_goes_to_the_go_chat_completions_endpoint() -> None:
     assert len(seen) == 1
     assert str(seen[0].url) == f"{GO_BASE_URL}/chat/completions"
     assert seen[0].headers["Authorization"] == "Bearer test-key"
+    assert seen[0].headers["x-opencode-session"]
     assert seen_payload[0]["model"] == "test-model"
     assert responses[-1].invocation is not None
     assert responses[-1].invocation.realm == "opencode-go"
+
+
+@pytest.mark.asyncio
+async def test_config_session_id_becomes_the_session_header() -> None:
+    """The engine's tome id, carried in config meta_data, is the header.
+
+    Go hard-rejects a request without ``x-opencode-session`` (400
+    MissingSessionID), and Docker derives the value from the agent session
+    so a conversation keeps one id. The realm must therefore prefer the
+    config value over any value it could invent itself.
+    """
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return httpx.Response(200, content=_sse(*_turn_chunks()))
+
+    realm = OpenCodeRealm(api_key="test-key", client=_client(handler))
+    model = _model()
+    config = ChannelConfig(model=model, meta_data={"session_id": "tome-123"})
+    await _drain(realm, model, config)
+
+    assert seen[0].headers["x-opencode-session"] == "tome-123"
+
+
+@pytest.mark.asyncio
+async def test_explicit_model_header_wins_over_config_session_id() -> None:
+    """A caller that set the header itself must not be overridden."""
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return httpx.Response(200, content=_sse(*_turn_chunks()))
+
+    realm = OpenCodeRealm(api_key="test-key", client=_client(handler))
+    model = _model(headers={"x-opencode-session": "explicit-1"})
+    config = ChannelConfig(model=model, meta_data={"session_id": "tome-999"})
+    await _drain(realm, model, config)
+
+    assert seen[0].headers["x-opencode-session"] == "explicit-1"
+
+
+@pytest.mark.asyncio
+async def test_instance_session_id_is_stable_across_requests() -> None:
+    """Without a config session id, the realm still sends a header.
+
+    The fallback is generated once per realm instance, not per request:
+    a value that changed mid-conversation would defeat the routing and
+    caching the header exists for.
+    """
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return httpx.Response(200, content=_sse(*_turn_chunks()))
+
+    realm = OpenCodeRealm(api_key="test-key", client=_client(handler))
+    model = _model()
+    await _drain(realm, model, ChannelConfig(model=model))
+    await _drain(realm, model, ChannelConfig(model=model))
+
+    assert len(seen) == 2
+    assert seen[0].headers["x-opencode-session"]
+    assert (
+        seen[0].headers["x-opencode-session"] == seen[1].headers["x-opencode-session"]
+    )
+
+
+@pytest.mark.asyncio
+async def test_complete_sends_the_config_session_header() -> None:
+    """The non-streaming path carries the same header as the stream."""
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return httpx.Response(
+            200,
+            content=json.dumps(
+                {
+                    "choices": [{"message": {"content": "summary"}}],
+                    "usage": {"total_tokens": 9},
+                }
+            ),
+        )
+
+    realm = OpenCodeRealm(api_key="test-key", client=_client(handler))
+    model = _model()
+    config = ChannelConfig(model=model, meta_data={"session_id": "tome-123"})
+    await realm.complete(model, [{"role": "user", "content": "summarize"}], config)
+
+    assert seen[0].headers["x-opencode-session"] == "tome-123"
 
 
 @pytest.mark.asyncio
@@ -308,6 +401,25 @@ async def test_go_model_without_an_override_never_lands_on_zen() -> None:
     assert len(seen) == 1
     assert str(seen[0].url) == f"{GO_BASE_URL}/chat/completions"
     assert str(seen[0].url) != f"{ZEN_BASE_URL}/chat/completions"
+
+
+@pytest.mark.asyncio
+async def test_zen_model_without_an_override_lands_on_the_new_zen_base() -> None:
+    """The empty-base fallback for Zen is the new base, not the old one."""
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return httpx.Response(200, content=_sse(*_turn_chunks()))
+
+    realm = opencode_realm_factory(
+        api_key="test-key", base_url="", client=_client(handler)
+    )
+    model = _model()
+    await _drain(realm, model, ChannelConfig(model=model))
+
+    assert len(seen) == 1
+    assert str(seen[0].url) == f"{ZEN_BASE_URL}/chat/completions"
 
 
 @pytest.mark.asyncio

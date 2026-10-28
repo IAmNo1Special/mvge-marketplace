@@ -8,8 +8,14 @@ This Rune provides two provider entries, not one. Zen and Go are separate
 billing products behind the same credential, so the provider name in the
 model slug is the billing lane:
 
-- Zen: `opencode/<model-id>`, at `https://opencode.ai/zen/v1`
-- Go: `opencode-go/<model-id>`, at `https://opencode.ai/zen/go/v1`
+- Zen: `opencode/<model-id>`, at `https://opencode.ai/inference/openai/v1`
+- Go: `opencode-go/<model-id>`, at `https://opencode.ai/inference/go/v1`
+
+These are Chat Completions bases: the realm appends `/chat/completions`.
+The old `/zen/*` bases are not claimed dead -- `/zen/*` and `/inference/*`
+have been documented as aliases for Go -- but they are no longer the
+defaults. A model that names its own base URL still reaches them through
+the per-model override (see Model coverage).
 
 There is no fallback between them, in either direction. A Go model with no
 per-model base URL override is served from the Go endpoint, never from Zen;
@@ -43,9 +49,10 @@ mvge --model opencode/space-bunny-free
 mvge --model opencode-go/<model-id>
 ```
 
-The Zen model catalog is at `https://opencode.ai/zen/v1/models`, in the
-standard `/v1/models` shape. Free models carry a `-free` suffix in their id,
-for example `space-bunny-free`, `big-pickle`, and `nemotron-3-ultra-free`.
+The Zen model catalog is at `https://opencode.ai/inference/v1/models`, in
+the standard `/v1/models` shape. Free models carry a `-free` suffix in
+their id, for example `space-bunny-free`, `big-pickle`, and
+`nemotron-3-ultra-free`.
 
 No Go model ids are listed here: the Go catalog was not verified as part of
 this change, and Go is a paid subscription with no free default. Pick a Go
@@ -56,9 +63,9 @@ model of the same name (see Model coverage).
 ## What it registers
 
 - A realm factory for the `opencode` prefix
-- A provider entry naming `https://opencode.ai/zen/v1` as the base URL
+- A provider entry naming `https://opencode.ai/inference/openai/v1` as the base URL
 - A realm factory for the `opencode-go` prefix
-- A provider entry naming `https://opencode.ai/zen/go/v1` as the base URL
+- A provider entry naming `https://opencode.ai/inference/go/v1` as the base URL
 
 Registering the providers is what lets a slug resolve with no catalog entry:
 the engine asks the registry whether it knows the `opencode` or
@@ -78,25 +85,32 @@ the engine asks the registry whether it knows the `opencode` or
   vendor-specific `reasoning` field, because that is an OpenRouter extension and
   not part of the standard. Contemplation deltas are still read, so a model
   that thinks out loud lands in the transcript instead of being dropped.
+- Every request, on both products, sends `x-opencode-session`. Go
+  hard-rejects a request without it (400 MissingSessionID); Docker sends it
+  on Zen requests too. Precedence, highest first: an explicit header in the
+  model's headers, then the engine's session id from config meta_data (the
+  tome id, set by the harness turn closure and by compaction summaries),
+  then a UUID generated once per realm instance. No `x-opencode-client`
+  or other guessed header is sent.
 
 ## Open limitations
 
-- **Session header deferred.** This Rune sends no `x-opencode-session`
-  header. Its request path receives no session id, so there is no stable
-  per-conversation value to send yet; plumbing one in is engine work. A
-  per-request generated value was deliberately not guessed, because a
-  header that changes mid-conversation is worse than an absent one for
-  per-conversation routing. If Go rejects a call for a missing session
-  header, that is this limitation, not a billing or key problem.
-- **Go base URL not live-verified.** The Go base is
-  `https://opencode.ai/zen/go/v1` from the Docker provider docs, the
-  counterpart of the Zen base. Other current sources (Pi) have moved to
-  `/inference/*` endpoints, so the Go base needs a live paid-model test
-  before it is trusted. That test has not been run here: the sandbox is
-  blocked from opencode.ai, and no live call was attempted.
+- **Both `/inference/*` bases not live-verified.** The Zen base is
+  `https://opencode.ai/inference/openai/v1` and the Go base is
+  `https://opencode.ai/inference/go/v1`, from the current OpenCode
+  Inference API and Go docs. Both need a live paid-model test before
+  they are trusted. That test has not been run here: the sandbox is
+  blocked from opencode.ai, and no live call was attempted. In
+  particular, whether a Zen paid model is served from
+  `/inference/openai/v1` against a Zen prepaid balance (as opposed to a
+  Console key) is not settled by the docs cited here and needs that
+  live test.
 - **Go per-model protocol unverified.** Go models that need the Anthropic
   `messages` wire shape or the OpenAI `responses` shape are not covered
   by this Chat Completions Realm, for the same reason as on Zen (see below).
+- **Go catalog ids unverified.** No Go model ids are listed here (see
+  Configure): test fixtures use a made-up id and prove the endpoint and
+  header, not a catalog entry.
 
 ## Model coverage
 

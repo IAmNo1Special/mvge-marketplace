@@ -1,11 +1,11 @@
 """OpenCode Zen as a Mvge Realm.
 
 Zen is an OpenAI Chat Completions compatible gateway: it serves
-``https://opencode.ai/zen/v1/chat/completions`` and advertises its catalog at
-``https://opencode.ai/zen/v1/models`` in the standard ``/v1/models`` shape. So
-this Realm speaks the same wire dialect as any other OpenAI-compatible
-endpoint, and the only thing that distinguishes it from ``openrouter-realm`` is
-its base URL and its bearer credential.
+``https://opencode.ai/inference/openai/v1/chat/completions`` and advertises
+its catalog at ``https://opencode.ai/inference/v1/models`` in the standard
+``/v1/models`` shape. So this Realm speaks the same wire dialect as any
+other OpenAI-compatible endpoint, and the only thing that distinguishes it
+from ``openrouter-realm`` is its base URL and its bearer credential.
 
 What it does *not* do is inherit OpenRouter's extensions. ``reasoning: {effort}``
 is an OpenRouter-specific request field, not part of the Chat Completions
@@ -20,18 +20,30 @@ the rest) is reachable with the same key. A free model is a normal model here;
 nothing about this Realm is a free-only path.
 
 The same Rune also provides the Go product as a second Realm entry,
-``opencode-go``, pointed at ``https://opencode.ai/zen/go/v1`` and reached with
-``opencode-go/<model-id>`` slugs. Zen and Go share the one ``OPENCODE_API_KEY``;
-the provider name in the slug is what chooses the billing lane, and there is
-no fallback from one product to the other. This Realm sends no
-``x-opencode-session`` header: its request path receives no session id, and
-plumbing a stable conversation id into it is engine work, deferred here
-rather than guessed with a per-request value.
+``opencode-go``, pointed at ``https://opencode.ai/inference/go/v1`` and
+reached with ``opencode-go/<model-id>`` slugs. Zen and Go share the one
+``OPENCODE_API_KEY``; the provider name in the slug is what chooses the
+billing lane, and there is no fallback from one product to the other.
+
+Every request sends ``x-opencode-session``. Go hard-rejects a request
+without it (400 MissingSessionID); Docker sends it on Zen requests too,
+derived from the agent session so a conversation keeps one id. The
+precedence is: an explicit header in ``model.headers`` first, then
+``config.meta_data["session_id"]`` (the engine's tome id), then a UUID
+generated once per Realm instance -- never a fresh value per request,
+which would defeat the routing the header exists for.
+
+The old ``/zen/*`` bases are not claimed dead: ``/zen/*`` and
+``/inference/*`` have been documented as aliases for Go, and a per-model
+``base_url`` override still reaches the old bases. The switch here is a
+canonical-base change to the current OpenCode Inference API endpoints,
+and it still needs a live paid-model test before it is trusted.
 """
 
 from __future__ import annotations
 
 import json
+import uuid
 from typing import Any
 
 import httpx
@@ -52,13 +64,21 @@ from mvge.provider import (
     retry_realm_request,
 )
 
-ZEN_BASE_URL = "https://opencode.ai/zen/v1"
+#: Current OpenCode Inference API Chat Completions base for Zen. This is
+#: NOT the models-list base (``/inference/v1/models``): the realm appends
+#: ``/chat/completions`` to this base.
+ZEN_BASE_URL = "https://opencode.ai/inference/openai/v1"
 
 #: The OpenCode Go endpoint, the counterpart of the Zen endpoint above.
-GO_BASE_URL = "https://opencode.ai/zen/go/v1"
+#: The realm appends ``/chat/completions`` to this base as well.
+GO_BASE_URL = "https://opencode.ai/inference/go/v1"
 
-#: The path Zen serves chat completions on, relative to the base URL.
+#: The path the gateways serve chat completions on, relative to the base URL.
 CHAT_COMPLETIONS_PATH = "/chat/completions"
+
+#: Header OpenCode routes per conversation on. Go hard-rejects a request
+#: without it; Docker sends it on Zen requests too.
+SESSION_HEADER = "x-opencode-session"
 
 #: The prefix Mvge puts on a slug to say which Realm serves it.
 REALM_SLUG_PREFIX = "opencode/"
@@ -71,7 +91,7 @@ def wire_model_id(model_id: str) -> str:
     """Reduce a Mvge slug to the id the gateway publishes.
 
     Mvge names a model ``<realm>/<model-id>``, but the gateway catalogs are
-    slash-free: every entry in ``/zen/v1/models`` is a bare id such as
+    slash-free: every entry in a gateway catalog is a bare id such as
     ``space-bunny-free``. Forwarding the slug unchanged would ask the gateway
     for a model named ``opencode/space-bunny-free``, which is not in its
     catalog, so every request fails on model lookup rather than on anything a
@@ -237,6 +257,11 @@ class OpenCodeRealm(SSEStreamingRealm):
                 GO_BASE_URL if realm_name == "opencode-go" else ZEN_BASE_URL
             )
         self._default_base_url = default_base_url
+        # Generated once per instance, never per request: a session id
+        # that changed mid-conversation would defeat the per-conversation
+        # routing this header exists for. This is only the last-resort
+        # value -- an explicit model header or a config session id wins.
+        self._session_id = str(uuid.uuid4())
         super().__init__(
             api_key=api_key,
             base_url=base_url or default_base_url,
@@ -244,18 +269,25 @@ class OpenCodeRealm(SSEStreamingRealm):
         )
 
     def _prepare_request_url_and_headers(
-        self, model: Model
+        self, model: Model, config: ChannelConfig | None = None
     ) -> tuple[str, dict[str, str]]:
         """Resolve the request URL and headers for one model.
 
-        A model may override the base URL and add headers. That matters for the
-        Zen multi-endpoint catalog: most models are served from
-        ``/zen/v1/chat/completions``, but some (the Anthropic- and
-        OpenAI-Responses-shaped ones) are not, so a per-model ``base_url`` is the
-        only way to reach them. Resolution order is model, then Realm, then the
-        instance default (Zen for a Zen instance, Go for a Go instance), so an
-        unset field on all three still produces a usable URL -- and a Go
-        instance never falls back to Zen.
+        A model may override the base URL and add headers. That matters for
+        the multi-endpoint catalogs: most models are served from the
+        product's Chat Completions base, but some (the Anthropic- and
+        OpenAI-Responses-shaped ones) are not, so a per-model ``base_url``
+        is the only way to reach them. Resolution order is model, then
+        Realm, then the instance default (Zen for a Zen instance, Go for
+        a Go instance), so an unset field on all three still produces a
+        usable URL -- and a Go instance never falls back to Zen.
+
+        The session header follows its own precedence, highest first:
+        an explicit header in ``model.headers``, then
+        ``config.meta_data["session_id"]`` (the engine's tome id), then
+        the UUID generated once for this Realm instance. The header is
+        sent on every request, for both products: Go hard-rejects a
+        request without it, and Docker sends it on Zen requests too.
         """
         base_url = (model.base_url or self._base_url or self._default_base_url).rstrip(
             "/"
@@ -277,6 +309,11 @@ class OpenCodeRealm(SSEStreamingRealm):
             headers["Authorization"] = f"Bearer {api_key}"
         if model.headers:
             headers.update(model.headers)
+        if not any(key.lower() == SESSION_HEADER for key in headers):
+            session_id = ""
+            if config is not None:
+                session_id = str(config.meta_data.get("session_id") or "")
+            headers[SESSION_HEADER] = session_id or self._session_id
         return url, headers
 
     def _prepare_request(
@@ -288,7 +325,7 @@ class OpenCodeRealm(SSEStreamingRealm):
         messages = _with_system_prompt(
             _invocations_to_messages(invocations), config.system_prompt
         )
-        url, headers = self._prepare_request_url_and_headers(model)
+        url, headers = self._prepare_request_url_and_headers(model, config)
 
         payload: dict[str, Any] = {
             "model": wire_model_id(model.id),
@@ -354,7 +391,7 @@ class OpenCodeRealm(SSEStreamingRealm):
         if signal is not None and signal.aborted:
             raise AbortError("Operation aborted")
         effective_messages = _with_system_prompt(list(messages), config.system_prompt)
-        url, headers = self._prepare_request_url_and_headers(model)
+        url, headers = self._prepare_request_url_and_headers(model, config)
         payload: dict[str, Any] = {
             "model": wire_model_id(model.id),
             "messages": effective_messages,
@@ -408,6 +445,7 @@ __all__ = [
     "GO_BASE_URL",
     "GO_REALM_SLUG_PREFIX",
     "REALM_SLUG_PREFIX",
+    "SESSION_HEADER",
     "ZEN_BASE_URL",
     "OpenCodeRealm",
     "_invocations_to_messages",

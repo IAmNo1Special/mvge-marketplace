@@ -32,6 +32,7 @@ from mvge.core.spells import SpellResultMessage
 from mvge.runes.rune_api import RuneAPI
 from mvge.runes.types import SigilHook
 from mvge_runes_opencode_realm.realm import (
+    GO_BASE_URL,
     ZEN_BASE_URL,
     OpenCodeRealm,
     _invocations_to_messages,
@@ -40,6 +41,7 @@ from mvge_runes_opencode_realm.realm import (
 from mvge_runes_opencode_realm.rune import (
     after_provider_response,
     before_provider_request,
+    opencode_go_realm_factory,
     opencode_realm_factory,
     rune_factory,
 )
@@ -82,6 +84,21 @@ def _model(**overrides: object) -> Model:
     return Model(**fields)  # type: ignore[arg-type]
 
 
+def _go_model(**overrides: object) -> Model:
+    # A fixture id only: "test-model" is not claimed to be a real Go catalog
+    # id. The mock transport never checks it against a catalog; what matters
+    # is the endpoint it is sent to and the id on the wire.
+    fields: dict[str, object] = {
+        "id": "opencode-go/test-model",
+        "name": "Test Model",
+        "realm": "opencode-go",
+        "base_url": "",
+        "api_key": "test-key",
+    }
+    fields.update(overrides)
+    return Model(**fields)  # type: ignore[arg-type]
+
+
 def _client(handler: object) -> httpx.AsyncClient:
     return httpx.AsyncClient(transport=httpx.MockTransport(handler))  # type: ignore[arg-type]
 
@@ -116,16 +133,21 @@ def test_manifest_declares_the_rune() -> None:
     assert manifest["enabled"] is True
 
 
-def test_rune_factory_registers_the_opencode_prefix() -> None:
+def test_rune_factory_registers_the_opencode_and_opencode_go_prefixes() -> None:
+    # Intentional change from the old single-registration assertion: one Rune
+    # now provides two provider entries, and registering only one of them
+    # would leave the other product unreachable.
     mock_api = MagicMock(spec=RuneAPI)
     rune_factory(mock_api)
 
-    mock_api.register_realm_factory.assert_called_once_with(
-        "opencode", opencode_realm_factory
+    mock_api.register_realm_factory.assert_any_call("opencode", opencode_realm_factory)
+    mock_api.register_realm_factory.assert_any_call(
+        "opencode-go", opencode_go_realm_factory
     )
-    mock_api.register_provider.assert_called_once_with(
-        "opencode", {"baseUrl": ZEN_BASE_URL}
-    )
+    assert mock_api.register_realm_factory.call_count == 2
+    mock_api.register_provider.assert_any_call("opencode", {"baseUrl": ZEN_BASE_URL})
+    mock_api.register_provider.assert_any_call("opencode-go", {"baseUrl": GO_BASE_URL})
+    assert mock_api.register_provider.call_count == 2
     mock_api.on.assert_any_call(
         SigilHook.BEFORE_PROVIDER_REQUEST, before_provider_request
     )
@@ -152,10 +174,26 @@ def test_registered_base_url_is_zens_own() -> None:
     assert ZEN_BASE_URL == "https://opencode.ai/zen/v1"
 
 
+def test_registered_base_url_is_gos_own() -> None:
+    """The Go entry's provider config must name Go, not Zen.
+
+    A Go slug that resolved against the Zen base would bill the wrong
+    product, and nothing in the provider name would explain it -- which is
+    the failure the two-entry split exists to prevent.
+    """
+    assert GO_BASE_URL == "https://opencode.ai/zen/go/v1"
+
+
 def test_factory_falls_back_to_zen_when_the_base_url_is_empty() -> None:
     realm = opencode_realm_factory(api_key="k", base_url="")
     assert isinstance(realm, OpenCodeRealm)
     assert realm.realm_name == "opencode"
+
+
+def test_go_factory_falls_back_to_go_not_zen_when_the_base_url_is_empty() -> None:
+    realm = opencode_go_realm_factory(api_key="k", base_url="")
+    assert isinstance(realm, OpenCodeRealm)
+    assert realm.realm_name == "opencode-go"
 
 
 def test_zen_is_not_reported_as_a_router() -> None:
@@ -182,6 +220,7 @@ def test_the_realm_prefix_is_stripped_from_the_model_id() -> None:
     the wrong thing, which is why this cannot be left to the caller.
     """
     assert wire_model_id("opencode/space-bunny-free") == "space-bunny-free"
+    assert wire_model_id("opencode-go/test-model") == "test-model"
     assert wire_model_id("space-bunny-free") == "space-bunny-free"
 
 
@@ -220,6 +259,55 @@ async def test_request_goes_to_the_zen_chat_completions_endpoint() -> None:
     assert str(seen[0].url) == f"{ZEN_BASE_URL}/chat/completions"
     assert seen[0].headers["Authorization"] == "Bearer test-key"
     assert seen[0].headers["Content-Type"] == "application/json"
+
+
+@pytest.mark.asyncio
+async def test_go_request_goes_to_the_go_chat_completions_endpoint() -> None:
+    """A Go slug must reach Go, with the prefix stripped and the key sent."""
+    seen: list[httpx.Request] = []
+    seen_payload: list[dict] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        seen_payload.append(json.loads(request.content))
+        return httpx.Response(200, content=_sse(*_turn_chunks()))
+
+    realm = opencode_go_realm_factory(api_key="test-key", client=_client(handler))
+    model = _go_model()
+    responses = await _drain(realm, model, ChannelConfig(model=model))
+
+    assert len(seen) == 1
+    assert str(seen[0].url) == f"{GO_BASE_URL}/chat/completions"
+    assert seen[0].headers["Authorization"] == "Bearer test-key"
+    assert seen_payload[0]["model"] == "test-model"
+    assert responses[-1].invocation is not None
+    assert responses[-1].invocation.realm == "opencode-go"
+
+
+@pytest.mark.asyncio
+async def test_go_model_without_an_override_never_lands_on_zen() -> None:
+    """The no-override case is the one the split exists for.
+
+    A Go model with no per-model base URL, built through a Go factory given
+    an empty base URL, must still be served from Go. If it landed on Zen,
+    a Go-only user (Zen balance $0) would pay nothing and get nothing,
+    with the provider name giving no clue why.
+    """
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return httpx.Response(200, content=_sse(*_turn_chunks()))
+
+    realm = opencode_go_realm_factory(
+        api_key="test-key", base_url="", client=_client(handler)
+    )
+    model = _go_model()
+    await _drain(realm, model, ChannelConfig(model=model))
+
+    assert len(seen) == 1
+    assert str(seen[0].url) == f"{GO_BASE_URL}/chat/completions"
+    assert str(seen[0].url) != f"{ZEN_BASE_URL}/chat/completions"
 
 
 @pytest.mark.asyncio

@@ -18,6 +18,15 @@ Every model on Zen is reachable with an ``opencode/<model-id>`` slug, and the
 free tier (``space-bunny-free``, ``big-pickle``, ``nemotron-3-ultra-free`` and
 the rest) is reachable with the same key. A free model is a normal model here;
 nothing about this Realm is a free-only path.
+
+The same Rune also provides the Go product as a second Realm entry,
+``opencode-go``, pointed at ``https://opencode.ai/zen/go/v1`` and reached with
+``opencode-go/<model-id>`` slugs. Zen and Go share the one ``OPENCODE_API_KEY``;
+the provider name in the slug is what chooses the billing lane, and there is
+no fallback from one product to the other. This Realm sends no
+``x-opencode-session`` header: its request path receives no session id, and
+plumbing a stable conversation id into it is engine work, deferred here
+rather than guessed with a per-request value.
 """
 
 from __future__ import annotations
@@ -45,27 +54,36 @@ from mvge.provider import (
 
 ZEN_BASE_URL = "https://opencode.ai/zen/v1"
 
+#: The OpenCode Go endpoint, the counterpart of the Zen endpoint above.
+GO_BASE_URL = "https://opencode.ai/zen/go/v1"
+
 #: The path Zen serves chat completions on, relative to the base URL.
 CHAT_COMPLETIONS_PATH = "/chat/completions"
 
 #: The prefix Mvge puts on a slug to say which Realm serves it.
 REALM_SLUG_PREFIX = "opencode/"
 
+#: The prefix for the Go Realm entry, provided by the same Rune.
+GO_REALM_SLUG_PREFIX = "opencode-go/"
+
 
 def wire_model_id(model_id: str) -> str:
-    """Reduce a Mvge slug to the id Zen publishes.
+    """Reduce a Mvge slug to the id the gateway publishes.
 
-    Mvge names a model ``<realm>/<model-id>``, but Zen's catalog is slash-free:
-    every entry in ``/zen/v1/models`` is a bare id such as ``space-bunny-free``.
-    Forwarding the slug unchanged would ask the gateway for a model named
-    ``opencode/space-bunny-free``, which is not in its catalog, so every request
-    fails on model lookup rather than on anything a reader could diagnose.
+    Mvge names a model ``<realm>/<model-id>``, but the gateway catalogs are
+    slash-free: every entry in ``/zen/v1/models`` is a bare id such as
+    ``space-bunny-free``. Forwarding the slug unchanged would ask the gateway
+    for a model named ``opencode/space-bunny-free``, which is not in its
+    catalog, so every request fails on model lookup rather than on anything a
+    reader could diagnose.
 
-    Stripping is unambiguous for the same reason it is necessary: no Zen model id
-    contains a ``/``, so a leading ``opencode/`` can only be the Realm prefix and
-    never part of the id. An already-bare id is returned unchanged, so both
-    spellings work.
+    Stripping is unambiguous for the same reason it is necessary: no gateway
+    model id contains a ``/``, so a leading ``opencode/`` or ``opencode-go/``
+    can only be the Realm prefix and never part of the id. An already-bare id
+    is returned unchanged, so both spellings work.
     """
+    if model_id.startswith(GO_REALM_SLUG_PREFIX):
+        return model_id[len(GO_REALM_SLUG_PREFIX) :]
     if model_id.startswith(REALM_SLUG_PREFIX):
         return model_id[len(REALM_SLUG_PREFIX) :]
     return model_id
@@ -184,7 +202,13 @@ def _with_system_prompt(
 
 
 class OpenCodeRealm(SSEStreamingRealm):
-    """Channel model responses through the OpenCode Zen gateway."""
+    """Channel model responses through an OpenCode gateway.
+
+    A default instance is the Zen Realm. A Go instance is the same class
+    constructed with ``realm_name="opencode-go"`` and the Go base URL; its
+    default base is Go, never Zen, so a Go instance with no per-model base
+    URL and an empty Realm base still cannot silently land on Zen.
+    """
 
     realm_name: str = "opencode"
 
@@ -204,10 +228,18 @@ class OpenCodeRealm(SSEStreamingRealm):
         api_key: str,
         base_url: str = ZEN_BASE_URL,
         client: httpx.AsyncClient | None = None,
+        realm_name: str = "opencode",
+        default_base_url: str | None = None,
     ) -> None:
+        self.realm_name = realm_name
+        if default_base_url is None:
+            default_base_url = (
+                GO_BASE_URL if realm_name == "opencode-go" else ZEN_BASE_URL
+            )
+        self._default_base_url = default_base_url
         super().__init__(
             api_key=api_key,
-            base_url=base_url or ZEN_BASE_URL,
+            base_url=base_url or default_base_url,
             client=client,
         )
 
@@ -221,9 +253,13 @@ class OpenCodeRealm(SSEStreamingRealm):
         ``/zen/v1/chat/completions``, but some (the Anthropic- and
         OpenAI-Responses-shaped ones) are not, so a per-model ``base_url`` is the
         only way to reach them. Resolution order is model, then Realm, then the
-        Zen default, so an unset field on all three still produces a usable URL.
+        instance default (Zen for a Zen instance, Go for a Go instance), so an
+        unset field on all three still produces a usable URL -- and a Go
+        instance never falls back to Zen.
         """
-        base_url = (model.base_url or self._base_url or ZEN_BASE_URL).rstrip("/")
+        base_url = (model.base_url or self._base_url or self._default_base_url).rstrip(
+            "/"
+        )
         api_key = model.api_key or self._api_key
         url = f"{base_url}{CHAT_COMPLETIONS_PATH}"
         headers = {"Content-Type": "application/json"}
@@ -369,6 +405,8 @@ class OpenCodeRealm(SSEStreamingRealm):
 
 __all__ = [
     "CHAT_COMPLETIONS_PATH",
+    "GO_BASE_URL",
+    "GO_REALM_SLUG_PREFIX",
     "REALM_SLUG_PREFIX",
     "ZEN_BASE_URL",
     "OpenCodeRealm",

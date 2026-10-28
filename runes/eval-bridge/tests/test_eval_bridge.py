@@ -236,3 +236,210 @@ def test_cli_eval_run_and_export_rl(tmp_path: Path) -> None:
     res_rl = runner.invoke(app, ["export-rl", str(tome_path), "--output", str(rl_out)])
     assert res_rl.exit_code == 0
     assert rl_out.exists()
+
+
+def test_eval_factory_registers_app_handler() -> None:
+    api = MagicMock(spec=RuneAPI)
+    registered: dict[str, Any] = {}
+    api.register_command = lambda name, description="", handler=None: (
+        registered.__setitem__(name, handler)
+    )
+    result = rune_factory(api)
+    assert result is app
+    assert registered["eval"] is app
+
+
+def test_score_trajectory_empty_expected_and_partial() -> None:
+    assert score_trajectory([], [], TrajectoryMatchType.IN_ORDER) == 1.0
+    assert (
+        score_trajectory([{"spell_name": "read"}], [], TrajectoryMatchType.EXACT) == 0.5
+    )
+    assert (
+        score_trajectory([], [{"spell_name": "read"}], TrajectoryMatchType.IN_ORDER)
+        == 0.0
+    )
+    # ANY_ORDER consumes each actual call at most once
+    assert (
+        score_trajectory(
+            [{"spell_name": "read"}],
+            [{"spell_name": "read"}, {"spell_name": "read"}],
+            TrajectoryMatchType.ANY_ORDER,
+        )
+        == 0.5
+    )
+
+
+def test_score_trajectory_name_alias_and_non_dict_args() -> None:
+    assert (
+        score_trajectory(
+            [{"name": "read", "arguments": "not-a-dict"}],
+            [{"spell_name": "read", "arguments": {"path": "x"}}],
+            TrajectoryMatchType.EXACT,
+        )
+        == 1.0
+    )
+    assert (
+        score_trajectory(
+            [{"spell_name": "read", "arguments": {}}],
+            [{"spell_name": "read", "arguments": {"path": "x"}}],
+            TrajectoryMatchType.EXACT,
+        )
+        == 0.0
+    )
+
+
+def test_score_keywords_empty_text() -> None:
+    assert score_keywords("", ["hello"]) == 0.0
+    assert score_keywords("HELLO WORLD", ["hello", "world"]) == 1.0
+
+
+def test_evaluate_case_failing_and_details() -> None:
+    case = EvalCase(
+        eval_case_id="fail_1",
+        expected_tool_trajectory=[{"spell_name": "read"}],
+        trajectory_match_type=TrajectoryMatchType.EXACT,
+        expected_response_keywords=["done"],
+    )
+    res = evaluate_case(case, [{"spell_name": "read"}], "unrelated reply")
+    assert res.passed is False
+    assert res.trajectory_score == 1.0
+    assert res.keyword_score == 0.0
+    assert res.total_score == 0.7
+    assert res.details == "Trajectory: 1.00, Keywords: 0.00"
+    assert res.case_id == "fail_1"
+
+
+def test_evaluate_set_empty_and_mixed() -> None:
+    empty = evaluate_set(EvalSet(name="empty"), [])
+    assert empty.total_cases == 0
+    assert empty.passed_cases == 0
+    assert empty.failed_cases == 0
+    assert empty.avg_total_score == 0.0
+    assert empty.avg_trajectory_score == 0.0
+
+    passing = EvalCase(eval_case_id="p", expected_tool_trajectory=[])
+    failing = EvalCase(
+        eval_case_id="f",
+        expected_tool_trajectory=[{"spell_name": "read"}],
+        expected_response_keywords=["done"],
+    )
+    report = evaluate_set(
+        EvalSet(name="mixed"),
+        [(passing, [], ""), (failing, [], "nothing")],
+    )
+    assert report.total_cases == 2
+    assert report.passed_cases == 1
+    assert report.failed_cases == 1
+    assert report.avg_total_score == 0.5
+
+
+def test_load_evalset_defaults_and_bad_match_type(tmp_path: Path) -> None:
+    path = tmp_path / "suite.evalset.json"
+    path.write_text(
+        json.dumps(
+            {
+                "eval_cases": [
+                    {"eval_case_id": "c1", "trajectory_match_type": "BOGUS"},
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    loaded = load_evalset(path)
+    assert loaded.name == "suite.evalset"
+    assert loaded.description == ""
+    case = loaded.eval_cases[0]
+    assert case.trajectory_match_type == TrajectoryMatchType.IN_ORDER
+    assert case.prompt == ""
+    assert case.expected_tool_trajectory == []
+    assert case.rubric == ""
+
+
+def test_exporter_skips_bad_lines_and_maps_roles(tmp_path: Path) -> None:
+    tome_path = tmp_path / "tome9.jsonl"
+    tome_path.write_text(
+        "\n".join(
+            [
+                "not json at all",
+                json.dumps({"role": "user", "content": "hi"}),
+                "",
+                json.dumps(
+                    {
+                        "role": "spellResult",
+                        "content": [{"type": "text", "text": "out"}],
+                    }
+                ),
+                json.dumps({"role": "mystery", "content": "???"}),
+            ]
+        ),
+        encoding="utf-8",
+    )
+    sharegpt = export_tome_to_records(tome_path, "sharegpt")
+    assert sharegpt["conversations"] == [
+        {"from": "human", "value": "hi"},
+        {"from": "system", "value": "Tool output: out"},
+    ]
+    atropos = export_tome_to_records(tome_path, "atropos")
+    assert atropos["turns"][0] == {"role": "user", "text": "hi"}
+    assert "tool_calls" not in atropos["turns"][0]
+    assert atropos["turns"][2]["role"] == "mystery"
+
+
+def test_export_rl_data_without_output_returns_rendered(tmp_path: Path) -> None:
+    tome_path = tmp_path / "t.jsonl"
+    tome_path.write_text(
+        json.dumps({"role": "user", "content": "hello"}) + "\n", encoding="utf-8"
+    )
+    rendered = export_rl_data(tome_path)
+    assert json.loads(rendered)["id"] == "t"
+    assert not list(tmp_path.glob("*.json"))
+
+
+def test_cli_run_missing_file_and_verbose_report(tmp_path: Path) -> None:
+    missing = runner.invoke(app, ["run", str(tmp_path / "nope.evalset.json")])
+    assert missing.exit_code == 1
+    assert "not found" in missing.output
+
+    evalset_file = tmp_path / "v.evalset.json"
+    evalset_file.write_text(
+        json.dumps(
+            {
+                "name": "v_suite",
+                "eval_cases": [
+                    {
+                        "eval_case_id": "v1",
+                        "prompt": "p",
+                        "expected_tool_trajectory": [{"spell_name": "read"}],
+                        "expected_response_keywords": ["ok"],
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    report_out = tmp_path / "v_report.json"
+    res = runner.invoke(
+        app, ["run", str(evalset_file), "--output", str(report_out), "--verbose"]
+    )
+    assert res.exit_code == 0
+    assert "[PASS] v1" in res.stdout
+    assert "Avg Total Score: 100.0%" in res.stdout
+    report = json.loads(report_out.read_text(encoding="utf-8"))
+    assert report["passed_cases"] == 1
+    assert report["failed_cases"] == 0
+    assert report["case_results"][0]["case_id"] == "v1"
+    assert report["case_results"][0]["total_score"] == 1.0
+
+
+def test_cli_export_rl_missing_and_atropos_stdout(tmp_path: Path) -> None:
+    missing = runner.invoke(app, ["export-rl", "no-such-tome"])
+    assert missing.exit_code == 1
+    assert "not found" in missing.output
+
+    tome_path = tmp_path / "s.jsonl"
+    tome_path.write_text(
+        json.dumps({"role": "user", "content": "hello"}) + "\n", encoding="utf-8"
+    )
+    res = runner.invoke(app, ["export-rl", str(tome_path), "--format", "atropos"])
+    assert res.exit_code == 0
+    assert json.loads(res.stdout)["session_id"] == "s"

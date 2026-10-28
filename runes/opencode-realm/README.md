@@ -54,11 +54,24 @@ the standard `/v1/models` shape. Free models carry a `-free` suffix in
 their id, for example `space-bunny-free`, `big-pickle`, and
 `nemotron-3-ultra-free`.
 
-No Go model ids are listed here: the Go catalog was not verified as part of
-this change, and Go is a paid subscription with no free default. Pick a Go
-model id from the upstream Go catalog; do not assume a Zen id is also a Go
-id, and do not assume a Go model speaks the same wire dialect as a Zen
-model of the same name (see Model coverage).
+Go has no free default model, but it does have free models to test with,
+and they are not the same as Zen's free models. The official Go page lists
+`beam-free` and `iceman-contributor-free` as Free with unlimited monthly
+allowance (limited time; Beam is also limited regions). Test with those,
+on the Go lane, with a Go key and the session header this Rune now sends:
+
+```bash
+mvge --model opencode-go/beam-free
+mvge --model opencode-go/iceman-contributor-free
+```
+
+Do not test Go with a Zen free slug: Zen free models
+(`opencode/beam-free` and the like) are OpenCode-only and answer other
+clients with 403 FreeTierError. The same bare id on the Go lane is a
+different billing lane. Other Go model ids are still unverified here: pick
+a paid Go id from the upstream Go catalog; do not assume a Zen id is also
+a Go id, and do not assume a Go model speaks the same wire dialect as a
+Zen model of the same name (see Model coverage).
 
 ## What it registers
 
@@ -108,9 +121,11 @@ the engine asks the registry whether it knows the `opencode` or
 - **Go per-model protocol unverified.** Go models that need the Anthropic
   `messages` wire shape or the OpenAI `responses` shape are not covered
   by this Chat Completions Realm, for the same reason as on Zen (see below).
-- **Go catalog ids unverified.** No Go model ids are listed here (see
-  Configure): test fixtures use a made-up id and prove the endpoint and
-  header, not a catalog entry.
+- **Go catalog ids mostly unverified.** Two Go free ids are named in
+  Configure (`beam-free`, `iceman-contributor-free`) from the official Go
+  page; they are not yet live-verified through this Rune. Test fixtures
+  still use a made-up id and prove the endpoint and header, not a
+  catalog entry.
 
 ## Model coverage
 

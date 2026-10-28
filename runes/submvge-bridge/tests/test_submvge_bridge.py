@@ -406,3 +406,27 @@ async def test_bridge_state_caches_manager_and_shutdown_kills_all(
     mock_sub_manager.kill_all.assert_awaited_once()
     assert state.get_manager() is mock_sub_manager
     assert len(calls) == 2
+
+
+@pytest.mark.asyncio
+async def test_submvge_dispose_kills_active_submvges(
+    mock_api: Any, mock_sub_manager: MagicMock
+) -> None:
+    rune_factory(mock_api, manager_factory=lambda **kw: mock_sub_manager)
+    summon_spell = mock_api._registered["summon_mvge"]
+    mock_sub_manager.summon.return_value = []
+    ctx = SpellContext(spell_cast_id="cast-dispose")
+    await summon_spell.execute(
+        spell_cast_id="cast-dispose",
+        params={"subagents": [{"role": "worker", "prompt": "hi"}], "wait": True},
+        ctx=ctx,
+    )
+    assert mock_api.on_dispose.call_count == 1
+    dispose = mock_api.on_dispose.call_args[0][0]
+    result = dispose()
+    if result is not None:
+        import inspect as _inspect
+
+        if _inspect.isawaitable(result):
+            await result
+    mock_sub_manager.kill_all.assert_awaited_once()

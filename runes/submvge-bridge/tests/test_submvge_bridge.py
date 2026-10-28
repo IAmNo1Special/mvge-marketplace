@@ -185,3 +185,224 @@ async def test_manage_mvges_actions(mock_api: Any, mock_sub_manager: MagicMock) 
     )
     assert kill_all_res["action"] == "kill_all"
     mock_sub_manager.kill_all.assert_awaited_once()
+
+
+def _record(
+    sub_mvge_id: str = "sub-1",
+    role: str = "worker",
+    state: SubMvgeState = SubMvgeState.RUNNING,
+    **extra: Any,
+) -> SubMvgeRecord:
+    return SubMvgeRecord(
+        sub_mvge_id=sub_mvge_id,
+        role=role,
+        agent_name="coding_mvge",
+        model_id="test-model",
+        tome_path=Path("/tmp/subsessions/tome-1.jsonl"),
+        child_tome_id="tome-1",
+        workspace_path=Path("/tmp/ws"),
+        state=state,
+        **extra,
+    )
+
+
+@pytest.mark.asyncio
+async def test_summon_explicit_allowed_spells_override_preset(
+    mock_api: Any, mock_sub_manager: MagicMock
+) -> None:
+    rune_factory(mock_api, manager_factory=lambda **kw: mock_sub_manager)
+    mock_sub_manager.summon.return_value = []
+    summon_spell = mock_api._registered["summon_mvge"]
+    await summon_spell.execute(
+        spell_cast_id="cast-100",
+        params={
+            "subagents": [
+                {
+                    "role": "research",
+                    "prompt": "p",
+                    "allowed_spells": ["write", "bash"],
+                }
+            ],
+            "wait": True,
+        },
+        ctx=SpellContext(spell_cast_id="cast-100"),
+    )
+    spec = mock_sub_manager.summon.call_args[0][0][0]
+    assert spec.allowed_spells == frozenset({"write", "bash"})
+
+
+@pytest.mark.asyncio
+async def test_summon_role_spell_defaults(
+    mock_api: Any, mock_sub_manager: MagicMock
+) -> None:
+    rune_factory(mock_api, manager_factory=lambda **kw: mock_sub_manager)
+    mock_sub_manager.summon.return_value = []
+    summon_spell = mock_api._registered["summon_mvge"]
+    await summon_spell.execute(
+        spell_cast_id="cast-101",
+        params={
+            "subagents": [
+                {"role": "codebase_researcher", "prompt": "p"},
+                {"role": "self", "prompt": "p"},
+                {"role": "worker", "prompt": "p"},
+                {"prompt": "p"},
+            ],
+            "wait": True,
+        },
+        ctx=SpellContext(spell_cast_id="cast-101"),
+    )
+    specs = mock_sub_manager.summon.call_args[0][0]
+    assert len(specs) == 4
+    assert "read" in specs[0].allowed_spells
+    assert specs[1].allowed_spells is None
+    assert specs[2].allowed_spells is None
+    assert specs[3].role == "worker"
+    assert specs[3].prompt == "p"
+
+
+@pytest.mark.asyncio
+async def test_summon_workspace_worktree_and_wait_flag(
+    mock_api: Any, mock_sub_manager: MagicMock
+) -> None:
+    rune_factory(mock_api, manager_factory=lambda **kw: mock_sub_manager)
+    mock_sub_manager.summon.return_value = []
+    summon_spell = mock_api._registered["summon_mvge"]
+    await summon_spell.execute(
+        spell_cast_id="cast-102",
+        params={
+            "subagents": [
+                {
+                    "role": "worker",
+                    "prompt": "p",
+                    "workspace": "worktree",
+                    "model": "my-model",
+                    "type_name": "other_mvge",
+                }
+            ],
+            "wait": False,
+        },
+        ctx=SpellContext(spell_cast_id="cast-102"),
+    )
+    spec = mock_sub_manager.summon.call_args[0][0][0]
+    assert spec.workspace == "worktree"
+    assert spec.wait is False
+    assert spec.model == "my-model"
+    assert spec.agent_name == "other_mvge"
+    assert mock_sub_manager.summon.call_args[1]["parent_spell_cast_id"] == "cast-102"
+
+
+@pytest.mark.asyncio
+async def test_summon_empty_subagents(
+    mock_api: Any, mock_sub_manager: MagicMock
+) -> None:
+    rune_factory(mock_api, manager_factory=lambda **kw: mock_sub_manager)
+    mock_sub_manager.summon.return_value = []
+    summon_spell = mock_api._registered["summon_mvge"]
+    result = await summon_spell.execute(
+        spell_cast_id="cast-103",
+        params={"subagents": [], "wait": True},
+        ctx=SpellContext(spell_cast_id="cast-103"),
+    )
+    assert result == {"success": True, "subagents": []}
+    assert mock_sub_manager.summon.call_args[0][0] == []
+
+
+@pytest.mark.asyncio
+async def test_summon_record_formats_all_fields(
+    mock_api: Any, mock_sub_manager: MagicMock
+) -> None:
+    rune_factory(mock_api, manager_factory=lambda **kw: mock_sub_manager)
+    rec = _record(
+        state=SubMvgeState.ERRORED,
+        state_detail="crashed",
+        summary="",
+        error="boom",
+        mana_used=42,
+    )
+    mock_sub_manager.summon.return_value = [rec]
+    summon_spell = mock_api._registered["summon_mvge"]
+    result = await summon_spell.execute(
+        spell_cast_id="cast-104",
+        params={"subagents": [{"role": "worker", "prompt": "p"}]},
+        ctx=SpellContext(spell_cast_id="cast-104"),
+    )
+    sub = result["subagents"][0]
+    assert sub["status"] == "errored"
+    assert sub["state_detail"] == "crashed"
+    assert sub["error"] == "boom"
+    assert sub["mana_used"] == 42
+    assert sub["tome_path"] == "/tmp/subsessions/tome-1.jsonl"
+    assert sub["child_tome_id"] == "tome-1"
+
+
+@pytest.mark.asyncio
+async def test_message_mvge_defaults_to_empty_strings(
+    mock_api: Any, mock_sub_manager: MagicMock
+) -> None:
+    rune_factory(mock_api, manager_factory=lambda **kw: mock_sub_manager)
+    mock_sub_manager.send_message.return_value = _record()
+    message_spell = mock_api._registered["message_mvge"]
+    result = await message_spell.execute(
+        spell_cast_id="cast-105",
+        params={},
+        ctx=SpellContext(spell_cast_id="cast-105"),
+    )
+    assert result["success"] is True
+    mock_sub_manager.send_message.assert_awaited_once_with("", "")
+
+
+@pytest.mark.asyncio
+async def test_manage_mvges_defaults_to_list_and_kill_empty(
+    mock_api: Any, mock_sub_manager: MagicMock
+) -> None:
+    rune_factory(mock_api, manager_factory=lambda **kw: mock_sub_manager)
+    mock_sub_manager.list_active.return_value = []
+    mock_sub_manager.kill.return_value = []
+    manage_spell = mock_api._registered["manage_mvges"]
+    ctx = SpellContext(spell_cast_id="cast-106")
+    default_res = await manage_spell.execute(
+        spell_cast_id="cast-106", params={}, ctx=ctx
+    )
+    assert default_res["action"] == "list"
+    mock_sub_manager.list_active.assert_called_once()
+    kill_res = await manage_spell.execute(
+        spell_cast_id="cast-106", params={"action": "kill"}, ctx=ctx
+    )
+    assert kill_res["action"] == "kill"
+    mock_sub_manager.kill.assert_awaited_once_with([])
+
+
+@pytest.mark.asyncio
+async def test_manage_mvges_unknown_action_raises(
+    mock_api: Any, mock_sub_manager: MagicMock
+) -> None:
+    rune_factory(mock_api, manager_factory=lambda **kw: mock_sub_manager)
+    manage_spell = mock_api._registered["manage_mvges"]
+    with pytest.raises(ValueError, match="Unknown manage_mvges action: 'explode'"):
+        await manage_spell.execute(
+            spell_cast_id="cast-107",
+            params={"action": "explode"},
+            ctx=SpellContext(spell_cast_id="cast-107"),
+        )
+
+
+@pytest.mark.asyncio
+async def test_bridge_state_caches_manager_and_shutdown_kills_all(
+    mock_api: Any, mock_sub_manager: MagicMock
+) -> None:
+    from mvge_runes_submvge_bridge.rune import SubMvgeBridgeState
+
+    calls: list[int] = []
+
+    def factory(**kw: Any) -> MagicMock:
+        calls.append(1)
+        return mock_sub_manager
+
+    state = SubMvgeBridgeState(mock_api, manager_factory=factory)
+    assert state.get_manager() is mock_sub_manager
+    assert state.get_manager() is mock_sub_manager
+    assert len(calls) == 1
+    await state.shutdown()
+    mock_sub_manager.kill_all.assert_awaited_once()
+    assert state.get_manager() is mock_sub_manager
+    assert len(calls) == 2

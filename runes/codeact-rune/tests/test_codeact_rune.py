@@ -132,6 +132,128 @@ f"Got: {greeting}"
 
 
 @pytest.mark.asyncio
+async def test_codeact_syntax_error_is_validation_error(mock_api: Any) -> None:
+    executor = CodeActExecutor(mock_api)
+    res = await executor.execute("def broken(")
+    assert res.status == SpellStatus.ERROR
+    assert "Validation error" in (res.error_message or "")
+
+
+@pytest.mark.asyncio
+async def test_codeact_runtime_errors(mock_api: Any) -> None:
+    executor = CodeActExecutor(mock_api)
+    res = await executor.execute("1 / 0")
+    assert res.status == SpellStatus.ERROR
+    assert "Runtime error" in (res.error_message or "")
+    res2 = await executor.execute("undefined_name_xyz")
+    assert res2.status == SpellStatus.ERROR
+    assert "Runtime error" in (res2.error_message or "")
+
+
+@pytest.mark.asyncio
+async def test_codeact_rejects_forbidden_subprocess_import(mock_api: Any) -> None:
+    executor = CodeActExecutor(mock_api)
+    res = await executor.execute("import subprocess")
+    assert res.status == SpellStatus.ERROR
+    assert "Forbidden AST node" in (res.error_message or "")
+
+
+@pytest.mark.asyncio
+async def test_codeact_write_protection_assignment_forms(mock_api: Any) -> None:
+    mock_api.register_spell(
+        SpellDefinition(
+            name="read_file",
+            description="read a file",
+            parameters={},
+            execution_mode=ExecutionMode.PARALLEL,
+            handler=lambda *args, **kwargs: "file content",
+        )
+    )
+    executor = CodeActExecutor(mock_api)
+    for code in (
+        "read_file: int = 5",
+        "read_file += 1",
+        "(read_file := 5)",
+        "(a, read_file) = (1, 2)",
+    ):
+        res = await executor.execute(code)
+        assert res.status == SpellStatus.ERROR, code
+        assert "Cannot overwrite protected spell" in (res.error_message or ""), code
+
+
+@pytest.mark.asyncio
+async def test_codeact_write_protection_def_forms(mock_api: Any) -> None:
+    mock_api.register_spell(
+        SpellDefinition(
+            name="read_file",
+            description="read a file",
+            parameters={},
+            execution_mode=ExecutionMode.PARALLEL,
+            handler=lambda *args, **kwargs: "file content",
+        )
+    )
+    executor = CodeActExecutor(mock_api)
+    for code in (
+        "async def read_file(): pass",
+        "class read_file: pass",
+    ):
+        res = await executor.execute(code)
+        assert res.status == SpellStatus.ERROR, code
+        assert "Cannot overwrite protected spell" in (res.error_message or ""), code
+
+
+@pytest.mark.asyncio
+async def test_codeact_final_answer_direct(mock_api: Any) -> None:
+    executor = CodeActExecutor(mock_api)
+    res = await executor.execute("final_answer(42)")
+    assert res.status == SpellStatus.SUCCESS
+    assert res.content == "42"
+    assert res.terminate is True
+
+
+@pytest.mark.asyncio
+async def test_codeact_no_trailing_expression_success_message(mock_api: Any) -> None:
+    executor = CodeActExecutor(mock_api)
+    res = await executor.execute("x = 5")
+    assert res.status == SpellStatus.SUCCESS
+    assert res.content == "Code executed successfully."
+    assert res.terminate is False
+
+
+@pytest.mark.asyncio
+async def test_codeact_function_def_persists_across_executes(mock_api: Any) -> None:
+    executor = CodeActExecutor(mock_api)
+    res1 = await executor.execute("def double(n):\n    return n * 2")
+    assert res1.status == SpellStatus.SUCCESS
+    res2 = await executor.execute("double(21)")
+    assert res2.status == SpellStatus.SUCCESS
+    assert res2.content == "42"
+
+
+@pytest.mark.asyncio
+async def test_codeact_dispatch_unknown_spell_raises(mock_api: Any) -> None:
+    executor = CodeActExecutor(mock_api)
+    with pytest.raises(NameError, match="is not registered"):
+        await executor.dispatch_spell("no_such_spell")
+
+
+def test_codeact_registered_names_exclude_execute_python(mock_api: Any) -> None:
+    mock_api.register_spell(
+        SpellDefinition(
+            name="shout",
+            description="shouts",
+            parameters={},
+            execution_mode=ExecutionMode.PARALLEL,
+            handler=lambda *args, **kwargs: "hi",
+        )
+    )
+    executor = CodeActExecutor(mock_api)
+    names = executor.get_registered_spell_names()
+    assert "shout" in names
+    assert "execute_python" not in names
+
+
+@pytest.mark.asyncio
 async def test_codeact_final_answer_terminates_turn(mock_api: Any) -> None:
     executor = CodeActExecutor(mock_api)
     code = """

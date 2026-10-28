@@ -196,6 +196,32 @@ def test_go_factory_falls_back_to_go_not_zen_when_the_base_url_is_empty() -> Non
     assert realm.realm_name == "opencode-go"
 
 
+@pytest.mark.asyncio
+async def test_a_directly_constructed_go_realm_defaults_to_go_not_zen() -> None:
+    """Direct construction must not silently bill a Go instance to Zen.
+
+    Before this, ``OpenCodeRealm.__init__`` defaulted ``base_url`` to the
+    Zen base, so a Go instance built without a base -- bypassing the Go
+    factory that passes it explicitly -- landed on Zen. The default is
+    now None, so the per-realm default below it wins: Go for a Go
+    instance, Zen for a Zen instance.
+    """
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return httpx.Response(200, content=_sse(*_turn_chunks()))
+
+    realm = OpenCodeRealm(
+        api_key="k", client=_client(handler), realm_name="opencode-go"
+    )
+    model = _go_model()
+    await _drain(realm, model, ChannelConfig(model=model))
+
+    assert len(seen) == 1
+    assert str(seen[0].url) == f"{GO_BASE_URL}/chat/completions"
+
+
 def test_zen_is_not_reported_as_a_router() -> None:
     """Zen fronts many vendors, but it does not expose a provider tier.
 

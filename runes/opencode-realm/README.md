@@ -111,9 +111,12 @@ the engine asks the registry whether it knows the `opencode` or
 - **Both `/inference/*` bases not live-verified.** The Zen base is
   `https://opencode.ai/inference/openai/v1` and the Go base is
   `https://opencode.ai/inference/go/v1`, from the current OpenCode
-  Inference API and Go docs. Both need a live paid-model test before
-  they are trusted. That test has not been run here: the sandbox is
-  blocked from opencode.ai, and no live call was attempted. In
+  Inference API and Go docs. Both need a live test before they are
+  trusted: a paid Zen model for Zen, or a free Go model (see Configure)
+  for Go. No clean live test has been run here: sandbox attempts were
+  either Cloudflare-blocked before upstream saw the request, or returned
+  "Invalid credential" through the vault surrogate, which does not
+  distinguish a surrogate failure from a stored-key problem. In
   particular, whether a Zen paid model is served from
   `/inference/openai/v1` against a Zen prepaid balance (as opposed to a
   Console key) is not settled by the docs cited here and needs that

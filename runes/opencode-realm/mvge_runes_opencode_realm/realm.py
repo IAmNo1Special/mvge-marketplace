@@ -225,9 +225,10 @@ class OpenCodeRealm(SSEStreamingRealm):
     """Channel model responses through an OpenCode gateway.
 
     A default instance is the Zen Realm. A Go instance is the same class
-    constructed with ``realm_name="opencode-go"`` and the Go base URL; its
-    default base is Go, never Zen, so a Go instance with no per-model base
-    URL and an empty Realm base still cannot silently land on Zen.
+    constructed with ``realm_name="opencode-go"``; its default base is Go,
+    never Zen, whether the base comes from the Go factory or from direct
+    construction with no base at all, so a Go instance with no per-model
+    base URL and an empty Realm base still cannot silently land on Zen.
     """
 
     realm_name: str = "opencode"
@@ -246,11 +247,16 @@ class OpenCodeRealm(SSEStreamingRealm):
     def __init__(
         self,
         api_key: str,
-        base_url: str = ZEN_BASE_URL,
+        base_url: str | None = None,
         client: httpx.AsyncClient | None = None,
         realm_name: str = "opencode",
         default_base_url: str | None = None,
     ) -> None:
+        # ``base_url`` defaults to None, not to the Zen base, on purpose:
+        # a Go instance constructed directly with no base must default to
+        # Go, and a Zen default here would win over the Go default below
+        # and silently bill a Go instance to Zen. An explicit base, or an
+        # empty base, still falls through to the per-realm default.
         self.realm_name = realm_name
         if default_base_url is None:
             default_base_url = (

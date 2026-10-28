@@ -80,6 +80,14 @@ CHAT_COMPLETIONS_PATH = "/chat/completions"
 #: without it; Docker sends it on Zen requests too.
 SESSION_HEADER = "x-opencode-session"
 
+#: User-Agent this Realm identifies itself with. The Go docs ask clients
+#: to identify themselves with their own user agent, such as
+#: ``my-coding-agent/1.0``, rather than a generic SDK or HTTP-library
+#: name -- without this, the request goes out as ``python-httpx``.
+#: No version is appended on purpose: the Rune version (0.1.0) is not
+#: the engine version, and hardcoding either would drift.
+USER_AGENT = "mvge"
+
 #: The prefix Mvge puts on a slug to say which Realm serves it.
 REALM_SLUG_PREFIX = "opencode/"
 
@@ -320,6 +328,11 @@ class OpenCodeRealm(SSEStreamingRealm):
             if config is not None:
                 session_id = str(config.meta_data.get("session_id") or "")
             headers[SESSION_HEADER] = session_id or self._session_id
+        # Same explicit-wins rule as the session header: a caller that
+        # set its own User-Agent keeps it, otherwise the client
+        # identifies itself as mvge rather than as python-httpx.
+        if not any(key.lower() == "user-agent" for key in headers):
+            headers["User-Agent"] = USER_AGENT
         return url, headers
 
     def _prepare_request(
@@ -452,6 +465,7 @@ __all__ = [
     "GO_REALM_SLUG_PREFIX",
     "REALM_SLUG_PREFIX",
     "SESSION_HEADER",
+    "USER_AGENT",
     "ZEN_BASE_URL",
     "OpenCodeRealm",
     "_invocations_to_messages",

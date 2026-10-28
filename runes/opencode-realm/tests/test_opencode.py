@@ -33,6 +33,7 @@ from mvge.runes.rune_api import RuneAPI
 from mvge.runes.types import SigilHook
 from mvge_runes_opencode_realm.realm import (
     GO_BASE_URL,
+    USER_AGENT,
     ZEN_BASE_URL,
     OpenCodeRealm,
     _invocations_to_messages,
@@ -350,6 +351,41 @@ async def test_explicit_model_header_wins_over_config_session_id() -> None:
     await _drain(realm, model, config)
 
     assert seen[0].headers["x-opencode-session"] == "explicit-1"
+
+
+@pytest.mark.asyncio
+async def test_request_identifies_itself_with_the_mvge_user_agent() -> None:
+    """The Go docs ask clients to identify themselves, not go out as a
+    generic SDK name. Without an explicit override, the request must
+    carry ``User-Agent: mvge`` instead of httpx's default.
+    """
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return httpx.Response(200, content=_sse(*_turn_chunks()))
+
+    realm = OpenCodeRealm(api_key="test-key", client=_client(handler))
+    await _drain(realm, _model(), ChannelConfig(model=_model()))
+
+    assert seen[0].headers["User-Agent"] == USER_AGENT
+    assert seen[0].headers["User-Agent"] == "mvge"
+
+
+@pytest.mark.asyncio
+async def test_explicit_user_agent_wins_over_the_mvge_default() -> None:
+    """A caller that set its own User-Agent must not be overridden."""
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return httpx.Response(200, content=_sse(*_turn_chunks()))
+
+    realm = OpenCodeRealm(api_key="test-key", client=_client(handler))
+    model = _model(headers={"User-Agent": "my-coding-agent/1.0"})
+    await _drain(realm, model, ChannelConfig(model=model))
+
+    assert seen[0].headers["User-Agent"] == "my-coding-agent/1.0"
 
 
 @pytest.mark.asyncio

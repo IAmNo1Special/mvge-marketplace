@@ -105,6 +105,12 @@ the engine asks the registry whether it knows the `opencode` or
   tome id, set by the harness turn closure and by compaction summaries),
   then a UUID generated once per realm instance. No `x-opencode-client`
   or other guessed header is sent.
+- Every request also identifies itself with `User-Agent: mvge`. The Go
+  docs ask clients to identify themselves with their own user agent
+  rather than a generic SDK or HTTP-library name; without this the
+  request would go out as `python-httpx`. An explicit User-Agent in a
+  model's headers wins over this default, and no version is appended
+  (the Rune version is not the engine version).
 
 ## Open limitations
 

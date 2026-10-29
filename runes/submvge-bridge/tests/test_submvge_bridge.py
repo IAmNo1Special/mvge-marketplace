@@ -386,6 +386,30 @@ async def test_manage_mvges_unknown_action_raises(
         )
 
 
+def test_get_manager_passes_runner_context_model_id(
+    mock_api: Any,
+) -> None:
+    """model='inherit' only works when the bridge hands the manager
+    the parent model: the runner context is where the agent's
+    resolved model (including a runtime --model override) lives."""
+    from types import SimpleNamespace
+    from unittest.mock import patch
+
+    from mvge.runes.types import RuneContext
+    from mvge_runes_submvge_bridge.rune import SubMvgeBridgeState
+
+    mock_api._runner = SimpleNamespace(
+        context=RuneContext(
+            cwd="/proj", agent_name="coding_mvge", model_id="pollinations/openai"
+        )
+    )
+    state = SubMvgeBridgeState(mock_api)
+    with patch("mvge.agent.sub_mvge.SubMvgeManager") as manager_cls:
+        manager = state.get_manager()
+    assert manager is manager_cls.return_value
+    assert manager_cls.call_args.kwargs["parent_model_id"] == "pollinations/openai"
+
+
 @pytest.mark.asyncio
 async def test_bridge_state_caches_manager_and_shutdown_kills_all(
     mock_api: Any, mock_sub_manager: MagicMock

@@ -64,6 +64,7 @@ class SubMvgeBridgeState:
                 self._manager = SubMvgeManager(
                     parent_workspace=workspace,
                     parent_agent_name=agent_name,
+                    parent_model_id=getattr(runner_ctx, "model_id", "") or None,
                     shared_runner=runner,
                     shared_realm_registry=registry,
                 )

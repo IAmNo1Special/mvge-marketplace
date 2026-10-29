@@ -29,13 +29,18 @@ def test_refresh_tags_skills_bridge_and_clears_first(tmp_path: Path) -> None:
     mock_api = MagicMock()
     mock_api._runner.skill_catalog = FakeCatalog()
     rune = SkillsBridgeRune(mock_api)
-    rune.refresh_skills(agent_name="test_agent", cwd=tmp_path)
+    # Explicit isolation: this suite also runs standalone, where the
+    # repository-root conftest never loads, so the user layer must not
+    # resolve to the developer's real home (which would load whatever
+    # skills happen to be installed there).
+    global_dir = tmp_path / "global"
+    rune.refresh_skills(agent_name="test_agent", cwd=tmp_path, global_dir=global_dir)
     assert cleared == ["skills-bridge"]
     assert [load.manifest.name for load in loaded] == ["tagged-skill"]
     assert all(load.source_rune == "skills-bridge" for load in loaded)
 
     # A second refresh must clear before re-adding, not duplicate.
-    rune.refresh_skills(agent_name="test_agent", cwd=tmp_path)
+    rune.refresh_skills(agent_name="test_agent", cwd=tmp_path, global_dir=global_dir)
     assert cleared == ["skills-bridge", "skills-bridge"]
 
 

@@ -230,6 +230,12 @@ def rune_factory(
                 "Spawn one or more sub-Mvges concurrently to perform focused "
                 "tasks with persistent subsessions, scoped spells, and reactive wakeup."
             ),
+            # A wait:true summon runs a whole child agent turn, which takes
+            # far longer than the dispatcher's 30s spell wall clock on any
+            # lane, let alone a slow keyless one. Opt out of that timeout:
+            # the child turn is bounded by its own max_turns and provider
+            # timeouts, and the parent turn's abort still cancels the cast.
+            timeout_ms=0,
             parameters={
                 "type": "object",
                 "properties": {

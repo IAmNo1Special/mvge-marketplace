@@ -180,6 +180,27 @@ async def test_commands_get_and_rename_the_session() -> None:
 
 
 @pytest.mark.asyncio
+async def test_rename_accepts_plain_string_argument() -> None:
+    """The REPL dispatcher passes command text as a plain string, not a dict."""
+    api = FakeAPI()
+    rune_module.rune_factory(api)
+    api.commands["session-rename"]("My New Title")
+    assert api.commands["session-name"]() == "My New Title"
+    assert api._runner.names == ["My New Title"]
+
+
+@pytest.mark.asyncio
+async def test_rename_with_empty_string_changes_nothing() -> None:
+    """Bare /session-rename must not touch the title."""
+    api = FakeAPI()
+    rune_module.rune_factory(api)
+    api.commands["session-rename"]({"title": "Kept Title"})
+    api.commands["session-rename"]("")
+    assert api.commands["session-name"]() == "Kept Title"
+    assert api._runner.names == ["Kept Title"]
+
+
+@pytest.mark.asyncio
 async def test_shutdown_cancels_a_pending_llm_task() -> None:
     """Shutdown must end a stuck background title task, not leak it."""
     _, rune = _make_rune()

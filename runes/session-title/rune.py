@@ -279,7 +279,13 @@ def rune_factory(api: RuneAPI) -> None:
     api.on(SigilHook.SESSION_SHUTDOWN, title_rune.on_session_shutdown)
 
     def rename_wrapper(data: Any = None) -> None:
-        name = _sigil_field(data, "title") or _sigil_field(data, "name")
+        if isinstance(data, str):
+            # The REPL dispatcher passes command text as a plain string.
+            # Reading it as dict/typed data would resolve str attributes
+            # instead (e.g. "title" -> the bound str.title method).
+            name = data
+        else:
+            name = _sigil_field(data, "title") or _sigil_field(data, "name")
         if name:
             title_rune.set_session_name(str(name))
 

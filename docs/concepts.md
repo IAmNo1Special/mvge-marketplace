@@ -153,6 +153,60 @@ and no module-scope `mvge_agent` in a Rune's runtime source.
 repository's own documents, so a claim that names a version cannot outlive the
 code.
 
+### A Rune that builds its own httpx client
+
+A Rune that builds its own httpx client — rather than using a client the
+engine built — is covered automatically when loaded through the engine,
+which sanitizes the proxy environment before the Rune's module executes
+and before its factory is called. On any path the engine never sees,
+the Rune must sanitize the proxy environment first, in its factory,
+before any client is built:
+
+```python
+import httpx
+
+
+def rune_factory(api):
+    api.sanitize_no_proxy_env()
+    client = httpx.AsyncClient()
+```
+
+The same helper is also exported from `mvge.core`, for code that does not
+have the factory's `api` object in scope:
+
+```python
+from mvge.core import sanitize_no_proxy_env
+
+sanitize_no_proxy_env()
+client = httpx.AsyncClient()
+```
+
+Why this is required: httpx reads `NO_PROXY` and `no_proxy` when a client
+is constructed, not when a request is sent. A bracketed IPv6 literal such
+as `[::1]` — a form sandboxes commonly export — breaks that parse:
+httpx reads the trailing `:1]` as a port and raises
+`httpx.InvalidURL` (for example, `Invalid port: ':1]'`), before any
+request happens. The engine sanitizes its own client-construction sites,
+and it sanitizes before a Rune's module executes and before its factory
+is called. Sanitizing after a client failed to build cannot repair it.
+
+The call must therefore come before the first `httpx.Client`,
+`httpx.AsyncClient`, or any helper that builds one, and a client must
+not be built at module scope ahead of the factory call — build it in
+the factory, after the call, or lazily on first use after the call.
+The helper remains necessary only for the paths the engine never sees:
+a Rune module imported directly bypassing the loader and runner, Rune
+code that re-dirties the environment with bracketed tokens after its
+factory returns and then builds a client from a background task or
+other non-factory path, and a Rune-spawned subprocess explicitly handed
+a bracketed env dict. A Rune on one of those paths that never calls the
+helper still fails when the environment carries bracketed entries.
+The call is safe to make unconditionally:
+it is idempotent and a no-op on a clean environment, it returns `True`
+only when it changed something, and it removes only bracketed tokens —
+plain hosts, CIDRs, and unbracketed IPv6 literals pass through
+untouched.
+
 ## Skill
 
 A **Skill** is a capability pack: a directory with `SKILL.md` — YAML frontmatter

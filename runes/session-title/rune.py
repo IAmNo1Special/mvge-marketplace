@@ -24,6 +24,12 @@ class TitleState:
     llm_pending: bool = False
     eligible_count: int = 0
     first_user_text: str | None = None
+    # True when the current title was adopted from a resumed session's
+    # persisted name. It is not a user pin: a deliberate rename still
+    # overwrites it (set_session_name clears it). While it holds, both
+    # title-generation paths stay silent so a resumed run can never
+    # overwrite the title it resumed with.
+    restored: bool = False
 
 
 def _normalize_title(text: str) -> str:
@@ -91,6 +97,8 @@ class SessionTitleRune:
         self._state.name = clean
         self._state.source = "user"
         self._state.user_pinned = True
+        # A deliberate rename supersedes any restored title.
+        self._state.restored = False
         self._state.revision += 1
         self._cancel_llm()
         self._runner.set_session_name(clean)
@@ -100,6 +108,18 @@ class SessionTitleRune:
 
     async def on_session_start(self, data: Any) -> None:
         self._state = TitleState()
+        existing = _sigil_field(data, "existing_session_name")
+        if not isinstance(existing, str):
+            return
+        clean = _truncate_bytes(_normalize_title(existing), TITLE_MAX_BYTES)
+        if not clean:
+            return
+        # Adopt, do not re-apply: the engine already owns this persisted
+        # name, so nothing is pushed back to the runner here. Deliberately
+        # not set_session_name: a restore must not mark the title pinned.
+        self._state.name = clean
+        self._state.source = "restored"
+        self._state.restored = True
 
     async def on_input(self, data: Any) -> None:
         content = _sigil_field(data, "content")
@@ -154,7 +174,11 @@ class SessionTitleRune:
 
     async def _maybe_generate_fallback(self) -> None:
         async with self._lock:
-            if self._state.fallback_done or self._state.user_pinned:
+            if (
+                self._state.fallback_done
+                or self._state.user_pinned
+                or self._state.restored
+            ):
                 return
             if not self._state.first_user_text:
                 return
@@ -174,7 +198,10 @@ class SessionTitleRune:
         self._state.llm_pending = False
 
     async def _maybe_schedule_llm(self) -> None:
-        if self._state.user_pinned or self._state.llm_pending:
+        # The fallback gate alone cannot stop the LLM path: later resumed
+        # prompts reach this scheduler directly, so the restore must gate
+        # it too, on every turn, not just the first.
+        if self._state.user_pinned or self._state.llm_pending or self._state.restored:
             return
         self._state.llm_pending = True
         self._task = asyncio.create_task(self._generate_llm_title())
@@ -252,7 +279,13 @@ def rune_factory(api: RuneAPI) -> None:
     api.on(SigilHook.SESSION_SHUTDOWN, title_rune.on_session_shutdown)
 
     def rename_wrapper(data: Any = None) -> None:
-        name = _sigil_field(data, "title") or _sigil_field(data, "name")
+        if isinstance(data, str):
+            # The REPL dispatcher passes command text as a plain string.
+            # Reading it as dict/typed data would resolve str attributes
+            # instead (e.g. "title" -> the bound str.title method).
+            name = data
+        else:
+            name = _sigil_field(data, "title") or _sigil_field(data, "name")
         if name:
             title_rune.set_session_name(str(name))
 

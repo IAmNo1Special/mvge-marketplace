@@ -180,6 +180,27 @@ async def test_commands_get_and_rename_the_session() -> None:
 
 
 @pytest.mark.asyncio
+async def test_rename_accepts_plain_string_argument() -> None:
+    """The REPL dispatcher passes command text as a plain string, not a dict."""
+    api = FakeAPI()
+    rune_module.rune_factory(api)
+    api.commands["session-rename"]("My New Title")
+    assert api.commands["session-name"]() == "My New Title"
+    assert api._runner.names == ["My New Title"]
+
+
+@pytest.mark.asyncio
+async def test_rename_with_empty_string_changes_nothing() -> None:
+    """Bare /session-rename must not touch the title."""
+    api = FakeAPI()
+    rune_module.rune_factory(api)
+    api.commands["session-rename"]({"title": "Kept Title"})
+    api.commands["session-rename"]("")
+    assert api.commands["session-name"]() == "Kept Title"
+    assert api._runner.names == ["Kept Title"]
+
+
+@pytest.mark.asyncio
 async def test_shutdown_cancels_a_pending_llm_task() -> None:
     """Shutdown must end a stuck background title task, not leak it."""
     _, rune = _make_rune()
@@ -225,6 +246,118 @@ async def test_llm_title_upgrades_the_fallback() -> None:
     assert rune.state.revision == 2
     fake_realm.call.assert_awaited_once()
     assert fake_realm.call.await_args.kwargs["max_tokens"] == 50
+    await rune.on_session_shutdown(None)
+
+
+class _TypedSessionStart:
+    """A typed SESSION_START payload, as the engine's dataclass will carry it."""
+
+    def __init__(self, existing_session_name: Any) -> None:
+        self.session_name = "tome-id"
+        self.existing_session_name = existing_session_name
+
+
+@pytest.mark.asyncio
+async def test_session_start_with_existing_title_adopts_it_from_dict() -> None:
+    """A resumed session adopts the persisted title instead of starting unnamed."""
+    api, rune = _make_rune()
+    await rune.on_input({"content": "fix the login bug"})
+    await rune.on_session_start({"existing_session_name": "  Old Persisted Title  "})
+    assert rune.state.name == "Old Persisted Title"
+    assert rune.state.source == "restored"
+    assert rune.state.user_pinned is False
+    assert rune.state.revision == 0
+    # Adoption is in-memory only: the engine already owns the persisted
+    # name, so the rune must not re-persist or overwrite it.
+    assert api._runner.names == ["fix the login bug"]
+    await rune.on_session_shutdown(None)
+
+
+@pytest.mark.asyncio
+async def test_session_start_with_existing_title_adopts_it_from_typed_data() -> None:
+    """The restore reads typed sigil data, not just raw dicts."""
+    api, rune = _make_rune()
+    await rune.on_session_start(_TypedSessionStart("Typed Persisted Title"))
+    assert rune.state.name == "Typed Persisted Title"
+    assert rune.state.source == "restored"
+    assert rune.state.user_pinned is False
+    assert api._runner.names == []
+    await rune.on_session_shutdown(None)
+
+
+@pytest.mark.asyncio
+async def test_no_fallback_after_restore() -> None:
+    """Resumed prompts never replace the restored title with a fallback."""
+    api, rune = _make_rune()
+    await rune.on_session_start({"existing_session_name": "Original Title"})
+    await rune.on_input({"content": "do something completely different now"})
+    await rune.on_input({"content": "and then another unrelated thing"})
+    assert rune.state.name == "Original Title"
+    assert rune.state.source == "restored"
+    assert api._runner.names == []
+    await rune.on_session_shutdown(None)
+
+
+@pytest.mark.asyncio
+async def test_no_llm_title_after_restore_on_later_turns() -> None:
+    """The LLM path must not re-break a resumed session on a later turn.
+
+    The second resumed prompt is the dangerous one: without a restore
+    guard it reaches the LLM scheduler even when the fallback is blocked.
+    """
+    _, rune = _make_rune()
+    await rune.on_session_start({"existing_session_name": "Original Title"})
+    rune._call_llm_for_title = AsyncMock()
+    await rune.on_input({"content": "first resumed prompt"})
+    await rune.on_input({"content": "second resumed prompt"})
+    await rune.on_input({"content": "third resumed prompt"})
+    await rune.on_turn_end({})
+    await _drain_llm(rune)
+    assert rune.state.name == "Original Title"
+    assert rune.state.source == "restored"
+    assert rune.state.llm_pending is False
+    assert rune._task is None
+    rune._call_llm_for_title.assert_not_awaited()
+    await rune.on_session_shutdown(None)
+
+
+@pytest.mark.asyncio
+async def test_rename_after_restore_still_overwrites() -> None:
+    """Restore is not a pin: a deliberate rename after restore wins."""
+    api, rune = _make_rune()
+    await rune.on_session_start({"existing_session_name": "Original Title"})
+    rune.set_session_name("Deliberate Rename")
+    assert rune.state.name == "Deliberate Rename"
+    assert rune.state.source == "user"
+    assert rune.state.user_pinned is True
+    assert api._runner.names == ["Deliberate Rename"]
+    await rune.on_input({"content": "something completely different"})
+    assert rune.state.name == "Deliberate Rename"
+    await rune.on_session_shutdown(None)
+
+
+@pytest.mark.asyncio
+async def test_session_start_without_existing_title_behaves_as_today() -> None:
+    """Absent or None existing title leaves fresh-session behavior unchanged."""
+    for payload in (None, {}, {"existing_session_name": None}):
+        api, rune = _make_rune()
+        await rune.on_session_start(payload)
+        assert rune.state.name is None
+        await rune.on_input({"content": "fix the login bug"})
+        assert rune.state.name == "fix the login bug"
+        assert rune.state.source == "fallback"
+        assert api._runner.names == ["fix the login bug"]
+        await rune.on_session_shutdown(None)
+
+
+@pytest.mark.asyncio
+async def test_session_start_with_blank_existing_title_behaves_as_today() -> None:
+    """A blank existing title is no title: fresh generation proceeds."""
+    _, rune = _make_rune()
+    await rune.on_session_start({"existing_session_name": "   "})
+    assert rune.state.name is None
+    await rune.on_input({"content": "fix the login bug"})
+    assert rune.state.name == "fix the login bug"
     await rune.on_session_shutdown(None)
 
 

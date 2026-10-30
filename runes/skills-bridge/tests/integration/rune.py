@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import MagicMock
 
 import pytest
@@ -86,6 +87,36 @@ async def test_skills_bridge_rune_lifecycle(
     # SESSION_SHUTDOWN
     await rune.on_session_shutdown()
     assert len(rune.active_skills) == 0
+
+
+@pytest.mark.asyncio
+async def test_skills_bridge_rehydrate_lifecycle(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A skill added after startup activates after rehydrate."""
+    monkeypatch.setenv("MVGE_GLOBAL_DIR", str(tmp_path / "global"))
+    mock_api = MagicMock()
+    mock_api.context.cwd = str(tmp_path)
+    mock_api.context.agent_name = "test_agent"
+
+    rune = SkillsBridgeRune(mock_api)
+    await rune.on_session_start()
+    assert rune.skills_map == {}
+
+    skill_dir = tmp_path / "global" / "skills" / "rehydrated-skill"
+    skill_dir.mkdir(parents=True)
+    (skill_dir / "SKILL.md").write_text(
+        "---\nname: rehydrated-skill\ndescription: Added mid-session\n---\nRehydrated body.",
+        encoding="utf-8",
+    )
+    await rune.rehydrate(SimpleNamespace(cwd=str(tmp_path), agent_name="test_agent"))
+    assert "rehydrated-skill" in rune.skills_map
+
+    res = await rune.handle_activate_skill(params={"name": "rehydrated-skill"})
+    assert '<skill_content name="rehydrated-skill">' in res["content"]
+    assert "Rehydrated body." in res["content"]
+    list_out = await rune.handle_slash_command("")
+    assert "rehydrated-skill" in list_out
 
 
 @pytest.mark.asyncio

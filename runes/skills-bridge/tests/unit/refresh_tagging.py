@@ -122,9 +122,14 @@ async def test_rehydrate_drops_removed_skill_and_reloads_changed_skill(
     assert set(rune.skills_map) == {"kept-skill", "gone-skill"}
     shutil.rmtree(gone_dir)
     _write_skill(kept_dir, "kept-skill", "Updated description")
+    (kept_dir / "SKILL.md").write_text(
+        "---\nname: kept-skill\ndescription: Updated description\n---\nUpdated body.",
+        encoding="utf-8",
+    )
     await rune.rehydrate(_payload(tmp_path))
     assert set(rune.skills_map) == {"kept-skill"}
     assert rune.skills_map["kept-skill"].description == "Updated description"
+    assert "Updated body." in rune.skills_map["kept-skill"].body
     assert [load.manifest.name for load in catalog.batches[-1]] == ["kept-skill"]
     assert catalog.cleared == ["skills-bridge", "skills-bridge"]
 

@@ -46,6 +46,14 @@ async def test_submvge_bridge_registers_spells(mock_api: Any) -> None:
 
 
 @pytest.mark.asyncio
+async def test_summon_mvge_opts_out_of_dispatcher_timeout(mock_api: Any) -> None:
+    """A wait:true summon runs a whole child turn, so it must not be cut
+    off by the dispatcher's wall-clock spell timeout on slow lanes."""
+    rune_factory(mock_api)
+    assert mock_api._registered["summon_mvge"].timeout_ms == 0
+
+
+@pytest.mark.asyncio
 async def test_summon_mvge_with_research_preset(
     mock_api: Any, mock_sub_manager: MagicMock
 ) -> None:

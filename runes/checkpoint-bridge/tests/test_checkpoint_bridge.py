@@ -434,3 +434,143 @@ async def test_checkpoint_command_registered(tmp_path: Path, mock_api: Any) -> N
     _bridge = rune_factory(mock_api, checkpoints_base_dir=tmp_path / "checkpoints")
     assert "checkpoint" in commands
     assert commands["checkpoint"]("hello") == "Checkpoint inspected: hello"
+
+
+# --- Bounded capture (sigil-timeout fix): failing tests first ---
+import mvge_runes_checkpoint_bridge.rune as bridge_module
+
+
+@pytest.mark.asyncio
+async def test_capture_skips_worktree_over_file_bound(
+    tmp_path: Path, monkeypatch: Any, mock_api: Any
+) -> None:
+    workspace, bridge = _make_workspace(tmp_path, tmp_path / "checkpoints", mock_api)
+    for i in range(5):
+        (workspace / f"f{i}.txt").write_text("x\n")
+    monkeypatch.setattr(bridge_module, "MAX_CAPTURE_FILES", 3)
+    sha = await bridge.capture("leaf-big", workspace=workspace)
+    assert sha == ""
+    assert not bridge._git_dir_for(workspace).exists()
+
+
+@pytest.mark.asyncio
+async def test_capture_skips_worktree_over_byte_bound(
+    tmp_path: Path, monkeypatch: Any, mock_api: Any
+) -> None:
+    workspace, bridge = _make_workspace(tmp_path, tmp_path / "checkpoints", mock_api)
+    (workspace / "big.bin").write_text("x" * 100)
+    monkeypatch.setattr(bridge_module, "MAX_CAPTURE_BYTES", 10)
+    sha = await bridge.capture("leaf-big", workspace=workspace)
+    assert sha == ""
+    assert not bridge._git_dir_for(workspace).exists()
+
+
+@pytest.mark.asyncio
+async def test_capture_guard_ignores_agents_and_git_dirs(
+    tmp_path: Path, monkeypatch: Any, mock_api: Any
+) -> None:
+    workspace, bridge = _make_workspace(tmp_path, tmp_path / "checkpoints", mock_api)
+    (workspace / "a.txt").write_text("v1\n")
+    agents_dir = workspace / ".agents"
+    agents_dir.mkdir()
+    for i in range(10):
+        (agents_dir / f"noise{i}.txt").write_text("noise\n")
+    monkeypatch.setattr(bridge_module, "MAX_CAPTURE_FILES", 3)
+    sha = await bridge.capture("leaf-1", workspace=workspace)
+    assert sha
+
+
+@pytest.mark.asyncio
+async def test_capture_resumes_after_worktree_shrinks(
+    tmp_path: Path, monkeypatch: Any, mock_api: Any
+) -> None:
+    workspace, bridge = _make_workspace(tmp_path, tmp_path / "checkpoints", mock_api)
+    for i in range(5):
+        (workspace / f"f{i}.txt").write_text("x\n")
+    monkeypatch.setattr(bridge_module, "MAX_CAPTURE_FILES", 3)
+    assert await bridge.capture("leaf-big", workspace=workspace) == ""
+    for i in range(2, 5):
+        (workspace / f"f{i}.txt").unlink()
+    monkeypatch.setattr(bridge_module, "MAX_CAPTURE_FILES", 3)
+    assert await bridge.capture("leaf-1", workspace=workspace)
+
+
+@pytest.mark.asyncio
+async def test_capture_guard_does_not_follow_symlinked_dirs(
+    tmp_path: Path, mock_api: Any
+) -> None:
+    workspace, bridge = _make_workspace(tmp_path, tmp_path / "checkpoints", mock_api)
+    (workspace / "a.txt").write_text("v1\n")
+    (workspace / "loop").symlink_to(workspace, target_is_directory=True)
+    sha = await asyncio.wait_for(
+        bridge.capture("leaf-1", workspace=workspace), timeout=30
+    )
+    assert sha
+
+
+class _FakeProc:
+    def __init__(self) -> None:
+        self.returncode: int | None = None
+        self.killed = False
+        self.waited = False
+
+    async def communicate(self, input: Any = None) -> tuple[bytes, bytes]:
+        await asyncio.sleep(30)
+        return b"", b""
+
+    def kill(self) -> None:
+        self.killed = True
+        self.returncode = -9
+
+    async def wait(self) -> int:
+        self.waited = True
+        return -9
+
+
+@pytest.mark.asyncio
+async def test_run_git_kills_subprocess_on_cancellation(
+    tmp_path: Path, monkeypatch: Any, mock_api: Any
+) -> None:
+    workspace, bridge = _make_workspace(tmp_path, tmp_path / "checkpoints", mock_api)
+    fake = _FakeProc()
+
+    async def fake_create(*args: Any, **kwargs: Any) -> _FakeProc:
+        return fake
+
+    monkeypatch.setattr(asyncio, "create_subprocess_exec", fake_create)
+    with pytest.raises(asyncio.TimeoutError):
+        await asyncio.wait_for(
+            bridge._run_git(bridge._git_dir_for(workspace), workspace, ["add", "-A"]),
+            timeout=0.2,
+        )
+    assert fake.killed
+    assert fake.waited
+
+
+@pytest.mark.asyncio
+async def test_capture_removes_temp_index_lock_on_cancellation(
+    tmp_path: Path, monkeypatch: Any, mock_api: Any
+) -> None:
+    workspace, bridge = _make_workspace(tmp_path, tmp_path / "checkpoints", mock_api)
+    (workspace / "a.txt").write_text("v1\n")
+    seen: dict[str, str] = {}
+
+    async def fake_run_git(
+        git_dir: Path,
+        ws: Path,
+        args: list[str],
+        env: dict[str, str] | None = None,
+        stdin_data: bytes | None = None,
+    ) -> tuple[int, str, str]:
+        if env and "GIT_INDEX_FILE" in env:
+            seen["index"] = env["GIT_INDEX_FILE"]
+            Path(env["GIT_INDEX_FILE"] + ".lock").write_text("")
+            raise asyncio.CancelledError()
+        return 0, "", ""
+
+    monkeypatch.setattr(bridge, "_run_git", fake_run_git)
+    with pytest.raises(asyncio.CancelledError):
+        await bridge.capture("leaf-1", workspace=workspace)
+    assert seen["index"]
+    assert not Path(seen["index"]).exists()
+    assert not Path(seen["index"] + ".lock").exists()

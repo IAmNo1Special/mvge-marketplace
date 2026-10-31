@@ -316,7 +316,7 @@ def rune_factory(
     api.register_spell(
         SpellDefinition(
             name="manage_mvges",
-            description="Inspect or terminate active sub-Mvges.",
+            description="Inspect tracked sub-Mvges or terminate them.",
             parameters={
                 "type": "object",
                 "properties": {

@@ -195,6 +195,33 @@ async def test_manage_mvges_actions(mock_api: Any, mock_sub_manager: MagicMock) 
     mock_sub_manager.kill_all.assert_awaited_once()
 
 
+@pytest.mark.asyncio
+async def test_manage_list_formats_terminated_record(
+    mock_api: Any, mock_sub_manager: MagicMock
+) -> None:
+    rune_factory(mock_api, manager_factory=lambda **kw: mock_sub_manager)
+    manage_spell = mock_api._registered["manage_mvges"]
+
+    rec = _record(
+        state=SubMvgeState.TERMINATED,
+        state_detail="Terminated",
+        error="Terminated",
+    )
+    mock_sub_manager.list_active.return_value = [rec]
+
+    ctx = SpellContext(spell_cast_id="cast-790")
+    list_res = await manage_spell.execute(
+        spell_cast_id="cast-790",
+        params={"action": "list"},
+        ctx=ctx,
+    )
+    assert list_res["action"] == "list"
+    assert len(list_res["subagents"]) == 1
+    assert list_res["subagents"][0]["status"] == "terminated"
+    assert list_res["subagents"][0]["state_detail"] == "Terminated"
+    mock_sub_manager.list_active.assert_called_once()
+
+
 def _record(
     sub_mvge_id: str = "sub-1",
     role: str = "worker",

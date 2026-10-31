@@ -164,6 +164,11 @@ class ActivateSpell(MvgeSpell):
         if spells:
             if hasattr(self._rune_api, "widen_global_allowlist"):
                 self._rune_api.widen_global_allowlist(spells)
+            # Stamp the idle clock: without this, the seeker's TURN_END
+            # eviction reads a freshly activated spell as idle since turn 0
+            # and removes it at the next turn end in sessions past 8 turns.
+            for s in spells:
+                self._ledger.last_active_turn[s] = self._ledger.current_turn
 
             discoverable = []
             if hasattr(self._rune_api, "get_discoverable_spells"):
@@ -266,6 +271,8 @@ class ActivateSpell(MvgeSpell):
 
         if connected_mcp_tools and hasattr(self._rune_api, "widen_global_allowlist"):
             self._rune_api.widen_global_allowlist(connected_mcp_tools)
+        for tool in connected_mcp_tools:
+            self._ledger.last_active_turn[tool] = self._ledger.current_turn
 
         return {
             "status": "ok",

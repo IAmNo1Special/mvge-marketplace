@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import subprocess
 from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock
@@ -744,4 +745,287 @@ def test_scan_worktree_gitignore_pattern_edges(tmp_path: Path) -> None:
     count, _bytes, over = bridge_module._scan_worktree(workspace)
     # Counted: .gitignore, axxb.txt, x.log, keep.txt, ab.md.
     assert count == 5
+    assert over is False
+
+
+# --- global excludes (core.excludesFile) in the pre-scan ---
+
+
+def _isolated_git_home(monkeypatch: Any, tmp_path: Path) -> Path:
+    """Point HOME/XDG at a scratch dir so git resolution is hermetic.
+
+    System config is skipped (GIT_CONFIG_NOSYSTEM) so the tests do not
+    depend on the machine's /etc/gitconfig; resolution itself is still
+    delegated to git, which handles the system scope identically.
+    """
+    home = tmp_path / "home"
+    home.mkdir(exist_ok=True)
+    (home / ".config").mkdir(exist_ok=True)
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(home / ".config"))
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")
+    for var in (
+        "GIT_CONFIG_GLOBAL",
+        "GIT_CONFIG_SYSTEM",
+        "GIT_CONFIG_COUNT",
+        "GIT_CONFIG_PARAMETERS",
+        "GIT_DIR",
+        "GIT_WORK_TREE",
+        "GIT_INDEX_FILE",
+        "GIT_COMMON_DIR",
+    ):
+        monkeypatch.delenv(var, raising=False)
+    return home
+
+
+def _set_global_excludes(home: Path, patterns: str) -> Path:
+    gfile = home / "globalignore"
+    gfile.write_text(patterns)
+    (home / ".gitconfig").write_text(f"[core]\n\texcludesFile = {gfile}\n")
+    return gfile
+
+
+def test_scan_worktree_respects_global_excludes_file(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    home = _isolated_git_home(monkeypatch, tmp_path)
+    _set_global_excludes(home, "*.glob\ngnoise/\n")
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    (workspace / "keep.txt").write_text("x\n")
+    (workspace / "a.glob").write_text("x\n")
+    gnoise = workspace / "gnoise"
+    gnoise.mkdir()
+    (gnoise / "out.txt").write_text("x\n")
+    count, _bytes, over = bridge_module._scan_worktree(workspace)
+    assert count == 1
+    assert over is False
+
+
+def test_scan_worktree_gitignore_negation_beats_global_exclusion(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    home = _isolated_git_home(monkeypatch, tmp_path)
+    _set_global_excludes(home, "*.dat\n")
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    (workspace / ".gitignore").write_text("!keep.dat\n")
+    (workspace / "keep.dat").write_text("x\n")
+    (workspace / "other.dat").write_text("x\n")
+    count, _bytes, over = bridge_module._scan_worktree(workspace)
+    # .gitignore + keep.dat; other.dat is globally excluded.
+    assert count == 2
+    assert over is False
+
+
+def test_scan_worktree_global_negation_loses_to_gitignore_exclusion(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    home = _isolated_git_home(monkeypatch, tmp_path)
+    _set_global_excludes(home, "!keep.log\n")
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    (workspace / ".gitignore").write_text("*.log\n")
+    (workspace / "keep.log").write_text("x\n")
+    (workspace / "plain.txt").write_text("x\n")
+    count, _bytes, over = bridge_module._scan_worktree(workspace)
+    # .gitignore + plain.txt; keep.log stays excluded by .gitignore.
+    assert count == 2
+    assert over is False
+
+
+def test_scan_worktree_shadow_info_exclude_and_global(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    # The shadow repo's own info/exclude (passed as git_dir) is consulted
+    # and outranks the global file; the workspace's .git/info/exclude is
+    # still never consulted (see the earlier test for that case).
+    home = _isolated_git_home(monkeypatch, tmp_path)
+    _set_global_excludes(home, "*.glob\n!keep.shx\n")
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    (workspace / "keep.txt").write_text("x\n")
+    (workspace / "a.glob").write_text("x\n")
+    (workspace / "keep.shx").write_text("x\n")
+    shadow = tmp_path / "shadow.git"
+    (shadow / "info").mkdir(parents=True)
+    (shadow / "info" / "exclude").write_text("*.shx\n")
+    count, _bytes, over = bridge_module._scan_worktree(workspace, git_dir=shadow)
+    # keep.txt only: a.glob via global, keep.shx via shadow info/exclude
+    # (which beats the global negation).
+    assert count == 1
+    assert over is False
+
+
+def test_scan_worktree_no_global_config_behaves_as_before(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    _isolated_git_home(monkeypatch, tmp_path)
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    (workspace / "keep.txt").write_text("x\n")
+    (workspace / "a.glob").write_text("x\n")
+    count, _bytes, over = bridge_module._scan_worktree(workspace)
+    assert count == 2
+    assert over is False
+
+
+def test_scan_worktree_missing_global_excludes_file_is_noop(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    home = _isolated_git_home(monkeypatch, tmp_path)
+    (home / ".gitconfig").write_text(
+        "[core]\n\texcludesFile = /nonexistent-dir-xyz/globalignore\n"
+    )
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    (workspace / "keep.txt").write_text("x\n")
+    count, _bytes, over = bridge_module._scan_worktree(workspace)
+    assert count == 1
+    assert over is False
+
+
+def test_scan_worktree_default_global_ignore_file_honored(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    # With core.excludesFile unset, git falls back to
+    # $XDG_CONFIG_HOME/git/ignore; the pre-scan must do the same.
+    home = _isolated_git_home(monkeypatch, tmp_path)
+    default_ignore = home / ".config" / "git" / "ignore"
+    default_ignore.parent.mkdir(parents=True, exist_ok=True)
+    default_ignore.write_text("*.defign\n")
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    (workspace / "keep.txt").write_text("x\n")
+    (workspace / "d.defign").write_text("x\n")
+    count, _bytes, over = bridge_module._scan_worktree(workspace)
+    assert count == 1
+    assert over is False
+
+
+def test_scan_worktree_globally_ignored_bytes_do_not_count(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    home = _isolated_git_home(monkeypatch, tmp_path)
+    _set_global_excludes(home, "*.bin\n")
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    (workspace / "big.bin").write_text("x" * 100)
+    (workspace / "small.txt").write_text("x\n")
+    monkeypatch.setattr(bridge_module, "MAX_CAPTURE_BYTES", 10)
+    _count, byte_count, over = bridge_module._scan_worktree(workspace)
+    assert byte_count <= 10
+    assert over is False
+
+
+def test_scan_worktree_workspace_repo_local_config_does_not_leak(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    # The workspace repo's own local core.excludesFile must NOT affect
+    # the scan: the shadow add reads the shadow repo's config, never
+    # the workspace repo's. A naive `git config --get` run in the
+    # workspace would leak it and undercount.
+    home = _isolated_git_home(monkeypatch, tmp_path)
+    leak_file = home / "leakignore"
+    leak_file.write_text("*.leak\n")
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    subprocess.run(["git", "init", "-q", str(workspace)], check=True)
+    subprocess.run(
+        ["git", "-C", str(workspace), "config", "core.excludesFile", str(leak_file)],
+        check=True,
+    )
+    (workspace / "keep.txt").write_text("x\n")
+    (workspace / "a.leak").write_text("x\n")
+    count, _bytes, over = bridge_module._scan_worktree(workspace)
+    assert count == 2
+    assert over is False
+
+
+@pytest.mark.asyncio
+async def test_capture_captures_despite_globally_excluded_over_bound(
+    tmp_path: Path, monkeypatch: Any, mock_api: Any
+) -> None:
+    home = _isolated_git_home(monkeypatch, tmp_path)
+    _set_global_excludes(home, "*.glog\ngnoise/\n")
+    workspace, bridge = _make_workspace(tmp_path, tmp_path / "checkpoints", mock_api)
+    for i in range(10):
+        (workspace / f"n{i}.glog").write_text("noise\n")
+    noise_dir = workspace / "gnoise"
+    noise_dir.mkdir()
+    for i in range(10):
+        (noise_dir / f"n{i}.txt").write_text("noise\n")
+    (workspace / "a.txt").write_text("v1\n")
+    (workspace / "b.txt").write_text("v1\n")
+    monkeypatch.setattr(bridge_module, "MAX_CAPTURE_FILES", 3)
+    count, _b, over = bridge_module._scan_worktree(workspace)
+    assert count == 2
+    assert over is False
+    sha = await bridge.capture("leaf-1", workspace=workspace)
+    assert sha
+    (workspace / "a.txt").write_text("v2\n")
+    diff_spell = mock_api._registered["checkpoint_diff"]
+    res = await diff_spell.execute(
+        spell_cast_id="cast-g1", params={}, ctx=_ctx(workspace)
+    )
+    assert "a.txt" in res["files"]
+    assert not any(name.endswith(".glog") for name in res["files"])
+    assert not any(name.startswith("gnoise/") for name in res["files"])
+
+
+def test_scan_worktree_empty_global_excludes_value_loads_nothing(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    # An explicitly empty core.excludesFile overrides the default file
+    # (verified against git) instead of falling back to it.
+    home = _isolated_git_home(monkeypatch, tmp_path)
+    (home / ".gitconfig").write_text("[core]\n\texcludesFile =\n")
+    default_ignore = home / ".config" / "git" / "ignore"
+    default_ignore.parent.mkdir(parents=True, exist_ok=True)
+    default_ignore.write_text("*.defign\n")
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    (workspace / "keep.txt").write_text("x\n")
+    (workspace / "d.defign").write_text("x\n")
+    count, _bytes, over = bridge_module._scan_worktree(workspace)
+    assert count == 2
+    assert over is False
+
+
+def test_scan_worktree_relative_global_excludes_resolves_against_workspace(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    # The shadow add runs with cwd=workspace, and git resolves a
+    # relative core.excludesFile against the work tree (verified).
+    home = _isolated_git_home(monkeypatch, tmp_path)
+    (home / ".gitconfig").write_text("[core]\n\texcludesFile = relignore\n")
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    (workspace / "relignore").write_text("*.rel\n")
+    (workspace / "keep.txt").write_text("x\n")
+    (workspace / "r.rel").write_text("x\n")
+    count, _bytes, over = bridge_module._scan_worktree(workspace)
+    # relignore itself + keep.txt; r.rel is excluded via the workspace file.
+    assert count == 2
+    assert over is False
+
+
+def test_scan_worktree_git_config_failure_falls_back_to_no_global_rules(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    # If asking git fails (missing binary, timeout), the scan must not
+    # crash and must not invent rules: it falls back to the old
+    # overcount behaviour, never an undercount.
+    _isolated_git_home(monkeypatch, tmp_path)
+
+    def _boom(*args: Any, **kwargs: Any) -> Any:
+        raise OSError("git unavailable")
+
+    monkeypatch.setattr(bridge_module.subprocess, "run", _boom)
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    (workspace / "keep.txt").write_text("x\n")
+    (workspace / "a.glob").write_text("x\n")
+    count, _bytes, over = bridge_module._scan_worktree(workspace)
+    assert count == 2
     assert over is False

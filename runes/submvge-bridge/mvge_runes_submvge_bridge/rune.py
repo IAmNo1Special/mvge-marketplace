@@ -89,6 +89,7 @@ def _format_record(rec: SubMvgeRecord) -> dict[str, Any]:
         "summary": rec.summary,
         "error": rec.error,
         "mana_used": rec.mana_used,
+        "effective_spells": rec.effective_spells,
     }
 
 

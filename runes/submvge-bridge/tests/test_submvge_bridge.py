@@ -489,3 +489,64 @@ async def test_submvge_dispose_kills_active_submvges(
         if _inspect.isawaitable(result):
             await result
     mock_sub_manager.kill_all.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_summon_result_carries_effective_spells(
+    mock_api: Any, mock_sub_manager: MagicMock
+) -> None:
+    """D1 test 8: the summon result reports the child's dispatch set."""
+    rune_factory(mock_api, manager_factory=lambda **kw: mock_sub_manager)
+    mock_sub_manager.summon.return_value = [_record(effective_spells=["bash"])]
+    summon_spell = mock_api._registered["summon_mvge"]
+    result = await summon_spell.execute(
+        spell_cast_id="cast-d1-1",
+        params={"subagents": [{"role": "worker", "prompt": "p"}]},
+        ctx=SpellContext(spell_cast_id="cast-d1-1"),
+    )
+    assert result["subagents"][0]["effective_spells"] == ["bash"]
+
+
+@pytest.mark.asyncio
+async def test_summon_empty_allowed_spells_reports_empty_effective(
+    mock_api: Any, mock_sub_manager: MagicMock
+) -> None:
+    """D1 test 8: an allowed_spells=[] child reports an explicit empty
+    effective_spells list, not a missing field."""
+    rune_factory(mock_api, manager_factory=lambda **kw: mock_sub_manager)
+    mock_sub_manager.summon.return_value = [_record(effective_spells=[])]
+    summon_spell = mock_api._registered["summon_mvge"]
+    result = await summon_spell.execute(
+        spell_cast_id="cast-d1-2",
+        params={"subagents": [{"role": "worker", "prompt": "p", "allowed_spells": []}]},
+        ctx=SpellContext(spell_cast_id="cast-d1-2"),
+    )
+    assert result["subagents"][0]["effective_spells"] == []
+
+
+@pytest.mark.asyncio
+async def test_summon_unknown_allowed_name_propagates_engine_error(
+    mock_api: Any, mock_sub_manager: MagicMock
+) -> None:
+    """D1 test 8: engine validation of allowed_spells propagates through
+    the bridge as the summon error; the bridge adds no validation of
+    its own and must not swallow the engine error."""
+    rune_factory(mock_api, manager_factory=lambda **kw: mock_sub_manager)
+    mock_sub_manager.summon.side_effect = ValueError(
+        "Unknown allowed spell(s): definitely_not_a_spell"
+    )
+    summon_spell = mock_api._registered["summon_mvge"]
+    with pytest.raises(ValueError, match="definitely_not_a_spell"):
+        await summon_spell.execute(
+            spell_cast_id="cast-d1-3",
+            params={
+                "subagents": [
+                    {
+                        "role": "worker",
+                        "prompt": "p",
+                        "allowed_spells": ["definitely_not_a_spell"],
+                    }
+                ]
+            },
+            ctx=SpellContext(spell_cast_id="cast-d1-3"),
+        )

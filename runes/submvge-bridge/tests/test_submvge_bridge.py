@@ -327,6 +327,42 @@ async def test_summon_workspace_worktree_and_wait_flag(
 
 
 @pytest.mark.asyncio
+async def test_summon_explicit_nulls_fall_back_to_defaults(
+    mock_api: Any, mock_sub_manager: MagicMock
+) -> None:
+    """Rerun 9 null-model bug: a gateway session may pass explicit nulls
+    for optional summon fields (the keyless Pollinations lane does this
+    routinely). A present-but-null model must mean 'inherit' — dict.get
+    returns None for a present null key, so a blind str() turns it into
+    the literal string 'None' and the child is built with model 'None'
+    ('API key not found for Realm None'). The same holds for role and
+    prompt: null must fall back to their defaults, not 'None'."""
+    rune_factory(mock_api, manager_factory=lambda **kw: mock_sub_manager)
+    mock_sub_manager.summon.return_value = []
+    summon_spell = mock_api._registered["summon_mvge"]
+    await summon_spell.execute(
+        spell_cast_id="cast-null-1",
+        params={
+            "subagents": [
+                {
+                    "role": None,
+                    "prompt": None,
+                    "model": None,
+                    "type_name": None,
+                }
+            ],
+            "wait": True,
+        },
+        ctx=SpellContext(spell_cast_id="cast-null-1"),
+    )
+    spec = mock_sub_manager.summon.call_args[0][0][0]
+    assert spec.model == "inherit"
+    assert spec.role == "worker"
+    assert spec.prompt == ""
+    assert spec.agent_name is None
+
+
+@pytest.mark.asyncio
 async def test_summon_empty_subagents(
     mock_api: Any, mock_sub_manager: MagicMock
 ) -> None:

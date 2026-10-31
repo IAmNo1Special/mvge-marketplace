@@ -120,10 +120,16 @@ def rune_factory(
         specs: list[SubMvgeSpec] = []
 
         for sub in sub_list:
-            role = str(sub.get("role", "worker"))
-            prompt = str(sub.get("prompt", ""))
+            # Explicit nulls must fall back to the schema defaults, not
+            # stringify to the literal "None": dict.get returns None for
+            # a present-but-null key, and the keyless Pollinations lane
+            # emits explicit nulls for optional fields routinely. A null
+            # model previously built the child with model "None"
+            # ("API key not found for Realm 'None'").
+            role = str(sub.get("role") or "worker")
+            prompt = str(sub.get("prompt") or "")
             agent_name = sub.get("type_name") or sub.get("agent_name")
-            model = str(sub.get("model", "inherit"))
+            model = str(sub.get("model") or "inherit")
             workspace: Literal["inherit", "worktree"] = (
                 "worktree" if sub.get("workspace") == "worktree" else "inherit"
             )

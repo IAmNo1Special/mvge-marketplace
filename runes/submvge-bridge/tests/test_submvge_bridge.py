@@ -363,6 +363,56 @@ async def test_summon_explicit_nulls_fall_back_to_defaults(
 
 
 @pytest.mark.asyncio
+async def test_summon_explicit_null_wait_falls_back_to_default(
+    mock_api: Any, mock_sub_manager: MagicMock
+) -> None:
+    """Rerun 10 follow-up 1 (wait:null gap): the schema default for wait
+    is True, and an explicit null must mean that default — same nullable
+    class as the rerun-9 null-model fix. The old code did
+    ``p.get("wait", wait)``, so a present-but-null wait reached the spec
+    as None, and the engine's ``if spec.wait:`` branch then treated it as
+    falsy — wait:null silently behaved as wait:false (background) instead
+    of the foreground default. The fix must use ``is not None``, never
+    ``or``: ``wait or True`` would wrongly convert a legitimate
+    wait:false into True."""
+    rune_factory(mock_api, manager_factory=lambda **kw: mock_sub_manager)
+    mock_sub_manager.summon.return_value = []
+    summon_spell = mock_api._registered["summon_mvge"]
+    await summon_spell.execute(
+        spell_cast_id="cast-wait-null",
+        params={
+            "subagents": [{"role": "worker", "prompt": "p"}],
+            "wait": None,
+        },
+        ctx=SpellContext(spell_cast_id="cast-wait-null"),
+    )
+    spec = mock_sub_manager.summon.call_args[0][0][0]
+    assert spec.wait is True
+
+
+@pytest.mark.asyncio
+async def test_summon_wait_false_survives_null_fix(
+    mock_api: Any, mock_sub_manager: MagicMock
+) -> None:
+    """Guard for the wait:null fix: False is falsy but legitimate, so an
+    ``or``-based fix would break it. wait:false must still reach the spec
+    as False (background child)."""
+    rune_factory(mock_api, manager_factory=lambda **kw: mock_sub_manager)
+    mock_sub_manager.summon.return_value = []
+    summon_spell = mock_api._registered["summon_mvge"]
+    await summon_spell.execute(
+        spell_cast_id="cast-wait-false",
+        params={
+            "subagents": [{"role": "worker", "prompt": "p"}],
+            "wait": False,
+        },
+        ctx=SpellContext(spell_cast_id="cast-wait-false"),
+    )
+    spec = mock_sub_manager.summon.call_args[0][0][0]
+    assert spec.wait is False
+
+
+@pytest.mark.asyncio
 async def test_summon_empty_subagents(
     mock_api: Any, mock_sub_manager: MagicMock
 ) -> None:

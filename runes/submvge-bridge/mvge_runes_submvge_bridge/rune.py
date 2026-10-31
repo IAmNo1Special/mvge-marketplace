@@ -116,7 +116,14 @@ def rune_factory(
             p.update(kwargs)
 
         sub_list = p.get("subagents") or subagents or []
-        wait_flag = p.get("wait", wait)
+        # Rerun 10 follow-up 1 (wait:null gap): an explicit null must fall
+        # back to the schema default (True), not reach the spec as None —
+        # the engine's ``if spec.wait:`` branch would treat None as falsy
+        # and silently run the child in the background. This MUST use
+        # ``is not None``, never ``or``: False is a legitimate value and
+        # ``wait or True`` would wrongly convert wait:false to True.
+        raw_wait = p.get("wait", wait)
+        wait_flag = True if raw_wait is None else raw_wait
         specs: list[SubMvgeSpec] = []
 
         for sub in sub_list:

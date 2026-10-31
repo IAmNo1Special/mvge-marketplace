@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import hashlib
 import json
 import logging
@@ -24,6 +25,61 @@ logger = logging.getLogger(__name__)
 
 MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024  # 2 MiB ceiling for untracked snapshot files
 
+# Bounds on a single capture scan. capture() snapshots the whole worktree
+# with a fresh temp index on every turn, so its cost is O(worktree), not
+# O(changes): a 20k-file tree costs ~1.2s of `git add`, a 300k-file tree
+# ~80s. The engine cancels sigil handlers after 15s, so an unbounded scan
+# can never succeed on a large tree -- it only burns the turn, leaks the
+# git subprocess (cancelling communicate() does not kill it), and leaves
+# index lock files behind. The pre-scan below fails fast instead: it
+# walks with early exit at the bound, so a huge tree costs a short walk,
+# not a timed-out scan. 50k files leaves wide margin under the 15s line
+# on the calibrated rate while covering ordinary projects.
+MAX_CAPTURE_FILES = 50_000
+MAX_CAPTURE_BYTES = 1024 * 1024 * 1024  # 1 GiB of worktree content
+
+# Directories the git scan itself excludes (the `:(exclude)` pathspecs
+# in capture/diff), mirrored here so the pre-scan counts what git counts.
+_EXCLUDED_DIR_NAMES = frozenset({".git", ".agents"})
+
+
+def _scan_worktree(workspace: Path) -> tuple[int, int, bool]:
+    """Count files/bytes under workspace, stopping early past the bound.
+
+    Returns (file_count, byte_count, over_bound). Symlinked directories
+    are counted as files, never descended into, so a symlink loop cannot
+    hang the scan. Unreadable entries are skipped. An unreadable or
+    missing workspace reports not-over-bound so the caller falls through
+    to the existing git-failure path instead of inventing a new one.
+    """
+    file_count = 0
+    byte_count = 0
+    stack: list[Path] = [workspace]
+    while stack:
+        current = stack.pop()
+        try:
+            with os.scandir(current) as entries:
+                children = list(entries)
+        except OSError:
+            continue
+        for entry in children:
+            try:
+                if entry.is_dir(follow_symlinks=False):
+                    if entry.name in _EXCLUDED_DIR_NAMES:
+                        continue
+                    stack.append(Path(entry.path))
+                    continue
+                file_count += 1
+                try:
+                    byte_count += entry.stat(follow_symlinks=False).st_size
+                except OSError:
+                    pass
+            except OSError:
+                continue
+            if file_count > MAX_CAPTURE_FILES or byte_count > MAX_CAPTURE_BYTES:
+                return file_count, byte_count, True
+    return file_count, byte_count, False
+
 
 class CheckpointBridge:
     """Manages bare shadow git repositories and snapshots per workspace."""
@@ -38,6 +94,10 @@ class CheckpointBridge:
         self._lock = asyncio.Lock()
         self._last_leaf_id: str | None = None
         self._last_workspace: Path | None = None
+        # Workspaces already warned about a skipped capture, so a huge
+        # tree logs one warning and then quiet debugs instead of a
+        # warning on every turn. Cleared when a capture succeeds again.
+        self._skip_warned: set[str] = set()
 
     def _get_base_dir(self) -> Path:
         if self._base_dir is not None:
@@ -79,10 +139,44 @@ class CheckpointBridge:
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
-        stdout_bytes, stderr_bytes = await proc.communicate(input=stdin_data)
+        stdout_bytes, stderr_bytes = await self._communicate(proc, stdin_data)
         stdout = stdout_bytes.decode("utf-8", errors="replace")
         stderr = stderr_bytes.decode("utf-8", errors="replace")
         return proc.returncode or 0, stdout, stderr
+
+    @staticmethod
+    async def _communicate(
+        proc: asyncio.subprocess.Process,
+        stdin_data: bytes | None = None,
+    ) -> tuple[bytes, bytes]:
+        """Await a subprocess, killing it if the await is cancelled.
+
+        Cancelling communicate() alone leaves the child running: a
+        timed-out capture kept hashing and writing objects long after
+        the engine moved on. Kill on cancellation so a timeout (or an
+        abort) ends the work, then re-raise.
+        """
+        try:
+            return await proc.communicate(input=stdin_data)
+        except asyncio.CancelledError:
+            if proc.returncode is None:
+                proc.kill()
+                with contextlib.suppress(asyncio.CancelledError):
+                    await proc.wait()
+            raise
+
+    @staticmethod
+    def _remove_temp_index(temp_index: Path) -> None:
+        """Remove a capture temp index and the lock git leaves behind.
+
+        git creates index.<uuid>.lock when the add starts and removes it
+        when the add finishes; a killed add leaves it. Temp indexes are
+        uuid-unique per capture, so the lock belongs to this capture
+        alone and is safe to remove here.
+        """
+        for candidate in (temp_index, Path(f"{temp_index}.lock")):
+            with contextlib.suppress(OSError):
+                candidate.unlink(missing_ok=True)
 
     async def _ensure_git_dir(self, git_dir: Path, workspace: Path) -> None:
         if git_dir.exists():
@@ -97,7 +191,7 @@ class CheckpointBridge:
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
-        await proc.communicate()
+        await self._communicate(proc)
 
         # Configure bare repo for safe cross-platform file tracking
         configs = [
@@ -144,6 +238,26 @@ class CheckpointBridge:
         self._last_leaf_id = leaf_id
         git_dir = self._git_dir_for(ws)
 
+        # Bound the work before creating anything: a scan that cannot
+        # finish inside the engine's sigil timeout must fail fast with a
+        # clear reason, not burn the turn and leak a git process. Skipping
+        # leaves the previous checkpoint (if any) in place; the hook
+        # caller already treats "" as "no new checkpoint".
+        file_count, byte_count, over_bound = _scan_worktree(ws)
+        if over_bound:
+            key = str(ws)
+            detail = (
+                f"worktree exceeds capture bound "
+                f"({file_count} files, {byte_count} bytes; limits "
+                f"{MAX_CAPTURE_FILES} files, {MAX_CAPTURE_BYTES} bytes)"
+            )
+            if key not in self._skip_warned:
+                self._skip_warned.add(key)
+                logger.warning("Skipping checkpoint capture for %s: %s", ws, detail)
+            else:
+                logger.debug("Skipping checkpoint capture for %s: %s", ws, detail)
+            return ""
+
         async with self._lock:
             await self._ensure_git_dir(git_dir, ws)
 
@@ -174,13 +288,10 @@ class CheckpointBridge:
                 checkpoints[leaf_id] = tree_sha
                 checkpoints["latest"] = tree_sha
                 self._save_checkpoints(git_dir, checkpoints)
+                self._skip_warned.discard(str(ws))
                 return tree_sha
             finally:
-                if temp_index.exists():
-                    try:
-                        temp_index.unlink()
-                    except OSError:
-                        pass
+                self._remove_temp_index(temp_index)
 
     async def diff(
         self,
@@ -247,11 +358,7 @@ class CheckpointBridge:
                 ]
                 return diff_text, files
             finally:
-                if temp_index.exists():
-                    try:
-                        temp_index.unlink()
-                    except OSError:
-                        pass
+                self._remove_temp_index(temp_index)
 
     async def restore_file(
         self,
@@ -288,11 +395,7 @@ class CheckpointBridge:
                 )
                 return code == 0
             finally:
-                if temp_index.exists():
-                    try:
-                        temp_index.unlink()
-                    except OSError:
-                        pass
+                self._remove_temp_index(temp_index)
 
     async def on_session_leaf_changed(
         self,
@@ -351,11 +454,7 @@ class CheckpointBridge:
                 checkpoints["latest"] = target_tree
                 self._save_checkpoints(git_dir, checkpoints)
             finally:
-                if temp_index.exists():
-                    try:
-                        temp_index.unlink()
-                    except OSError:
-                        pass
+                self._remove_temp_index(temp_index)
 
 
 def rune_factory(

@@ -482,3 +482,12 @@ def test_profiles_reference_valid_artifacts() -> None:
             assert rune_name in runes_dict, (
                 f"Profile {profile_name} references unknown rune {rune_name}"
             )
+
+
+def test_coding_profile_includes_codeact() -> None:
+    """Fresh (coding-profile) users get execute_python via codeact-rune."""
+    index = load_index()
+    coding = index["profiles"]["coding"]
+    assert "codeact-rune" in coding["runes"]
+    autonomous = index["profiles"]["autonomous"]
+    assert set(coding["runes"]).issubset(set(autonomous["runes"]))

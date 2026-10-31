@@ -554,7 +554,8 @@
         "session-title",
         "lsp-bridge",
         "checkpoint-bridge",
-        "submvge-bridge"
+        "submvge-bridge",
+        "codeact-rune"
       ]
     },
     "autonomous": {

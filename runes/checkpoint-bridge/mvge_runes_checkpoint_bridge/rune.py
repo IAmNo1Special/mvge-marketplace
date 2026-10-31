@@ -8,6 +8,7 @@ import hashlib
 import json
 import logging
 import os
+import re
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -43,6 +44,146 @@ MAX_CAPTURE_BYTES = 1024 * 1024 * 1024  # 1 GiB of worktree content
 _EXCLUDED_DIR_NAMES = frozenset({".git", ".agents"})
 
 
+def _translate_gitignore_pattern(pattern: str) -> str:
+    """Translate one gitignore glob to a regex body (no anchors).
+
+    Git wildmatch, not fnmatch: ``*`` and ``?`` never cross ``/``,
+    ``**`` does. Character classes keep git's ``!`` negation spelling.
+    """
+    out: list[str] = []
+    i = 0
+    n = len(pattern)
+    while i < n:
+        ch = pattern[i]
+        if ch == "*":
+            if pattern[i : i + 2] == "**":
+                if i + 2 >= n:
+                    out.append(".*")
+                    i += 2
+                    continue
+                if pattern[i + 2] == "/":
+                    # Leading or middle "**/": zero or more directories.
+                    out.append("(?:.*/)?")
+                    i += 3
+                    continue
+                # "**" not followed by "/": treat as "*".
+                out.append("[^/]*")
+                i += 2
+                continue
+            out.append("[^/]*")
+            i += 1
+            continue
+        if ch == "?":
+            out.append("[^/]")
+            i += 1
+            continue
+        if ch == "[":
+            j = i + 1
+            if j < n and pattern[j] in "!^":
+                j += 1
+            if j < n and pattern[j] == "]":
+                j += 1
+            while j < n and pattern[j] != "]":
+                j += 1
+            if j >= n:
+                out.append(r"\[")
+                i += 1
+                continue
+            stuff = pattern[i + 1 : j]
+            if stuff.startswith("!"):
+                stuff = "^" + stuff[1:]
+            stuff = stuff.replace("\\", "\\\\")
+            out.append(f"[{stuff}]")
+            i = j + 1
+            continue
+        if ch == "\\" and i + 1 < n:
+            out.append(re.escape(pattern[i + 1]))
+            i += 2
+            continue
+        out.append(re.escape(ch))
+        i += 1
+    return "".join(out)
+
+
+class _GitignoreRule:
+    """One parsed gitignore line, bound to the directory holding its file."""
+
+    __slots__ = ("anchored", "base", "dir_only", "negated", "regex")
+
+    def __init__(self, base: str, raw: str) -> None:
+        pattern = raw
+        self.negated = False
+        if pattern.startswith("!"):
+            self.negated = True
+            pattern = pattern[1:]
+        elif pattern.startswith(("\\!", "\\#")):
+            pattern = pattern[1:]
+        # Trailing spaces are stripped unless backslash-escaped.
+        pattern = re.sub(r"(?<!\\) +$", "", pattern)
+        self.dir_only = pattern.endswith("/")
+        if self.dir_only:
+            pattern = pattern[:-1]
+        self.base = base
+        # A pattern containing "/" (other than a trailing one, already
+        # stripped) is anchored to its base directory; otherwise it
+        # matches the basename at any depth below the base.
+        self.anchored = "/" in pattern
+        if pattern.startswith("/"):
+            pattern = pattern[1:]
+            self.anchored = True
+        body = _translate_gitignore_pattern(pattern)
+        if self.anchored:
+            self.regex = re.compile(f"^{body}$")
+        else:
+            self.regex = re.compile(f"^{body}$")
+
+    def matches(self, rel: str, is_dir: bool) -> bool:
+        """Whether this rule matches rel path (posix, relative to base)."""
+        if self.dir_only and not is_dir:
+            return False
+        if self.anchored:
+            return self.regex.match(rel) is not None
+        # Unanchored: match the basename only.
+        name = rel.rsplit("/", 1)[-1]
+        return self.regex.match(name) is not None
+
+
+def _parse_gitignore_file(path: Path, base: str) -> list[_GitignoreRule]:
+    """Parse a .gitignore / exclude file into rules, ignoring bad lines."""
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return []
+    rules: list[_GitignoreRule] = []
+    for raw_line in text.splitlines():
+        line = raw_line.rstrip("\r")
+        if not line or line.startswith("#"):
+            continue
+        rules.append(_GitignoreRule(base, line))
+    return rules
+
+
+def _is_ignored(rel_posix: str, is_dir: bool, rules: list[_GitignoreRule]) -> bool:
+    """Last-match-wins across rules, deepest file first.
+
+    Rules are stored base-first (info/exclude, then root .gitignore, then
+    deeper files, lines in order), so iterating in reverse gives the
+    highest-precedence rule first. A rule matches only paths below its
+    own base directory.
+    """
+    for rule in reversed(rules):
+        base = rule.base
+        if base:
+            if rel_posix != base and not rel_posix.startswith(base + "/"):
+                continue
+            rel = rel_posix[len(base) + 1 :]
+        else:
+            rel = rel_posix
+        if rule.matches(rel, is_dir):
+            return not rule.negated
+    return False
+
+
 def _scan_worktree(workspace: Path) -> tuple[int, int, bool]:
     """Count files/bytes under workspace, stopping early past the bound.
 
@@ -51,23 +192,64 @@ def _scan_worktree(workspace: Path) -> tuple[int, int, bool]:
     hang the scan. Unreadable entries are skipped. An unreadable or
     missing workspace reports not-over-bound so the caller falls through
     to the existing git-failure path instead of inventing a new one.
+
+    Gitignore-aware, mirroring what the shadow ``git add -A`` in
+    capture() will actually stage: .gitignore files at every depth
+    (deeper files override shallower ones, later lines override earlier
+    ones, ``!`` re-includes). Ignored directories are pruned, never
+    descended into -- git likewise cannot re-include a file under an
+    excluded directory, so pruning cannot hide a file git would stage.
+    The pre-scan counts what git counts: before this fix it counted
+    ignored files too, so a tree of ignored build output could trip the
+    bound and skip a capture git itself would have finished cheaply.
+    Deliberately NOT consulted, because the shadow add does not consult
+    them either (verified against git directly): the workspace's
+    ``.git/info/exclude`` (git reads ``$GIT_DIR/info/exclude`` of the
+    shadow repo, which is empty) and the workspace repo's tracking
+    status -- the shadow index is fresh on every capture, so a file
+    tracked in the workspace's own repo but matching .gitignore is still
+    left out of the shadow tree, which is exactly what this matcher
+    reproduces. Global excludes (core.excludesFile) are likewise not
+    consulted; that can only overcount, never stage a file the pre-scan
+    promised to skip.
     """
     file_count = 0
     byte_count = 0
-    stack: list[Path] = [workspace]
+    # No base rules: the shadow git add reads $GIT_DIR/info/exclude of
+    # the (empty) shadow repo, never the workspace's .git/info/exclude,
+    # so loading the workspace's exclude file would undercount.
+    base_rules: list[
+        _GitignoreRule
+    ] = []  # Stack entries: (directory, rules from ancestors, dir rel posix path).
+    # Rel paths are tracked lexically, never resolved, so symlinked
+    # entries are matched by their worktree path, as git matches them.
+    stack: list[tuple[Path, list[_GitignoreRule], str]] = [(workspace, base_rules, "")]
     while stack:
-        current = stack.pop()
+        current, parent_rules, rel_dir = stack.pop()
         try:
             with os.scandir(current) as entries:
                 children = list(entries)
         except OSError:
             continue
+        # This directory's own .gitignore applies to its children, not
+        # to itself, so it is loaded here -- after the decision to
+        # descend into this directory was already made by the parent.
+        rules = list(parent_rules)
+        for entry in children:
+            if entry.name == ".gitignore" and entry.is_file():
+                rules.extend(_parse_gitignore_file(Path(entry.path), rel_dir))
+                break
         for entry in children:
             try:
+                rel_posix = f"{rel_dir}/{entry.name}" if rel_dir else entry.name
                 if entry.is_dir(follow_symlinks=False):
                     if entry.name in _EXCLUDED_DIR_NAMES:
                         continue
-                    stack.append(Path(entry.path))
+                    if _is_ignored(rel_posix, True, rules):
+                        continue
+                    stack.append((Path(entry.path), rules, rel_posix))
+                    continue
+                if _is_ignored(rel_posix, False, rules):
                     continue
                 file_count += 1
                 try:

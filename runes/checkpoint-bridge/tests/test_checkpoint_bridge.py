@@ -574,3 +574,174 @@ async def test_capture_removes_temp_index_lock_on_cancellation(
     assert seen["index"]
     assert not Path(seen["index"]).exists()
     assert not Path(seen["index"] + ".lock").exists()
+
+
+# --- gitignore-respecting pre-scan (follow-up item 2): failing tests first ---
+
+
+def test_scan_worktree_respects_gitignore(tmp_path: Path) -> None:
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    (workspace / ".gitignore").write_text("*.log\nbuild/\n")
+    (workspace / "keep.txt").write_text("x\n")
+    (workspace / "debug.log").write_text("x\n")
+    build_dir = workspace / "build"
+    build_dir.mkdir()
+    (build_dir / "out.o").write_text("x\n")
+    count, _bytes, over = bridge_module._scan_worktree(workspace)
+    # .gitignore itself + keep.txt are counted; ignored files are not.
+    assert count == 2
+    assert over is False
+
+
+def test_scan_worktree_respects_nested_gitignore_and_negation(
+    tmp_path: Path,
+) -> None:
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    sub = workspace / "sub"
+    sub.mkdir()
+    (sub / ".gitignore").write_text("*.tmp\n!keep.tmp\n")
+    (sub / "a.tmp").write_text("x\n")
+    (sub / "keep.tmp").write_text("x\n")
+    (sub / "b.txt").write_text("x\n")
+    (workspace / "top.tmp").write_text("x\n")
+    count, _bytes, over = bridge_module._scan_worktree(workspace)
+    # sub/.gitignore + keep.tmp + b.txt + top.tmp (root has no rule for *.tmp)
+    assert count == 4
+    assert over is False
+
+
+def test_scan_worktree_anchored_pattern_only_matches_root(tmp_path: Path) -> None:
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    (workspace / ".gitignore").write_text("/dist\n")
+    root_dist = workspace / "dist"
+    root_dist.mkdir()
+    (root_dist / "a.txt").write_text("x\n")
+    sub_dist = workspace / "sub" / "dist"
+    sub_dist.mkdir(parents=True)
+    (sub_dist / "b.txt").write_text("x\n")
+    count, _bytes, over = bridge_module._scan_worktree(workspace)
+    # .gitignore + sub/dist/b.txt; root dist/ is ignored.
+    assert count == 2
+    assert over is False
+
+
+def test_scan_worktree_does_not_consult_workspace_git_info_exclude(
+    tmp_path: Path,
+) -> None:
+    # Shadow `git add` reads $GIT_DIR/info/exclude of the shadow repo,
+    # never the workspace's .git/info/exclude (verified against git):
+    # the pre-scan must count what the shadow add stages, so a *.bak
+    # listed only in the workspace's exclude file still counts here.
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    exclude = workspace / ".git" / "info"
+    exclude.mkdir(parents=True)
+    (exclude / "exclude").write_text("*.bak\n")
+    (workspace / "keep.txt").write_text("x\n")
+    (workspace / "old.bak").write_text("x\n")
+    count, _bytes, over = bridge_module._scan_worktree(workspace)
+    # .git itself is excluded from counting; keep.txt + old.bak count.
+    assert count == 2
+    assert over is False
+
+
+def test_scan_worktree_ignored_bytes_do_not_count_toward_byte_bound(
+    tmp_path: Path, monkeypatch: Any
+) -> None:
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    (workspace / ".gitignore").write_text("*.bin\n")
+    (workspace / "big.bin").write_text("x" * 100)
+    (workspace / "small.txt").write_text("x\n")
+    monkeypatch.setattr(bridge_module, "MAX_CAPTURE_BYTES", 10)
+    _count, byte_count, over = bridge_module._scan_worktree(workspace)
+    assert byte_count <= 10
+    assert over is False
+
+
+@pytest.mark.asyncio
+async def test_capture_captures_tracked_despite_ignored_over_bound(
+    tmp_path: Path, monkeypatch: Any, mock_api: Any
+) -> None:
+    workspace, bridge = _make_workspace(tmp_path, tmp_path / "checkpoints", mock_api)
+    (workspace / ".gitignore").write_text("*.log\nnoise/\n")
+    for i in range(10):
+        (workspace / f"n{i}.log").write_text("noise\n")
+    noise_dir = workspace / "noise"
+    noise_dir.mkdir()
+    for i in range(10):
+        (noise_dir / f"n{i}.txt").write_text("noise\n")
+    (workspace / "a.txt").write_text("v1\n")
+    (workspace / "b.txt").write_text("v1\n")
+    monkeypatch.setattr(bridge_module, "MAX_CAPTURE_FILES", 3)
+    sha = await bridge.capture("leaf-1", workspace=workspace)
+    assert sha
+    (workspace / "a.txt").write_text("v2\n")
+    diff_spell = mock_api._registered["checkpoint_diff"]
+    res = await diff_spell.execute(
+        spell_cast_id="cast-gi1", params={}, ctx=_ctx(workspace)
+    )
+    assert "a.txt" in res["files"]
+    assert not any(name.endswith(".log") for name in res["files"])
+    assert not any(name.startswith("noise/") for name in res["files"])
+
+
+@pytest.mark.asyncio
+async def test_capture_still_skips_when_tracked_files_over_bound(
+    tmp_path: Path, monkeypatch: Any, mock_api: Any
+) -> None:
+    workspace, bridge = _make_workspace(tmp_path, tmp_path / "checkpoints", mock_api)
+    (workspace / ".gitignore").write_text("*.log\n")
+    for i in range(5):
+        (workspace / f"t{i}.txt").write_text("x\n")
+    (workspace / "ignored.log").write_text("x\n")
+    monkeypatch.setattr(bridge_module, "MAX_CAPTURE_FILES", 3)
+    sha = await bridge.capture("leaf-big", workspace=workspace)
+    assert sha == ""
+    assert not bridge._git_dir_for(workspace).exists()
+
+
+def test_scan_worktree_gitignore_pattern_edges(tmp_path: Path) -> None:
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    (workspace / ".gitignore").write_text(
+        "# a comment\n"
+        "\n"
+        "foo/**\n"
+        "a**b\n"
+        "[abc\n"
+        "\\#hash.txt\n"
+        "\\!bang.txt\n"
+        "[!x].log\n"
+        "**/cache\n"
+        "?.md\n"
+        "my\\ file.txt\n"
+    )
+    foo = workspace / "foo"
+    foo.mkdir()
+    (foo / "bar.txt").write_text("x\n")
+    (foo / "deep").mkdir()
+    (foo / "deep" / "baz.txt").write_text("x\n")
+    (workspace / "axxb").write_text("x\n")
+    (workspace / "axxb.txt").write_text("x\n")
+    (workspace / "[abc").write_text("x\n")
+    (workspace / "#hash.txt").write_text("x\n")
+    (workspace / "!bang.txt").write_text("x\n")
+    (workspace / "y.log").write_text("x\n")
+    (workspace / "x.log").write_text("x\n")
+    (workspace / "keep.txt").write_text("x\n")
+    (workspace / "cache").mkdir()
+    (workspace / "cache" / "g.txt").write_text("x\n")
+    deep_cache = workspace / "deep" / "cache"
+    deep_cache.mkdir(parents=True)
+    (deep_cache / "h.txt").write_text("x\n")
+    (workspace / "a.md").write_text("x\n")
+    (workspace / "ab.md").write_text("x\n")
+    (workspace / "my file.txt").write_text("x\n")
+    count, _bytes, over = bridge_module._scan_worktree(workspace)
+    # Counted: .gitignore, axxb.txt, x.log, keep.txt, ab.md.
+    assert count == 5
+    assert over is False

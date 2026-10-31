@@ -16,6 +16,15 @@ from mvge_runes_seeker.spell import SearchSpell, ToolSearchSpell
 from mvge_runes_seeker.unload_spell import UnloadSpell
 
 
+def _sigil_field(data: Any, name: str) -> Any:
+    """Read a field from typed sigil data or a raw dict."""
+    if data is None:
+        return None
+    if isinstance(data, dict):
+        return data.get(name)
+    return getattr(data, name, None)
+
+
 def rune_factory(api: RuneAPI) -> None:
     provider_registry = RealmRegistry()
     runner = api._runner
@@ -111,7 +120,7 @@ def rune_factory(api: RuneAPI) -> None:
     api.register_spell(mcp_search)
 
     # Clean up connections on session shutdown
-    async def close_mcp_connections(data: dict[str, Any]) -> None:
+    async def close_mcp_connections(data: Any) -> None:
         for conn in list(connections.values()):
             if hasattr(conn, "close"):
                 await conn.close()
@@ -124,15 +133,15 @@ def rune_factory(api: RuneAPI) -> None:
     api.on(SigilHook.SESSION_SHUTDOWN, close_mcp_connections)
 
     # Track last active turn of used spells
-    async def on_after_spell_result(data: dict[str, Any]) -> None:
-        spell_name = data.get("spell_name")
+    async def on_after_spell_result(data: Any) -> None:
+        spell_name = _sigil_field(data, "spell_name")
         if spell_name:
             ledger.last_active_turn[spell_name] = ledger.current_turn
 
     api.on(SigilHook.AFTER_SPELL_RESULT, on_after_spell_result)
 
     # Idle TTL Eviction on TURN_END
-    async def on_turn_end(data: dict[str, Any]) -> None:
+    async def on_turn_end(data: Any) -> None:
         ledger.current_turn += 1
         idle_turn_ttl = 8
         allowlist = api.get_global_spell_allowlist()
@@ -177,7 +186,7 @@ def rune_factory(api: RuneAPI) -> None:
         "mcp_search",
     ]
 
-    def activate_seeker_meta_tools(_data: dict[str, Any]) -> None:
+    def activate_seeker_meta_tools(_data: Any) -> None:
         api.set_active_spells(meta_spells)
 
     api.on(SigilHook.SESSION_START, activate_seeker_meta_tools)

@@ -9,6 +9,8 @@ import json
 import logging
 import os
 import re
+import subprocess
+import tempfile
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -166,8 +168,9 @@ def _parse_gitignore_file(path: Path, base: str) -> list[_GitignoreRule]:
 def _is_ignored(rel_posix: str, is_dir: bool, rules: list[_GitignoreRule]) -> bool:
     """Last-match-wins across rules, deepest file first.
 
-    Rules are stored base-first (info/exclude, then root .gitignore, then
-    deeper files, lines in order), so iterating in reverse gives the
+    Rules are stored lowest-precedence first (global excludes, then
+    shadow info/exclude, then root .gitignore, then deeper files,
+    lines in order), so iterating in reverse gives the
     highest-precedence rule first. A rule matches only paths below its
     own base directory.
     """
@@ -184,7 +187,84 @@ def _is_ignored(rel_posix: str, is_dir: bool, rules: list[_GitignoreRule]) -> bo
     return False
 
 
-def _scan_worktree(workspace: Path) -> tuple[int, int, bool]:
+def _default_global_ignore_file() -> Path:
+    """Git's fallback global excludes file when core.excludesFile is unset."""
+    xdg = os.environ.get("XDG_CONFIG_HOME")
+    if xdg:
+        return Path(xdg) / "git" / "ignore"
+    return Path.home() / ".config" / "git" / "ignore"
+
+
+def _resolve_global_excludes_file(workspace: Path, git_dir: Path | None) -> Path | None:
+    """Resolve the global excludes file the shadow ``git add`` would read.
+
+    Git itself is asked, so system/global/local precedence, ``include``
+    directives, quoting, and environment overrides (GIT_CONFIG_COUNT,
+    GIT_CONFIG_GLOBAL, ...) all match the shadow add exactly -- the
+    resolver never re-implements git-config parsing. Two scopes are
+    deliberately kept out, because the shadow add never sees them:
+
+    - the workspace repo's local config: when no valid shadow repo
+      exists yet, git is run with cwd in a scratch directory, so no
+      workspace-local value can leak in;
+    - a workspace repo's ``core.excludesFile`` is likewise never read
+      once the shadow repo exists, because ``--git-dir`` points at the
+      shadow repo, whose config capture() itself writes (and never
+      sets excludesFile in).
+
+    Return value: the excludes-file path, or None when git reports no
+    global excludes at all. An explicitly empty core.excludesFile
+    overrides the default file and loads nothing (verified against
+    git), so it also yields None. An unexpected git failure yields
+    None too: the old overcount behaviour, never an undercount.
+    A relative value resolves against the workspace: the shadow add
+    runs with cwd=workspace, and that is how git resolves it
+    (verified: a relative value is honoured only when the file sits
+    under the work tree).
+    """
+    tmp: tempfile.TemporaryDirectory[str] | None = None
+    if git_dir is not None and (git_dir / "config").is_file():
+        cmd = ["git", "--git-dir", str(git_dir), "config", "--get", "core.excludesFile"]
+        cwd: str | None = None
+    else:
+        tmp = tempfile.TemporaryDirectory(prefix="mvge-git-config-")
+        cwd = tmp.name
+        cmd = ["git", "config", "--get", "core.excludesFile"]
+    try:
+        env = os.environ.copy()
+        for var in ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_COMMON_DIR"):
+            env.pop(var, None)
+        proc = subprocess.run(
+            cmd,
+            cwd=cwd,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    finally:
+        if tmp is not None:
+            tmp.cleanup()
+    if proc.returncode == 0:
+        value = proc.stdout.strip()
+        if not value:
+            return None
+        path = Path(os.path.expanduser(value))
+        if not path.is_absolute():
+            path = workspace / path
+        return path
+    if proc.returncode == 1:
+        # Key unset in every scope git consulted: git's default file.
+        return _default_global_ignore_file()
+    return None
+
+
+def _scan_worktree(
+    workspace: Path, git_dir: Path | None = None
+) -> tuple[int, int, bool]:
     """Count files/bytes under workspace, stopping early past the bound.
 
     Returns (file_count, byte_count, over_bound). Symlinked directories
@@ -194,33 +274,43 @@ def _scan_worktree(workspace: Path) -> tuple[int, int, bool]:
     to the existing git-failure path instead of inventing a new one.
 
     Gitignore-aware, mirroring what the shadow ``git add -A`` in
-    capture() will actually stage: .gitignore files at every depth
-    (deeper files override shallower ones, later lines override earlier
-    ones, ``!`` re-includes). Ignored directories are pruned, never
-    descended into -- git likewise cannot re-include a file under an
-    excluded directory, so pruning cannot hide a file git would stage.
-    The pre-scan counts what git counts: before this fix it counted
-    ignored files too, so a tree of ignored build output could trip the
-    bound and skip a capture git itself would have finished cheaply.
+    capture() will actually stage. Precedence, highest first (verified
+    against git with ``check-ignore -v`` on opposing pairs at every
+    boundary): .gitignore files at every depth (deeper files override
+    shallower ones, later lines override earlier ones, ``!``
+    re-includes), then the shadow repo's ``info/exclude``, then the
+    global excludes file (core.excludesFile, else the default
+    ``$XDG_CONFIG_HOME/git/ignore``). Ignored directories are pruned,
+    never descended into -- git likewise cannot re-include a file under
+    an excluded directory, so pruning cannot hide a file git would
+    stage. The pre-scan counts what git counts: before the .gitignore
+    fix it counted ignored files too, so a tree of ignored build
+    output could trip the bound and skip a capture git itself would
+    have finished cheaply.
     Deliberately NOT consulted, because the shadow add does not consult
     them either (verified against git directly): the workspace's
     ``.git/info/exclude`` (git reads ``$GIT_DIR/info/exclude`` of the
-    shadow repo, which is empty) and the workspace repo's tracking
-    status -- the shadow index is fresh on every capture, so a file
-    tracked in the workspace's own repo but matching .gitignore is still
-    left out of the shadow tree, which is exactly what this matcher
-    reproduces. Global excludes (core.excludesFile) are likewise not
-    consulted; that can only overcount, never stage a file the pre-scan
-    promised to skip.
+    shadow repo, never the workspace's) and the workspace repo's
+    tracking status -- the shadow index is fresh on every capture, so a
+    file tracked in the workspace's own repo but matching .gitignore is
+    still left out of the shadow tree, which is exactly what this
+    matcher reproduces.
     """
     file_count = 0
     byte_count = 0
-    # No base rules: the shadow git add reads $GIT_DIR/info/exclude of
-    # the (empty) shadow repo, never the workspace's .git/info/exclude,
-    # so loading the workspace's exclude file would undercount.
-    base_rules: list[
-        _GitignoreRule
-    ] = []  # Stack entries: (directory, rules from ancestors, dir rel posix path).
+    # Base rules, lowest precedence first: _is_ignored iterates in
+    # reverse, so the highest-precedence matching rule decides. The
+    # shadow info/exclude is read only when a shadow git dir is known;
+    # before the first capture it does not exist yet, and `git init
+    # --bare` creates one holding comments only, which parse to no
+    # rules -- so omitting it then matches the shadow add exactly.
+    base_rules: list[_GitignoreRule] = []
+    global_excludes = _resolve_global_excludes_file(workspace, git_dir)
+    if global_excludes is not None:
+        base_rules.extend(_parse_gitignore_file(global_excludes, ""))
+    if git_dir is not None:
+        base_rules.extend(_parse_gitignore_file(git_dir / "info" / "exclude", ""))
+    # Stack entries: (directory, rules from ancestors, dir rel posix path).
     # Rel paths are tracked lexically, never resolved, so symlinked
     # entries are matched by their worktree path, as git matches them.
     stack: list[tuple[Path, list[_GitignoreRule], str]] = [(workspace, base_rules, "")]
@@ -425,7 +515,7 @@ class CheckpointBridge:
         # clear reason, not burn the turn and leak a git process. Skipping
         # leaves the previous checkpoint (if any) in place; the hook
         # caller already treats "" as "no new checkpoint".
-        file_count, byte_count, over_bound = _scan_worktree(ws)
+        file_count, byte_count, over_bound = _scan_worktree(ws, git_dir)
         if over_bound:
             key = str(ws)
             detail = (

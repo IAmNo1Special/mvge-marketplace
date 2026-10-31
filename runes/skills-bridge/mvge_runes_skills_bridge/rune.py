@@ -72,6 +72,57 @@ class SkillsBridgeRune:
 
         self.refresh_skills(agent_name=agent_name, cwd=cwd_path)
 
+    async def rehydrate(self, payload: Any = None) -> None:
+        """Refresh skills on reload, without refiring SESSION_START.
+
+        The manifest cache is cleared first so an edit that preserved
+        the file's mtime is still re-read. Each field resolves per
+        field from the payload first (attribute access, dict fallback),
+        then from the API context, then from defaults; an empty-string
+        cwd counts as missing and falls through. The engine payload's
+        cwd is a string, so it is converted with Path(...) exactly as
+        on_session_start does, since refresh_skills takes a Path.
+        """
+        clear_skill_manifest_cache()
+
+        def _payload_field(name: str) -> Any:
+            if isinstance(payload, dict):
+                return payload.get(name)
+            return getattr(payload, name, None)
+
+        context_cwd: Path | None = None
+        context_agent_name = ""
+        if self._api is not None and hasattr(self._api, "context"):
+            ctx = self._api.context
+            raw_context_cwd = getattr(ctx, "cwd", None)
+            if isinstance(raw_context_cwd, Path):
+                context_cwd = raw_context_cwd
+            elif isinstance(raw_context_cwd, str) and raw_context_cwd:
+                context_cwd = Path(raw_context_cwd)
+            raw_context_agent = getattr(ctx, "agent_name", None)
+            if isinstance(raw_context_agent, str):
+                context_agent_name = raw_context_agent
+
+        raw_payload_cwd = _payload_field("cwd")
+        if isinstance(raw_payload_cwd, Path):
+            cwd_path = raw_payload_cwd
+        elif isinstance(raw_payload_cwd, str) and raw_payload_cwd:
+            cwd_path = Path(raw_payload_cwd)
+        elif context_cwd is not None:
+            cwd_path = context_cwd
+        else:
+            cwd_path = Path.cwd()
+
+        raw_payload_agent = _payload_field("agent_name")
+        if isinstance(raw_payload_agent, str) and raw_payload_agent:
+            agent_name = raw_payload_agent
+        elif context_agent_name:
+            agent_name = context_agent_name
+        else:
+            agent_name = ""
+
+        self.refresh_skills(agent_name=agent_name, cwd=cwd_path)
+
     async def on_before_mvge_start(self, data: Any = None) -> Any:
         """Inject available skills catalog into dynamic prompt."""
         if (

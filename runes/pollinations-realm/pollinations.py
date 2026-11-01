@@ -66,6 +66,16 @@ def _user_content_parts(content: Any) -> Any:
     return parts
 
 
+def _is_empty_id(value: Any) -> bool:
+    """True when a cast id is missing, empty, or whitespace-only.
+
+    Such an id cannot pair a tool call with its result on the wire, and
+    some providers reject the message outright. Never synthesize a
+    replacement: the caller drops the entry instead.
+    """
+    return value is None or (isinstance(value, str) and not value.strip())
+
+
 def _invocations_to_messages(invocations: list[Any]) -> list[dict[str, Any]]:
     messages: list[dict[str, Any]] = []
     for inv in invocations:
@@ -84,6 +94,8 @@ def _invocations_to_messages(invocations: list[Any]) -> list[dict[str, Any]]:
                         text_parts.append(str(block.get("text", "")))
                     elif block.get("type") == "spell_cast":
                         sc = block.get("spell_cast", {})
+                        if _is_empty_id(sc.get("id", "")):
+                            continue
                         tool_calls.append(
                             {
                                 "id": sc.get("id", ""),
@@ -102,18 +114,23 @@ def _invocations_to_messages(invocations: list[Any]) -> list[dict[str, Any]]:
                             "tool_calls": tool_calls,
                         }
                     )
-                else:
+                elif text_parts:
                     messages.append(
                         {"role": "assistant", "content": "".join(text_parts)}
                     )
+                # Neither text nor tool calls remain: emit no message.
         elif hasattr(inv, "role") and inv.role in ("spellResult", "tool"):
-            messages.append(
-                {
-                    "role": "tool",
-                    "tool_call_id": getattr(inv, "spell_cast_id", ""),
-                    "content": inv.content[0].get("text", "") if inv.content else "",
-                }
-            )
+            cast_id = getattr(inv, "spell_cast_id", "")
+            if not _is_empty_id(cast_id):
+                messages.append(
+                    {
+                        "role": "tool",
+                        "tool_call_id": cast_id,
+                        "content": inv.content[0].get("text", "")
+                        if inv.content
+                        else "",
+                    }
+                )
     return messages
 
 

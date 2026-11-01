@@ -8,6 +8,7 @@ from __future__ import annotations
 import importlib.util
 import json
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import MagicMock
 
 import httpx
@@ -242,3 +243,133 @@ def test_stream_request_omits_reasoning_and_keeps_tools() -> None:
     assert payload["stream"] is True
     assert "reasoning" not in payload
     assert payload["tools"][0]["function"]["name"] == "echo"
+
+
+def _poisoned_pair_invitations() -> list:
+    """Capture req-20895-006 messages [10]-[12] as invocations: one valid
+    cast plus one empty-id cast, then the valid result plus the empty-id
+    ``Spell not found: `` result."""
+    return [
+        SimpleNamespace(
+            role="assistant",
+            content=[
+                {
+                    "type": "spell_cast",
+                    "spell_cast": {
+                        "id": "chatcmpl-tool-95686fde6e807f7d",
+                        "name": "search",
+                        "arguments": {},
+                    },
+                },
+                {
+                    "type": "spell_cast",
+                    "spell_cast": {"id": "", "name": "", "arguments": {}},
+                },
+            ],
+        ),
+        SimpleNamespace(
+            role="spellResult",
+            spell_cast_id="chatcmpl-tool-95686fde6e807f7d",
+            content=[{"type": "text", "text": "approval_denied"}],
+        ),
+        SimpleNamespace(
+            role="spellResult",
+            spell_cast_id="",
+            content=[{"type": "text", "text": "Spell not found: "}],
+        ),
+    ]
+
+
+def test_empty_id_cast_and_result_are_dropped_pairing_intact() -> None:
+    """R-B1: replay of the previously-failing body shape."""
+    messages = _invocations_to_messages(_poisoned_pair_invitations())
+    assert len(messages) == 2
+    assert messages[0]["role"] == "assistant"
+    assert [call["id"] for call in messages[0]["tool_calls"]] == [
+        "chatcmpl-tool-95686fde6e807f7d"
+    ]
+    assert messages[1] == {
+        "role": "tool",
+        "tool_call_id": "chatcmpl-tool-95686fde6e807f7d",
+        "content": "approval_denied",
+    }
+    assert not any(msg.get("tool_call_id", "x") == "" for msg in messages)
+
+
+def test_only_empty_id_cast_and_result_disappear() -> None:
+    """R-B2: an assistant response with only an empty-id cast, plus its
+    empty-id result, produces no messages at all."""
+    invs = [
+        SimpleNamespace(
+            role="assistant",
+            content=[
+                {
+                    "type": "spell_cast",
+                    "spell_cast": {"id": "", "name": "", "arguments": {}},
+                }
+            ],
+        ),
+        SimpleNamespace(
+            role="spellResult",
+            spell_cast_id="",
+            content=[{"type": "text", "text": "Spell not found: "}],
+        ),
+    ]
+    assert _invocations_to_messages(invs) == []
+
+
+def test_only_empty_id_cast_with_text_keeps_text_message() -> None:
+    """R-B2 variant: text the response also carried survives as a
+    text-only assistant message; the empty-id result still disappears."""
+    invs = [
+        SimpleNamespace(
+            role="assistant",
+            content=[
+                {"type": "text", "text": "thinking out loud"},
+                {
+                    "type": "spell_cast",
+                    "spell_cast": {"id": "   ", "name": "search", "arguments": {}},
+                },
+            ],
+        ),
+        SimpleNamespace(
+            role="spellResult",
+            spell_cast_id="",
+            content=[{"type": "text", "text": "Spell not found: "}],
+        ),
+    ]
+    assert _invocations_to_messages(invs) == [
+        {"role": "assistant", "content": "thinking out loud"}
+    ]
+
+
+def test_all_non_empty_ids_pass_through_in_order() -> None:
+    """R-B3: valid ids are untouched, in order."""
+    invs = [
+        SimpleNamespace(
+            role="assistant",
+            content=[
+                {
+                    "type": "spell_cast",
+                    "spell_cast": {"id": "call-1", "name": "read", "arguments": {}},
+                },
+                {
+                    "type": "spell_cast",
+                    "spell_cast": {"id": "call-2", "name": "bash", "arguments": {}},
+                },
+            ],
+        ),
+        SimpleNamespace(
+            role="spellResult",
+            spell_cast_id="call-1",
+            content=[{"type": "text", "text": "one"}],
+        ),
+        SimpleNamespace(
+            role="spellResult",
+            spell_cast_id="call-2",
+            content=[{"type": "text", "text": "two"}],
+        ),
+    ]
+    messages = _invocations_to_messages(invs)
+    assert [call["id"] for call in messages[0]["tool_calls"]] == ["call-1", "call-2"]
+    assert [msg["tool_call_id"] for msg in messages[1:]] == ["call-1", "call-2"]

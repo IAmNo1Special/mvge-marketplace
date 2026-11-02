@@ -21,5 +21,6 @@
     "opentelemetry-sdk>=1.30.0"
   ],
   "execution_mode": "parallel",
-  "enabled": true
+  "enabled": true,
+  "capabilities": ["hook", "command"]
 }

@@ -6,5 +6,6 @@
   "runtime": "python",
   "entry_point": "rune.py",
   "python_deps": [],
-  "enabled": true
+  "enabled": true,
+  "capabilities": ["spell"]
 }

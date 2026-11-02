@@ -15,5 +15,6 @@
     "after_provider_response"
   ],
   "execution_mode": "parallel",
-  "enabled": true
+  "enabled": true,
+  "capabilities": ["realm", "hook"]
 }

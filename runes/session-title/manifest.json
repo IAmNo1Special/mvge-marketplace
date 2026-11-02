@@ -15,5 +15,6 @@
   ],
   "python_deps": [],
   "enabled": true,
-  "execution_mode": "parallel"
+  "execution_mode": "parallel",
+  "capabilities": ["hook", "command"]
 }

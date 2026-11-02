@@ -917,7 +917,7 @@ wheels = [
 
 [[package]]
 name = "mvge"
-version = "0.2.44"
+version = "0.2.46"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
@@ -932,9 +932,9 @@ dependencies = [
     { name = "typer" },
     { name = "watchdog" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d1/29/f9c4f376ab343a237e776a57863aa41a06b1a0cd1c0865d0fa09e2962202/mvge-0.2.44.tar.gz", hash = "sha256:cdce4a06310e8afde54258c88f39fc933b18c8dd393a4322a478e1b8ef206adc", size = 311296, upload-time = "2026-11-02T15:18:43.618Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4d/23/8462d07a65d5e5ea12cdccaf3f94a1e351b81b237b45a7f4392b9deea144/mvge-0.2.46.tar.gz", hash = "sha256:cff5f5e5dd99b1372c5a87e70f83d1634e8bf4c728f92bc0e5404d3fd20f95e5", size = 317842, upload-time = "2026-11-02T23:22:11.069Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fe/0f/f4888444655443555dd5dc030323b0a739d53ccbadf11bb74a323044859d/mvge-0.2.44-py3-none-any.whl", hash = "sha256:e20590159b2ebad061ea5a33576310b12cebec9c80b7054226e47cacdfc95c66", size = 361929, upload-time = "2026-11-02T15:18:42.413Z" },
+    { url = "https://files.pythonhosted.org/packages/ff/30/9c954e5ca18a67529de5f7837be17096856611fb372a266c53172c7d531c/mvge-0.2.46-py3-none-any.whl", hash = "sha256:463eb25dc9573d230315d1c9b587eb3086bc8650e78d1327b5af3d0fc6f63f26", size = 369085, upload-time = "2026-11-02T23:22:09.946Z" },
 ]
 
 [[package]]

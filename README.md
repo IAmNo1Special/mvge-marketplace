@@ -130,6 +130,32 @@ Two layout shapes exist and both are supported: `runes/skills-bridge` keeps its
 manifest beside the `mvge_runes_skills_bridge` package, while
 `mvges/coding_mvge` *is* the package with the manifest inside it.
 
+### Rune pinning (Phase 3)
+
+Every rune entry in `index.json` carries `commit` and `tree_hash`. The
+installer checks the pinned commit out — a branch that moved since the
+index was cut still yields the pinned tree, never the new HEAD — and
+refuses the install when the staged tree hash disagrees with the index.
+At load, the engine re-hashes the installed tree against the sidecar
+(`.rune-pin.json`) the installer wrote and refuses the rune when it
+differs, when the sidecar is missing, or when the rune is revoked.
+
+Pinned means unmodified, not benign: a pinned rune's code still runs
+with engine privileges, so install only runes you have reviewed. The
+`commit`/`tree_hash` fields are only as trustworthy as the index fetch
+(HTTPS plus repo access control) — transport trust, not publisher
+signing. A version later found malicious is pulled by revocation: an
+index entry marked `revoked: true` refuses installation, and a local
+blocklist entry (`<global>/approval/rune-blocklist.json`) refuses a load
+even when its hash matches.
+
+To regenerate pins after committing rune changes, run
+`scripts/update_index_pins.py`, then commit `index.json` on its own;
+the pin commit must touch only `index.json`, so the recorded commit
+contains exactly the trees that were hashed. A rune installed before
+pinning, or placed by hand, has no sidecar and is refused on load until
+an operator reviews it with `mvge rune trust --adopt <name>`.
+
 ---
 
 ## License

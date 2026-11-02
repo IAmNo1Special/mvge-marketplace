@@ -67,8 +67,7 @@ def _merged_validation_report(graph: KnowledgeGraph) -> dict[str, Any]:
 
 def rune_factory(api: RuneAPI) -> None:
     """Initialize and bind OKF bridge rune to session lifecycle."""
-    runner = getattr(api, "_runner", None)
-    ctx = getattr(runner, "context", None) if runner else None
+    ctx = api.context
     raw_cwd = getattr(ctx, "cwd", None) if ctx else None
     cwd: Path | None = Path(raw_cwd) if raw_cwd else None
 

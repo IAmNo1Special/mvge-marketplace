@@ -4,7 +4,6 @@ from __future__ import annotations
 # consolidation and autonomous skill evolution.
 # Three-layer: raw_experience -> skill_evolution -> skills (SKILL.md+PURPOSE.md).
 import hashlib
-import os
 import re
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -44,18 +43,36 @@ if TYPE_CHECKING:
     from mvge.agent import Mvge
 
 
-def rune_factory(api: RuneAPI) -> None:
-    context: RuneContext = api._runner.context
+class SkillEvolutionRune:
+    """Public instance object returned by the skill-evolution factory.
+
+    Host-side state surface (store, consolidator, engine, proposer
+    subagent), replacing the old runner-attribute stash. Reachable
+    only through the engine-owned runner's get_rune, never RuneAPI.
+    """
+
+    def __init__(
+        self,
+        store: SkillEvolutionStore,
+        consolidator: ExperienceConsolidator,
+        harvester: ExperienceHarvester,
+        engine: SkillEvolutionEngine,
+        subagent: Any,
+    ) -> None:
+        self.store = store
+        self.consolidator = consolidator
+        self.harvester = harvester
+        self.engine = engine
+        self.subagent = subagent
+
+
+def rune_factory(api: RuneAPI) -> SkillEvolutionRune:
+    context: RuneContext = api.context
     agent_name = context.agent_name or "coding_mvge"
-    api_key = (
-        (
-            context.api_key
-            or os.environ.get("OPENROUTER_API_KEY")
-            or os.environ.get("MVGE_API_KEY")
-        )
-        if context.mode != "test"
-        else None
-    )
+    # Phase 2A: the proposer authenticates through Mvge's own
+    # credential resolution (explicit -> realm env -> MVGE_API_KEY).
+    # The parent session's key is never read from the rune context.
+    proposer_api_key = None
     config_base = Path(f"~/.agents/agents/{agent_name}").expanduser()
 
     # Workspace-aware partitioning in agent scope to prevent cross-project pollution
@@ -96,15 +113,27 @@ def rune_factory(api: RuneAPI) -> None:
         max_buffer_size=100,
         persist_path=evolution_dir / "harvester_buffer.json",
     )
+    # Phase 2A: consolidation model calls go through the engine-held
+    # capability. The adapter renders the message list to the prompt
+    # the capability takes; no key or realm object reaches this rune.
+    async def _complete_via_engine(
+        messages: list[dict[str, str]], signal: Any = None
+    ) -> str:
+        prompt = "\n\n".join(
+            f"{m.get('role', 'user')}: {m.get('content', '')}" for m in messages
+        )
+        return await api.stream_model_text(
+            "openrouter/auto", prompt, temperature=0.3, max_tokens=4000
+        )
+
     consolidator = ExperienceConsolidator(
         store=store,
         queries=queries,
         harvester=harvester,
         batch_size=20,
         interval_turns=5,
-        complete_fn=None,
+        complete_fn=_complete_via_engine,
         llm_model="openrouter/auto",
-        api_key=api_key,
     )
     engine = SkillEvolutionEngine(
         evolution_dir=evolution_dir,
@@ -114,7 +143,7 @@ def rune_factory(api: RuneAPI) -> None:
         available_skills=api.get_skills(),
         auto_apply=True,
     )
-    subagent_mvge = create_proposer_mvge(engine=engine, api_key=api_key)
+    subagent_mvge = create_proposer_mvge(engine=engine, api_key=proposer_api_key)
     subagent_mvge.event_bus.subscribe(
         lambda ev: api.emit_event("mvge_event", ev)
     )
@@ -148,21 +177,21 @@ def rune_factory(api: RuneAPI) -> None:
     api.register_command(
         name="skill-evolution-consolidate",
         description="Force skill evolution experience consolidation",
-        handler=lambda _: api._runner.send_message(
+        handler=lambda _: api.send_message(
             "[skill_evolution] Consolidation triggered"
         ),
     )
     api.register_command(
         name="skill-evolution-export",
         description="Export skills as plugin",
-        handler=lambda _: api._runner.send_message(
+        handler=lambda _: api.send_message(
             "[skill_evolution] Export initiated"
         ),
     )
     api.register_command(
         name="skill-evolution-stats",
         description="Show skill evolution stats",
-        handler=lambda _: api._runner.send_message(
+        handler=lambda _: api.send_message(
             "[skill_evolution] Stats requested"
         ),
     )
@@ -188,12 +217,17 @@ def rune_factory(api: RuneAPI) -> None:
         description="Run autonomous Skill Proposer sub-agent",
         handler=handle_propose,
     )
-    setattr(api._runner, "_skill_evolution_store", store)  # noqa: B010
-    setattr(api._runner, "_skill_evolution_consolidator", consolidator)  # noqa: B010
-    setattr(api._runner, "_experience_consolidator", consolidator)  # noqa: B010
-    setattr(api._runner, "_experience_harvester", harvester)  # noqa: B010
-    setattr(api._runner, "_skill_evolution_engine", engine)  # noqa: B010
-    setattr(api._runner, "_skill_proposer_subagent", subagent)  # noqa: B010
+    # Phase 2A: the factory returns a public instance object instead
+    # of stashing state on the runner. The engine records it under the
+    # manifest name, reachable host-side via RuneRunner.get_rune;
+    # it is never exposed through RuneAPI.
+    return SkillEvolutionRune(
+        store=store,
+        consolidator=consolidator,
+        harvester=harvester,
+        engine=engine,
+        subagent=subagent,
+    )
 
     async def on_agent_start(data: Any) -> None:
         pass
@@ -202,15 +236,13 @@ def rune_factory(api: RuneAPI) -> None:
 
 
 def set_llm_client(
-    runner: Any, complete_fn: Any, model: str = "openrouter/auto"
+    rune: Any, complete_fn: Any, model: str = "openrouter/auto"
 ) -> None:
-    target = getattr(runner, "_experience_consolidator", None) or getattr(
-        runner, "_skill_evolution_consolidator", None
-    )
+    target = getattr(rune, "consolidator", None)
     if target is not None:
         target.complete_fn = complete_fn
         target.llm_model = model
-    sub = getattr(runner, "_skill_proposer_subagent", None)
+    sub = getattr(rune, "subagent", None)
     if sub is not None:
         sub.complete_fn = complete_fn
         sub.llm_model = model

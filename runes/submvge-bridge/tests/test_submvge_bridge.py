@@ -513,17 +513,17 @@ def test_get_manager_passes_runner_context_model_id(
     """model='inherit' only works when the bridge hands the manager
     the parent model: the runner context is where the agent's
     resolved model (including a runtime --model override) lives."""
-    from types import SimpleNamespace
     from unittest.mock import patch
 
     from mvge.runes.types import RuneContext
     from mvge_runes_submvge_bridge.rune import SubMvgeBridgeState
 
-    mock_api._runner = SimpleNamespace(
-        context=RuneContext(
-            cwd="/proj", agent_name="coding_mvge", model_id="pollinations/openai"
-        )
+    mock_api.context = RuneContext(
+        cwd="/proj", agent_name="coding_mvge", model_id="pollinations/openai"
     )
+    mock_api.get_registered_realm_factories = dict
+    mock_api.get_registered_providers = dict
+    mock_api.approval_presenter_source = lambda: (lambda child: None)
     state = SubMvgeBridgeState(mock_api)
     with patch("mvge.agent.sub_mvge.SubMvgeManager") as manager_cls:
         manager = state.get_manager()

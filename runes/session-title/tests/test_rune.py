@@ -1,9 +1,8 @@
 """Session-title state machine, driven through its hooks and commands.
 
-The fake runner records every name it is given, so each test asserts on
+The fake API records every name it is given, so each test asserts on
 the name the session actually ends up with, not on internal bookkeeping.
-The LLM test uses a real RuneRunner (the path the rune's own
-``isinstance`` check gates on) with the realm registry patched out, so no
+The LLM tests patch the engine-held model-call capability, so no
 test ever calls a real provider.
 """
 
@@ -15,7 +14,6 @@ from typing import Any
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from mvge.runes.rune_api import RuneAPI
 from mvge.runes.rune_runner import RuneRunner
 from mvge.runes.types import RuneContext, SigilHook
 
@@ -29,24 +27,15 @@ sys.modules["session_title_rune_entry"] = rune_module
 _spec.loader.exec_module(rune_module)
 
 
-class FakeRunner:
-    """A runner that records session names instead of applying them."""
-
-    def __init__(self) -> None:
-        self.names: list[str] = []
-        self.context = type("Context", (), {"model_id": "", "api_key": ""})()
-
-    def set_session_name(self, name: str) -> None:
-        self.names.append(name)
-
-
 class FakeAPI:
     """The RuneAPI surface SessionTitleRune actually touches."""
 
     def __init__(self) -> None:
-        self._runner = FakeRunner()
+        self.names: list[str] = []
+        self.context = type("Context", (), {"model_id": ""})()
         self.hooks: dict[Any, Any] = {}
         self.commands: dict[str, Any] = {}
+        self.stream_model_text = AsyncMock(return_value="")
 
     def on(self, hook: Any, handler: Any) -> None:
         self.hooks[hook] = handler
@@ -55,6 +44,9 @@ class FakeAPI:
         self, name: str, description: str = "", handler: Any = None
     ) -> None:
         self.commands[name] = handler
+
+    def set_session_name(self, name: str) -> None:
+        self.names.append(name)
 
 
 def _make_rune() -> tuple[FakeAPI, Any]:
@@ -94,7 +86,7 @@ async def test_first_input_sets_the_fallback_title() -> None:
     assert rune.state.name == "fix the login bug that locks users out"
     assert rune.state.source == "fallback"
     assert rune.state.revision == 1
-    assert api._runner.names == ["fix the login bug that locks users out"]
+    assert api.names == ["fix the login bug that locks users out"]
     await rune.on_session_shutdown(None)
 
 
@@ -106,7 +98,7 @@ async def test_second_input_does_not_overwrite_the_fallback() -> None:
     await rune.on_input({"content": "also check the signup page"})
     assert rune.state.name == "fix the login bug"
     assert rune.state.eligible_count == 2
-    assert api._runner.names == ["fix the login bug"]
+    assert api.names == ["fix the login bug"]
     await rune.on_session_shutdown(None)
 
 
@@ -118,7 +110,7 @@ async def test_input_with_no_content_does_nothing() -> None:
     await rune.on_input({"content": ""})
     assert rune.state.name is None
     assert rune.state.first_user_text is None
-    assert api._runner.names == []
+    assert api.names == []
 
 
 @pytest.mark.asyncio
@@ -150,7 +142,7 @@ async def test_user_pin_wins_and_stops_later_renames() -> None:
     assert rune.state.llm_pending is False
     await rune.on_input({"content": "something completely different"})
     assert rune.state.name == "My Project"
-    assert api._runner.names[-1] == "My Project"
+    assert api.names[-1] == "My Project"
     await rune.on_session_shutdown(None)
 
 
@@ -176,7 +168,7 @@ async def test_commands_get_and_rename_the_session() -> None:
     assert api.commands["session-name"]() is None
     api.commands["session-rename"]({"title": "Renamed Session"})
     assert api.commands["session-name"]() == "Renamed Session"
-    assert api._runner.names == ["Renamed Session"]
+    assert api.names == ["Renamed Session"]
 
 
 @pytest.mark.asyncio
@@ -186,7 +178,7 @@ async def test_rename_accepts_plain_string_argument() -> None:
     rune_module.rune_factory(api)
     api.commands["session-rename"]("My New Title")
     assert api.commands["session-name"]() == "My New Title"
-    assert api._runner.names == ["My New Title"]
+    assert api.names == ["My New Title"]
 
 
 @pytest.mark.asyncio
@@ -197,7 +189,7 @@ async def test_rename_with_empty_string_changes_nothing() -> None:
     api.commands["session-rename"]({"title": "Kept Title"})
     api.commands["session-rename"]("")
     assert api.commands["session-name"]() == "Kept Title"
-    assert api._runner.names == ["Kept Title"]
+    assert api.names == ["Kept Title"]
 
 
 @pytest.mark.asyncio
@@ -218,34 +210,26 @@ async def test_shutdown_cancels_a_pending_llm_task() -> None:
 
 @pytest.mark.asyncio
 async def test_llm_title_upgrades_the_fallback() -> None:
-    """With a real runner and a patched registry, the LLM title replaces
+    """With the model-call capability stubbed, the LLM title replaces
     the fallback and is the name the session ends up with."""
     context = RuneContext(
-        cwd="/fake/cwd", model_id="openrouter/test-model", api_key="test-key"
+        cwd="/fake/cwd", model_id="openrouter/test-model"
     )
     runner = RuneRunner()
     runner.bind_context(context)
-    api = RuneAPI(runner, rune_name="session-title")
+    api = runner.create_api(rune_name="session-title")
     rune = rune_module.SessionTitleRune(api)
 
-    fake_realm = type(
-        "FakeRealm",
-        (),
-        {"call": AsyncMock(return_value="  Refined Session Title  ")},
-    )()
-    fake_registry = type(
-        "FakeRegistry", (), {"create_realm": lambda self, *a, **k: fake_realm}
-    )()
-
-    with patch("mvge.provider.registry.RealmRegistry", return_value=fake_registry):
+    stream = AsyncMock(return_value="  Refined Session Title  ")
+    with patch.object(api, "stream_model_text", stream):
         await rune.on_input({"content": "fix the login bug"})
         await _drain_llm(rune)
 
     assert rune.state.name == "Refined Session Title"
     assert rune.state.source == "provider"
     assert rune.state.revision == 2
-    fake_realm.call.assert_awaited_once()
-    assert fake_realm.call.await_args.kwargs["max_tokens"] == 50
+    stream.assert_awaited_once()
+    assert stream.await_args.kwargs["max_tokens"] == 50
     await rune.on_session_shutdown(None)
 
 
@@ -269,7 +253,7 @@ async def test_session_start_with_existing_title_adopts_it_from_dict() -> None:
     assert rune.state.revision == 0
     # Adoption is in-memory only: the engine already owns the persisted
     # name, so the rune must not re-persist or overwrite it.
-    assert api._runner.names == ["fix the login bug"]
+    assert api.names == ["fix the login bug"]
     await rune.on_session_shutdown(None)
 
 
@@ -281,7 +265,7 @@ async def test_session_start_with_existing_title_adopts_it_from_typed_data() -> 
     assert rune.state.name == "Typed Persisted Title"
     assert rune.state.source == "restored"
     assert rune.state.user_pinned is False
-    assert api._runner.names == []
+    assert api.names == []
     await rune.on_session_shutdown(None)
 
 
@@ -294,7 +278,7 @@ async def test_no_fallback_after_restore() -> None:
     await rune.on_input({"content": "and then another unrelated thing"})
     assert rune.state.name == "Original Title"
     assert rune.state.source == "restored"
-    assert api._runner.names == []
+    assert api.names == []
     await rune.on_session_shutdown(None)
 
 
@@ -330,7 +314,7 @@ async def test_rename_after_restore_still_overwrites() -> None:
     assert rune.state.name == "Deliberate Rename"
     assert rune.state.source == "user"
     assert rune.state.user_pinned is True
-    assert api._runner.names == ["Deliberate Rename"]
+    assert api.names == ["Deliberate Rename"]
     await rune.on_input({"content": "something completely different"})
     assert rune.state.name == "Deliberate Rename"
     await rune.on_session_shutdown(None)
@@ -346,7 +330,7 @@ async def test_session_start_without_existing_title_behaves_as_today() -> None:
         await rune.on_input({"content": "fix the login bug"})
         assert rune.state.name == "fix the login bug"
         assert rune.state.source == "fallback"
-        assert api._runner.names == ["fix the login bug"]
+        assert api.names == ["fix the login bug"]
         await rune.on_session_shutdown(None)
 
 
@@ -365,25 +349,15 @@ async def test_session_start_with_blank_existing_title_behaves_as_today() -> Non
 async def test_llm_failure_leaves_the_fallback_in_place() -> None:
     """A provider failure must never crash the session or clear its title."""
     context = RuneContext(
-        cwd="/fake/cwd", model_id="openrouter/test-model", api_key="test-key"
+        cwd="/fake/cwd", model_id="openrouter/test-model"
     )
     runner = RuneRunner()
     runner.bind_context(context)
-    api = RuneAPI(runner, rune_name="session-title")
+    api = runner.create_api(rune_name="session-title")
     rune = rune_module.SessionTitleRune(api)
 
-    failing_realm = type(
-        "FailingRealm",
-        (),
-        {"call": AsyncMock(side_effect=RuntimeError("provider down"))},
-    )()
-    failing_registry = type(
-        "FailingRegistry",
-        (),
-        {"create_realm": lambda self, *a, **k: failing_realm},
-    )()
-
-    with patch("mvge.provider.registry.RealmRegistry", return_value=failing_registry):
+    failing_stream = AsyncMock(side_effect=RuntimeError("provider down"))
+    with patch.object(api, "stream_model_text", failing_stream):
         await rune.on_input({"content": "fix the login bug"})
         await _drain_llm(rune)
 
@@ -391,3 +365,5 @@ async def test_llm_failure_leaves_the_fallback_in_place() -> None:
     assert rune.state.source == "fallback"
     assert rune.state.llm_pending is False
     await rune.on_session_shutdown(None)
+
+

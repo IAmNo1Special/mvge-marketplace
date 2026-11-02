@@ -64,8 +64,7 @@ def _discover_codecs(agent_name: str, cwd: str) -> list[Any]:
 
 
 def _resolve_state(api: RuneAPI) -> SearchState:
-    runner = getattr(api, "_runner", None)
-    ctx = getattr(runner, "context", None)
+    ctx = api.context
     agent_name = str(getattr(ctx, "agent_name", "") or "")
     cwd = str(getattr(ctx, "cwd", "") or "")
     ctx_tome = str(getattr(ctx, "tome_dir", "") or "")

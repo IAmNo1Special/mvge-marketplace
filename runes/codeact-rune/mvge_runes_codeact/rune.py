@@ -128,11 +128,8 @@ class CodeActExecutor:
     def get_registered_spell_names(self) -> set[str]:
         spells = {s.name: s for s in self.api.get_all_spells()}
         names = set(spells.keys())
-        runner = getattr(self.api, "_runner", None)
-        if runner is not None:
-            disc = getattr(runner, "_discoverable_builtin_spells", {})
-            if isinstance(disc, dict):
-                names.update(disc.keys())
+        for disc_spell in self.api.get_discoverable_spells():
+            names.add(disc_spell.name)
         names.discard("execute_python")
         return names
 
@@ -146,9 +143,7 @@ class CodeActExecutor:
         spells = {s.name: s for s in self.api.get_all_spells()}
         spell: SpellDefinition | MvgeSpell | None = spells.get(spell_name)
         if spell is None:
-            runner = getattr(self.api, "_runner", None)
-            if runner is not None and hasattr(runner, "get_spell"):
-                spell = runner.get_spell(spell_name)
+            spell = self.api.get_spell(spell_name)
 
         if spell is None:
             raise NameError(f"Spell '{spell_name}' is not registered.")

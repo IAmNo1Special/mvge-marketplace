@@ -1,21 +1,22 @@
 from __future__ import annotations
 
-from mvge.core.channel import ChannelConfig
-from mvge.core.invocations import SummonerRequest
-from mvge.provider.registry import RealmRegistry
+from collections.abc import Awaitable, Callable
 
 from .discovery import MCPServerInfo
 
 
 class MCPNLTSelector:
-    """YES/NO grid selection over MCP server candidates (word-boundary aware)."""
+    """YES/NO grid selection over MCP server candidates (word-boundary aware).
+    Model calls go through the engine-held capability; no provider key
+    or realm object ever reaches this selector.
+    """
 
     def __init__(
         self,
-        registry: RealmRegistry,
+        stream_text: Callable[..., Awaitable[str]] | None,
         model_id: str = "openrouter/free",
     ) -> None:
-        self._registry = registry
+        self._stream_text = stream_text
         self._model_id = model_id
 
     async def select(
@@ -27,34 +28,15 @@ class MCPNLTSelector:
         if not candidates:
             return []
 
-        model = self._registry.compose_model(
-            model_id=self._model_id,
-            api_key="",
-            provider_name=None,
-        )
-        if not model:
+        if self._stream_text is None:
             return candidates[:max_results]
 
-        realm = self._registry.create_realm(model, api_key=model.api_key)
-        try:
-            config = ChannelConfig(model=model, temperature=0.1, max_tokens=512)
-
-            prompt = self._build_prompt(query, candidates)
-            invocations = [SummonerRequest(role="user", content=prompt)]
-            response_text = ""
-            async for resp in realm.stream(model, invocations, config):
-                if resp.invocation and resp.invocation.content:
-                    for item in resp.invocation.content:
-                        if item.get("type") == "text":
-                            response_text += item.get("text", "")
-
-            selected_names = self._parse_grid(response_text, candidates)
-            return [c for c in candidates if c.name in selected_names][:max_results]
-        finally:
-            try:
-                await realm.close()
-            except Exception:  # noqa: BLE001, S110 -- best-effort realm.close() in finally must not raise
-                pass
+        prompt = self._build_prompt(query, candidates)
+        response_text = await self._stream_text(
+            self._model_id, prompt, temperature=0.1, max_tokens=512
+        )
+        selected_names = self._parse_grid(response_text, candidates)
+        return [c for c in candidates if c.name in selected_names][:max_results]
 
     def _build_prompt(self, query: str, candidates: list[MCPServerInfo]) -> str:
         lines = [

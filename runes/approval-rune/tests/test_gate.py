@@ -46,20 +46,12 @@ class FakeContext:
         self.session_id = session_id
 
 
-class FakeRunner:
-    """Fake runner exposing a context."""
-
-    def __init__(self, session_id: str = "sess-1") -> None:
-        """Initialize the instance."""
-        self.context = FakeContext(session_id)
-
-
 class FakeAPI:
     """Fake RuneAPI surface for factory tests."""
 
     def __init__(self, session_id: str = "sess-1") -> None:
         """Initialize the instance."""
-        self._runner = FakeRunner(session_id)
+        self.context = FakeContext(session_id)
         self.install_id = "install-1"
 
 
@@ -287,7 +279,7 @@ def test_session_approval_allows_until_session_changes(tmp_path: Path) -> None:
     assert second.outcome == "allow" and second.scope == "session"
 
     # Session id changes live: the stored approval self-clears, prompt returns.
-    api._runner.context.session_id = "sess-2"
+    api.context.session_id = "sess-2"
     prompted: list[dict[str, Any]] = []
 
     async def prompt_again(request: dict[str, Any]) -> PresenterResponse:
@@ -435,6 +427,7 @@ class FakeEngineAPI:
         self.decision = decision
         self.seen: list[CoreApprovalRequest] = []
         self.install_id = "install-1"
+        self.context = FakeContext()
 
     async def request_approval(
         self, request: CoreApprovalRequest

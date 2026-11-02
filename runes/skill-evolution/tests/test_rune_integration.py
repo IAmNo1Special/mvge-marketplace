@@ -16,7 +16,6 @@ def runner():
             cwd=str(Path.cwd()),
             mode="test",
             agent_name="coding_mvge",
-            api_key="test",
         )
     )
     return r
@@ -27,7 +26,7 @@ def skill_evolution_rune_loaded(runner):
     from mvge_runes_skill_evolution import rune_factory
 
     api = runner.create_api("skill_evolution")
-    rune_factory(api)
+    runner._skill_evolution_rune = rune_factory(api)
     return runner
 
 
@@ -104,23 +103,28 @@ class TestSkillEvolutionRuneIntegration:
 
     @pytest.mark.asyncio
     async def test_consolidate_spell_no_llm(self, skill_evolution_rune_loaded):
+        # Phase 2A: the factory always wires the engine-held model
+        # capability, so a forced run with no staged traces reports
+        # "not consolidated" instead of raising for a missing LLM.
+        # The raise path survives for a consolidator built with
+        # complete_fn=None (see the consolidator unit tests).
         spells = {
             s.name: s
             for s in skill_evolution_rune_loaded.get_all_registered_spells()
         }
         spell = spells["skill_evolution_consolidate"]
-        with pytest.raises(RuntimeError, match="No LLM completion function"):
-            await spell.execute(
-                spell_cast_id="t1",
-                params={"force": True, "current_turn": 1},
-                signal=None,
-                on_update=None,
-            )
+        result = await spell.execute(
+            spell_cast_id="t1",
+            params={"force": True, "current_turn": 1},
+            signal=None,
+            on_update=None,
+        )
+        assert result["consolidated"] is False
 
     @pytest.mark.asyncio
     async def test_store_queries_and_listing(self, skill_evolution_rune_loaded):
         store = getattr(
-            skill_evolution_rune_loaded, "_skill_evolution_store", None
+            skill_evolution_rune_loaded._skill_evolution_rune, "store", None
         )
         assert store is not None
         index = await store.read_index()
@@ -257,7 +261,7 @@ class TestSkillEvolutionRuneIntegration:
 
         # Invoke skill-evolution-propose success path
         sub = getattr(
-            skill_evolution_rune_loaded, "_skill_proposer_subagent", None
+            skill_evolution_rune_loaded._skill_evolution_rune, "subagent", None
         )
         assert sub is not None
         with patch.object(
@@ -299,25 +303,14 @@ class TestSkillEvolutionRuneIntegration:
         )
 
         mock_complete_fn = AsyncMock()
+        rune_obj = skill_evolution_rune_loaded._skill_evolution_rune
         set_llm_client(
-            skill_evolution_rune_loaded, mock_complete_fn, model="test/model"
+            rune_obj, mock_complete_fn, model="test/model"
         )
-        assert (
-            skill_evolution_rune_loaded._experience_consolidator.complete_fn
-            is mock_complete_fn
-        )
-        assert (
-            skill_evolution_rune_loaded._experience_consolidator.llm_model
-            == "test/model"
-        )
-        assert (
-            skill_evolution_rune_loaded._skill_proposer_subagent.complete_fn
-            is mock_complete_fn
-        )
-        assert (
-            skill_evolution_rune_loaded._skill_proposer_subagent.llm_model
-            == "test/model"
-        )
+        assert rune_obj.consolidator.complete_fn is mock_complete_fn
+        assert rune_obj.consolidator.llm_model == "test/model"
+        assert rune_obj.subagent.complete_fn is mock_complete_fn
+        assert rune_obj.subagent.llm_model == "test/model"
 
         # Fallback when runner lacks attributes
         set_llm_client(object(), mock_complete_fn)
@@ -327,7 +320,7 @@ class TestSkillEvolutionRuneIntegration:
             "mvge_runes_skill_evolution.rune_factory.run_proposer",
             AsyncMock(return_value={"success": True}),
         ):
-            sub = skill_evolution_rune_loaded._skill_proposer_subagent
+            sub = skill_evolution_rune_loaded._skill_evolution_rune.subagent
             res = await sub.run(auto_apply=False)
             assert res == {"success": True}
 
@@ -343,13 +336,12 @@ class TestSkillEvolutionRuneIntegration:
                 cwd=str(ws),
                 mode="test",
                 agent_name="coding_mvge",
-                api_key="test",
             )
         )
         api = runner.create_api("skill_evolution_ws")
-        rune_factory(api)
+        runner._skill_evolution_rune = rune_factory(api)
 
-        store = getattr(runner, "_skill_evolution_store", None)
+        store = getattr(runner._skill_evolution_rune, "store", None)
         assert store is not None
         assert "workspaces" in str(store.evolution_dir)
         assert "my_project" in str(store.evolution_dir)
@@ -359,12 +351,12 @@ class TestSkillEvolutionRuneIntegration:
 
         runner.bind_context(
             RuneContext(
-                cwd="", mode="test", agent_name="coding_mvge", api_key="test"
+                cwd="", mode="test", agent_name="coding_mvge"
             )
         )
         api = runner.create_api("skill_evolution_standalone")
-        rune_factory(api)
+        runner._skill_evolution_rune = rune_factory(api)
 
-        store = getattr(runner, "_skill_evolution_store", None)
+        store = getattr(runner._skill_evolution_rune, "store", None)
         assert store is not None
         assert "workspaces" not in str(store.evolution_dir)

@@ -31,8 +31,7 @@ def rune_factory(api: RuneAPI) -> None:
             # Seeker will connect servers lazily on demand during 'activate'.
             return
 
-        runner = getattr(api, "_runner", None)
-        ctx = getattr(runner, "context", None) if runner else None
+        ctx = api.context
         raw_cwd = getattr(ctx, "cwd", None) if ctx else None
         cwd: Path | None = Path(raw_cwd) if raw_cwd else None
 
@@ -124,8 +123,7 @@ def rune_factory(api: RuneAPI) -> None:
                 return "FAIL: No server specified. Usage: /mcp test <server>"
             target_server = parts[1].strip()
 
-            runner = getattr(api, "_runner", None)
-            ctx = getattr(runner, "context", None) if runner else None
+            ctx = api.context
             raw_cwd = getattr(ctx, "cwd", None) if ctx else None
             test_cwd: Path | None = Path(raw_cwd) if raw_cwd else None
 

@@ -307,23 +307,17 @@ class ApprovalGate:
             pass
 
     def _live_session_id(self) -> str | None:
-        runner = getattr(self._api, "_runner", None)
-        context = getattr(runner, "context", None)
+        context = self._api.context
         value = getattr(context, "session_id", None)
         return value if isinstance(value, str) else None
 
     def _live_tome_id(self) -> str | None:
-        runner = getattr(self._api, "_runner", None)
-        context = getattr(runner, "context", None)
-        for name in ("tome_id", "active_tome_id"):
-            value = getattr(context, name, None)
-            if isinstance(value, str):
-                return value
+        # Phase 2A: RuneContext carries no tome id, so this always
+        # returned None through the old runner path too.
         return None
 
     def _live_project_root(self) -> str | None:
-        runner = getattr(self._api, "_runner", None)
-        context = getattr(runner, "context", None)
+        context = self._api.context
         value = getattr(context, "project_root", None)
         return value if isinstance(value, str) else None
 

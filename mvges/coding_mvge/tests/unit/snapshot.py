@@ -33,7 +33,7 @@ def _make_runner() -> RuneRunner:
     runner = RuneRunner()
     runner.bind_context(
         RuneContext(
-            cwd="/tmp", mode="cli", agent_name=DEFAULT_AGENT_NAME, api_key="key"
+            cwd="/tmp", mode="cli", agent_name=DEFAULT_AGENT_NAME
         )
     )
     return runner

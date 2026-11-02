@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Any
 
 from mvge.core import extensions_dir
-from mvge.provider.registry import RealmRegistry
 from mvge.runes.rune_api import RuneAPI
 from mvge.runes.types import SigilHook
 from mvge_runes_seeker.activate_spell import ActivateSpell
@@ -26,10 +25,11 @@ def _sigil_field(data: Any, name: str) -> Any:
 
 
 def rune_factory(api: RuneAPI) -> None:
-    provider_registry = RealmRegistry()
-    runner = api._runner
-    agent_name = getattr(runner.context, "agent_name", "coding-agent")
-    api_key = getattr(runner.context, "api_key", "")
+    # Phase 2A: seeker model calls go through the engine-held
+    # capability (api.stream_model_text). No provider key, realm
+    # registry, or runner object ever reaches seeker code.
+    agent_name = getattr(api.context, "agent_name", "coding-agent") or "coding-agent"
+    stream_text = api.stream_model_text
 
     ledger = SeekerLedger()
     connections: dict[str, Any] = {}
@@ -38,9 +38,8 @@ def rune_factory(api: RuneAPI) -> None:
 
     # 1. Unified 4 Meta-Spells
     search_spell = SearchSpell(
-        provider_registry=provider_registry,
+        stream_text=stream_text,
         agent_name=agent_name,
-        nlt_api_key=api_key,
         rune_api=api,
         ledger=ledger,
         mcp_roots=mcp_roots,
@@ -55,9 +54,8 @@ def rune_factory(api: RuneAPI) -> None:
     )
 
     execute_spell = SkillExecuteSpell(
-        provider_registry=provider_registry,
+        stream_text=stream_text,
         agent_name=agent_name,
-        nlt_api_key=api_key,
         ledger=ledger,
         name="execute",
     )
@@ -70,35 +68,30 @@ def rune_factory(api: RuneAPI) -> None:
 
     # 2. Legacy Spells for backward compatibility
     tool_search = ToolSearchSpell(
-        provider_registry=provider_registry,
+        stream_text=stream_text,
         agent_name=agent_name,
-        nlt_api_key=api_key,
         rune_api=api,
         ledger=ledger,
     )
 
     skill_search = SkillSearchSpell(
-        provider_registry=provider_registry,
+        stream_text=stream_text,
         agent_name=agent_name,
-        nlt_api_key=api_key,
     )
 
     legacy_skill_execute = SkillExecuteSpell(
-        provider_registry=provider_registry,
+        stream_text=stream_text,
         agent_name=agent_name,
-        nlt_api_key=api_key,
         ledger=ledger,
         name="skill_execute",
     )
 
     mcp_search = MCPSearchSpell(
-        provider_registry=provider_registry,
-        rune_runner=runner,
+        stream_text=stream_text,
         rune_api=api,
         config={
             "search_roots": mcp_roots,
             "nlt_model": "openrouter/free",
-            "nlt_api_key": api_key,
             "timeout": {
                 "init": 15,
                 "stdio": 30,
@@ -148,7 +141,7 @@ def rune_factory(api: RuneAPI) -> None:
         if allowlist is None:
             return
 
-        gateway_spells = set(runner.gateway_spell_names())
+        gateway_spells = set(api.gateway_spell_names())
         evictable: list[str] = []
         for name in allowlist:
             if name in gateway_spells:

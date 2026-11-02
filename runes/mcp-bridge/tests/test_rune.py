@@ -14,26 +14,31 @@ from mvge_runes_mcp_bridge.types import MCPServerConfig
 
 
 @pytest.fixture
-def api() -> RuneAPI:
+def runner() -> RuneRunner:
     context = RuneContext(cwd="/fake/cwd")
     runner = RuneRunner()
     runner.bind_context(context)
-    return RuneAPI(runner, rune_name="mcp-bridge")
+    return runner
+
+
+@pytest.fixture
+def api(runner: RuneRunner) -> RuneAPI:
+    return runner.create_api(rune_name="mcp-bridge")
 
 
 @pytest.mark.asyncio
-async def test_rune_factory_hooks_and_command_registration(api: RuneAPI) -> None:
+async def test_rune_factory_hooks_and_command_registration(api: RuneAPI, runner: RuneRunner) -> None:
     rune_factory(api)
 
-    registered_commands = [c.name for c in api._runner.get_commands()]
+    registered_commands = [c.name for c in runner.get_commands()]
     assert "mcp" in registered_commands
 
-    assert len(api._runner.get_sigil_handlers(SigilHook.SESSION_START)) == 1
-    assert len(api._runner.get_sigil_handlers(SigilHook.SESSION_SHUTDOWN)) == 1
+    assert len(runner.get_sigil_handlers(SigilHook.SESSION_START)) == 1
+    assert len(runner.get_sigil_handlers(SigilHook.SESSION_SHUTDOWN)) == 1
 
 
 @pytest.mark.asyncio
-async def test_session_start_discovery_and_spell_execution(api: RuneAPI) -> None:
+async def test_session_start_discovery_and_spell_execution(api: RuneAPI, runner: RuneRunner) -> None:
     cfg = MCPServerConfig(name="test_srv")
     mock_tools = [
         Tool(
@@ -77,13 +82,13 @@ async def test_session_start_discovery_and_spell_execution(api: RuneAPI) -> None
     ):
         rune_factory(api)
         # Fire SESSION_START hook
-        handlers = api._runner.get_sigil_handlers(SigilHook.SESSION_START)
+        handlers = runner.get_sigil_handlers(SigilHook.SESSION_START)
         for h in handlers:
             res = h()
             if asyncio.iscoroutine(res):
                 await res
 
-        spells = api._runner.get_all_registered_spells()
+        spells = runner.get_all_registered_spells()
         assert len(spells) == 1
         spell_def: SpellDefinition = spells[0]
         assert spell_def.name == "mcp_test_srv_echo"
@@ -96,10 +101,10 @@ async def test_session_start_discovery_and_spell_execution(api: RuneAPI) -> None
 
 
 @pytest.mark.asyncio
-async def test_mcp_command_list_and_test(api: RuneAPI) -> None:
+async def test_mcp_command_list_and_test(api: RuneAPI, runner: RuneRunner) -> None:
     rune_factory(api)
 
-    cmd_obj = next(c for c in api._runner.get_commands() if c.name == "mcp")
+    cmd_obj = next(c for c in runner.get_commands() if c.name == "mcp")
     handler = cmd_obj.handler
 
     # 1. Empty list
@@ -148,9 +153,9 @@ async def test_mcp_command_list_and_test(api: RuneAPI) -> None:
 
 
 @pytest.mark.asyncio
-async def test_session_shutdown(api: RuneAPI) -> None:
+async def test_session_shutdown(api: RuneAPI, runner: RuneRunner) -> None:
     rune_factory(api)
-    handlers = api._runner.get_sigil_handlers(SigilHook.SESSION_SHUTDOWN)
+    handlers = runner.get_sigil_handlers(SigilHook.SESSION_SHUTDOWN)
     for h in handlers:
         res = h()
         if asyncio.iscoroutine(res):
@@ -158,7 +163,7 @@ async def test_session_shutdown(api: RuneAPI) -> None:
 
 
 @pytest.mark.asyncio
-async def test_mcp_command_list_populated(api: RuneAPI) -> None:
+async def test_mcp_command_list_populated(api: RuneAPI, runner: RuneRunner) -> None:
     cfg = MCPServerConfig(name="live_srv")
     mock_tools = [Tool(name="t1", description="", inputSchema={})]
     with (
@@ -182,10 +187,10 @@ async def test_mcp_command_list_populated(api: RuneAPI) -> None:
         ),
     ):
         rune_factory(api)
-        for h in api._runner.get_sigil_handlers(SigilHook.SESSION_START):
+        for h in runner.get_sigil_handlers(SigilHook.SESSION_START):
             await h()
 
-        cmd_obj = next(c for c in api._runner.get_commands() if c.name == "mcp")
+        cmd_obj = next(c for c in runner.get_commands() if c.name == "mcp")
         res = await cmd_obj.handler("list")
         assert "Connected MCP servers:" in res
         assert "live_srv (1 tools):" in res
@@ -193,9 +198,9 @@ async def test_mcp_command_list_populated(api: RuneAPI) -> None:
 
 
 @pytest.mark.asyncio
-async def test_mcp_command_test_server_failure(api: RuneAPI) -> None:
+async def test_mcp_command_test_server_failure(api: RuneAPI, runner: RuneRunner) -> None:
     rune_factory(api)
-    cmd_obj = next(c for c in api._runner.get_commands() if c.name == "mcp")
+    cmd_obj = next(c for c in runner.get_commands() if c.name == "mcp")
     cfg = MCPServerConfig(name="fail_srv")
     with (
         patch(

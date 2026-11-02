@@ -2,81 +2,80 @@ from __future__ import annotations
 
 import asyncio
 import re
+from collections.abc import Awaitable, Callable
 from typing import Any
-
-from mvge.core.channel import ChannelConfig
-from mvge.core.invocations import SummonerRequest
-from mvge.provider.registry import RealmRegistry
 
 from .router import SpellFileMatch, SpellSearchError
 
 
 class NLTSelector:
-    """YES/NO grid selection using RealmRegistry flow.
+    """YES/NO grid selection through the engine-held model-call
+    capability. The rune never holds a provider key or a realm.
     Returns list[SpellFileMatch] (not MvgeSpell) so LazySpellRegistry
     can lazily import schemas from source files.
     """
 
     def __init__(
         self,
-        registry: RealmRegistry,
+        stream_text: Callable[..., Awaitable[str]] | None,
         model_id: str = "openrouter/free",
-        api_key: str = "",
         nlt_timeout: int = 30,
     ) -> None:
-        self._registry = registry
+        self._stream_text = stream_text
         self._model_id = model_id
-        self._api_key = api_key
         self._nlt_timeout = nlt_timeout
 
     async def select(
         self, params: dict[str, Any], matches: list[SpellFileMatch]
     ) -> list[SpellFileMatch]:
-        model = self._registry.compose_model(
-            model_id=params.get("model_id", self._model_id),
-            api_key=self._api_key,
-            provider_name=params.get("provider_name"),
-        )
-        if not model:
+        if self._stream_text is None:
             raise SpellSearchError(
-                "NLT model could not be composed; check provider configuration"
+                "NLT model call unavailable: no engine model capability"
             )
-
-        realm = self._registry.create_realm(model, api_key=model.api_key)
-        if not realm:
-            raise SpellSearchError(
-                "NLT realm could not be created; check provider configuration"
-            )
-
-        config = ChannelConfig(
-            model=model,
-            temperature=0.1,
-            max_tokens=1024,
-        )
-
+        model_id = params.get("model_id", self._model_id)
         prompt = self._build_prompt(params, matches)
-        invocations = [SummonerRequest(role="user", content=prompt)]
-        response_text = ""
-
         try:
-            async for resp in asyncio.wait_for(
-                realm.stream(model, invocations, config),
+            response_text = await asyncio.wait_for(
+                self._stream_text(
+                    model_id,
+                    prompt,
+                    temperature=0.1,
+                    max_tokens=1024,
+                    timeout_seconds=self._nlt_timeout,
+                ),
                 timeout=self._nlt_timeout,
-            ):
-                if resp.invocation and resp.invocation.content:
-                    for item in resp.invocation.content:
-                        if item.get("type") == "text":
-                            response_text += item.get("text", "")
+            )
         except TimeoutError:
             raise SpellSearchError(
                 f"NLT selection timed out after {self._nlt_timeout}s"
-            )
+            ) from None
+        except SpellSearchError:
+            raise
         except Exception as e:
             raise SpellSearchError(f"NLT selection failed: {e}") from e
-        finally:
-            await realm.close()
 
         return self._parse_yes_no_grid(response_text, matches)
+
+    def _build_prompt(
+        self, params: dict[str, Any], matches: list[SpellFileMatch]
+    ) -> str:
+        # Found during the Phase 2A migration: the original select()
+        # called this method, but it was never defined, so every NLT
+        # spell selection raised AttributeError. The prompt uses the
+        # bracketed-stem grid the parser below already expects.
+        lines = [
+            "You are a tool selection specialist. Given a task and candidate tools,",
+            "identify which tools are relevant. Output YES/NO for each.",
+            "",
+            f"Task: {params.get('operation', '')}",
+            "",
+            "Candidates:",
+        ]
+        for i, m in enumerate(matches):
+            lines.append(f"{i + 1}. [{m.source_path.stem}]")
+        lines.append("")
+        lines.append("Output each name followed by -- YES or -- NO:")
+        return "\n".join(lines)
 
     def _parse_yes_no_grid(
         self, response: str, candidates: list[SpellFileMatch]

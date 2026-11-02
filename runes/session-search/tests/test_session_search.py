@@ -293,8 +293,7 @@ def test_path_helpers_respect_env(
 
 class MockRuneAPI:
     def __init__(self, context: Any) -> None:
-        self._runner = MagicMock()
-        self._runner.context = context
+        self.context = context
         self.hooks: dict[SigilHook, list] = {}
         self.spells: dict[str, Any] = {}
         self.commands: dict[str, dict] = {}

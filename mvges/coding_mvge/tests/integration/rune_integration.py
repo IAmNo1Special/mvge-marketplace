@@ -55,7 +55,7 @@ def test_rune_runner_basic():
     """Test basic RuneRunner functionality."""
     runner = RuneRunner()
     runner.bind_context(
-        RuneContext(cwd="/test", mode="test", agent_name="test", api_key="test")
+        RuneContext(cwd="/test", mode="test", agent_name="test")
     )
 
     # Test spell registration
@@ -168,7 +168,7 @@ def rune_factory(api):
 
     runner = RuneRunner()
     runner.bind_context(
-        RuneContext(cwd="/tmp", mode="test", agent_name="test", api_key="")
+        RuneContext(cwd="/tmp", mode="test", agent_name="test")
     )
     await runner.load_rune_loads([RuneLoad(manifest=manifest)])
 

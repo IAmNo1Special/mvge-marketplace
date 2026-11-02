@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any
 
 from mvge.core.abort import AbortSignal
 from mvge.core.spells import MvgeSpell, SpellContext, SpellExecutionMode
-from mvge.provider.registry import RealmRegistry
 from mvge.runes.types import SpellDefinition
 
 from .connector import MCPConnector
@@ -21,8 +21,7 @@ class MCPSearchSpell(MvgeSpell):
 
     def __init__(
         self,
-        provider_registry: RealmRegistry,
-        rune_runner: Any | None = None,
+        stream_text: Callable[..., Awaitable[str]] | None = None,
         config: dict[str, Any] | None = None,
         rune_api: Any | None = None,
     ) -> None:
@@ -45,8 +44,7 @@ class MCPSearchSpell(MvgeSpell):
             },
             execution_mode=SpellExecutionMode.SEQUENTIAL,
         )
-        self._provider_registry = provider_registry
-        self._rune_runner = rune_runner
+        self._stream_text = stream_text
         self._rune_api = rune_api
         self._connections: dict[str, MCPConnector] = {}
         search_roots = self._cfg.get("search_roots", None)
@@ -89,7 +87,7 @@ class MCPSearchSpell(MvgeSpell):
             return {"serversFound": 0, "servers": [], "error": str(e)}
 
         selector = MCPNLTSelector(
-            self._provider_registry,
+            self._stream_text,
             model_id=self._cfg.get("nlt_model", "openrouter/free"),
         )
         try:
@@ -136,7 +134,6 @@ class MCPSearchSpell(MvgeSpell):
         # Build connector but do NOT store until fully initialized
         connector = MCPConnector(
             info,
-            self._rune_runner,
             timeout_overrides=self._timeout_overrides,
             rune_api=self._rune_api,
         )

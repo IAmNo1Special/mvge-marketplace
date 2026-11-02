@@ -17,5 +17,6 @@
     "typer>=0.12"
   ],
   "execution_mode": "parallel",
-  "enabled": true
+  "enabled": true,
+  "capabilities": ["spell", "hook", "command"]
 }

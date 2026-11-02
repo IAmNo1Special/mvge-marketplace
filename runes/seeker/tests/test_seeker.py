@@ -32,6 +32,7 @@ async def test_seeker_rune_load() -> None:
 
     runner = RuneRunner()
     load = RuneLoad(manifest=manifest, factory=factory)
+    runner.consent_capabilities("seeker", ["spell", "hook"])
     await runner.load_rune_loads([load])
 
     spells = [s.name for s in runner.get_all_registered_spells()]
@@ -69,6 +70,7 @@ async def test_seeker_declares_spell_gateway() -> None:
     assert factory is not None
 
     runner = RuneRunner()
+    runner.consent_capabilities("seeker", ["spell", "hook"])
     await runner.load_rune_loads([RuneLoad(manifest=manifest, factory=factory)])
     assert runner.gateway_rune_name == "seeker"
     assert runner.gateway_spell_names() == [
@@ -95,6 +97,7 @@ async def test_seeker_session_start_does_not_touch_global_allowlist() -> None:
     assert factory is not None
 
     runner = RuneRunner()
+    runner.consent_capabilities("seeker", ["spell", "hook"])
     await runner.load_rune_loads([RuneLoad(manifest=manifest, factory=factory)])
 
     await runner.emit_async(SigilHook.SESSION_START, {"session_name": "s"})
@@ -189,6 +192,7 @@ async def _load_seeker_runner() -> RuneRunner:
     assert factory is not None
     assert len(diags) == 0
     runner = RuneRunner()
+    runner.consent_capabilities("seeker", ["spell", "hook"])
     await runner.load_rune_loads([RuneLoad(manifest=manifest, factory=factory)])
     return runner
 

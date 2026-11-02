@@ -9,5 +9,6 @@
   "python_deps": [
     "typer>=0.12"
   ],
-  "enabled": true
+  "enabled": true,
+  "capabilities": ["command"]
 }

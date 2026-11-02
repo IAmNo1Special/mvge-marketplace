@@ -9,5 +9,6 @@
     "after_spell_result"
   ],
   "python_deps": [],
-  "enabled": true
+  "enabled": true,
+  "capabilities": ["hook"]
 }

@@ -9,5 +9,6 @@
   "commands": ["mcp"],
   "python_deps": ["mcp>=2.2.0"],
   "execution_mode": "parallel",
-  "enabled": true
+  "enabled": true,
+  "capabilities": ["spell", "hook", "command"]
 }

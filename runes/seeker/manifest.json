@@ -21,5 +21,6 @@
   "python_deps": [
     "aiohttp"
   ],
-  "spell_gateway": true
+  "spell_gateway": true,
+  "capabilities": ["spell", "hook"]
 }

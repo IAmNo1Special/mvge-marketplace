@@ -11,5 +11,6 @@
   ],
   "python_deps": [],
   "execution_mode": "parallel",
-  "enabled": true
+  "enabled": true,
+  "capabilities": ["spell", "hook"]
 }

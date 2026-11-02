@@ -16,5 +16,6 @@
     ]
   },
   "python_deps": [],
-  "enabled": true
+  "enabled": true,
+  "capabilities": ["spell"]
 }

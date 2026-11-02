@@ -258,12 +258,10 @@ class MCPConnector:
     def __init__(
         self,
         server_info: MCPServerInfo,
-        rune_runner: Any | None = None,
         timeout_overrides: dict[str, int] | None = None,
         rune_api: Any | None = None,
     ) -> None:
         self._info = server_info
-        self._rune_runner = rune_runner
         self._rune_api = rune_api
         self._timeout_overrides = timeout_overrides or {}
         self._proc: asyncio.subprocess.Process | None = None
@@ -628,12 +626,8 @@ class MCPConnector:
                 self._rune_api.register_spell(spell)
                 registered.append(spell)
             self._tool_spells.extend(registered)
-        elif self._rune_runner is not None:
-            registered = []
-            for spell in spells_to_register:
-                self._rune_runner.register_spell(spell, rune_name="seeker")
-                registered.append(spell)
-            self._tool_spells.extend(registered)
+        # No runner fallback: spells register through the seeker
+        # RuneAPI (source_rune="seeker") or stay local only.
         else:
             self._tool_spells.extend(spells_to_register)
 

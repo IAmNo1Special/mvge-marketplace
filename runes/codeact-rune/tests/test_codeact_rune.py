@@ -23,6 +23,8 @@ def mock_api() -> Any:
 
     api.register_spell = register_spell
     api.get_registered_spells = get_registered_spells
+    api.get_spell = lambda name: registered_spells.get(name)
+    api.get_discoverable_spells = list
     api.get_all_spells = lambda: list(registered_spells.values())
     api._registered = registered_spells
     return api

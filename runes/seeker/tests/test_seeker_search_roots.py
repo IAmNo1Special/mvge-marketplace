@@ -29,7 +29,6 @@ from mvge.core import (
     extensions_dir,
     skills_dir,
 )
-from mvge.provider.registry import RealmRegistry
 from mvge_runes_seeker.dci_matcher import DCISkillMatcher
 from mvge_runes_seeker.discovery import MCPConfigDiscovery
 from mvge_runes_seeker.mcp_spell import MCPSearchSpell
@@ -104,18 +103,17 @@ def seed_mcp_config(name: str) -> Path:
 
 def tool_search(agent_name: str | None = AGENT_NAME) -> ToolSearchSpell:
     return ToolSearchSpell(
-        provider_registry=RealmRegistry(),
+        stream_text=None,
         agent_name=agent_name,
-        nlt_api_key="",
     )
 
 
 def skill_search() -> SkillSearchSpell:
-    return SkillSearchSpell(provider_registry=RealmRegistry(), nlt_api_key="")
+    return SkillSearchSpell(stream_text=None)
 
 
 def mcp_search() -> MCPSearchSpell:
-    return MCPSearchSpell(provider_registry=RealmRegistry())
+    return MCPSearchSpell(stream_text=None)
 
 
 # --------------------------------------------------------------------------
@@ -230,9 +228,8 @@ async def test_skill_execute_finds_a_script_in_the_relocated_skills_layer(
     seed_skill("relocated-skill")
 
     result = await SkillExecuteSpell(
-        provider_registry=RealmRegistry(),
+        stream_text=None,
         agent_name=AGENT_NAME,
-        nlt_api_key="",
     ).execute("cast", {"skill_name": "relocated-skill", "script": "helper.py"})
 
     assert result["status"] == "success", result

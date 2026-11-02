@@ -22,8 +22,7 @@ from mvge_runes_opentelemetry_bridge.tracer import OTelTracer
 
 def rune_factory(api: RuneAPI) -> None:
     """Initialize and bind OpenTelemetry tracing bridge rune to session lifecycle."""
-    runner = getattr(api, "_runner", None)
-    ctx = getattr(runner, "context", None) if runner else None
+    ctx = api.context
     raw_cwd = getattr(ctx, "cwd", None) if ctx else None
     cwd: Path | None = Path(raw_cwd) if raw_cwd else None
 

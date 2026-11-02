@@ -736,15 +736,13 @@ def rune_factory(
     bridge = CheckpointBridge(api, checkpoints_base_dir=checkpoints_base_dir)
 
     async def handle_turn_start(data: Any) -> None:
-        runner = getattr(api, "_runner", None)
-        runner_ctx = getattr(runner, "context", None)
+        runner_ctx = api.context
         session_id = getattr(runner_ctx, "session_id", None) or "current"
         ws = Path(getattr(runner_ctx, "cwd", Path.cwd()))
         await bridge.capture(session_id, workspace=ws)
 
     async def handle_turn_end(data: Any) -> None:
-        runner = getattr(api, "_runner", None)
-        runner_ctx = getattr(runner, "context", None)
+        runner_ctx = api.context
         session_id = getattr(runner_ctx, "session_id", None) or "current"
         ws = Path(getattr(runner_ctx, "cwd", Path.cwd()))
         await bridge.capture(session_id, workspace=ws)

@@ -103,7 +103,6 @@ async def test_seeker_session_start_does_not_touch_global_allowlist() -> None:
 
 @pytest.mark.asyncio
 async def test_tool_search_widens_global_allowlist(tmp_path: Path) -> None:
-    from mvge.provider.registry import RealmRegistry
     from mvge_runes_seeker.router import SpellFileMatch
     from mvge_runes_seeker.spell import ToolSearchSpell
 
@@ -114,10 +113,9 @@ async def test_tool_search_widens_global_allowlist(tmp_path: Path) -> None:
     # the widening this test is about.
     (tmp_path / "grimoire").mkdir()
     spell = ToolSearchSpell(
-        provider_registry=RealmRegistry(),
+        stream_text=None,
         spells_root=tmp_path,
         agent_name="test",
-        nlt_api_key="",
         rune_api=rune_api,
     )
     matches = [
@@ -157,7 +155,7 @@ async def test_connector_registers_mcp_spells_under_seeker() -> None:
         config={"command": "npx", "transport": "stdio"},
         source_file=Path("srv.mcp.json"),
     )
-    connector = MCPConnector(info, rune_runner=None, rune_api=rune_api)
+    connector = MCPConnector(info, rune_api=rune_api)
     connector.list_tools = AsyncMock(
         return_value=[{"name": "t", "description": "d", "inputSchema": {}}]
     )

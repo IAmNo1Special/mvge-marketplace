@@ -43,7 +43,10 @@ def _make_rune(
     mock_api.context.cwd = str(tmp_path)
     mock_api.context.agent_name = "test_agent"
     catalog = _FakeCatalog()
-    mock_api._runner.skill_catalog = catalog
+    mock_api.clear_skills_for_rune = lambda: catalog.clear_rune("skills-bridge")
+    mock_api.register_skill = lambda manifest: catalog.load_skills(
+        [type("L", (), {"manifest": manifest, "source_rune": "skills-bridge"})()]
+    )
     return SkillsBridgeRune(mock_api), catalog
 
 
@@ -71,7 +74,10 @@ def test_refresh_tags_skills_bridge_and_clears_first(tmp_path: Path) -> None:
             loaded.extend(loads)
 
     mock_api = MagicMock()
-    mock_api._runner.skill_catalog = FakeCatalog()
+    mock_api.clear_skills_for_rune = lambda: cleared.append("skills-bridge")
+    mock_api.register_skill = lambda manifest: loaded.append(
+        type("L", (), {"manifest": manifest, "source_rune": "skills-bridge"})()
+    )
     rune = SkillsBridgeRune(mock_api)
     # Explicit isolation: this suite also runs standalone, where the
     # repository-root conftest never loads, so the user layer must not

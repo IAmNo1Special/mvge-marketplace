@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import subprocess
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 from unittest.mock import MagicMock
 
@@ -27,6 +28,9 @@ def mock_api() -> Any:
 
     api.register_spell = register_spell
     api.on = on
+    # The bridge reads api.context.cwd/session_id; an empty cwd keeps
+    # the Path.cwd() fallback behavior the tests rely on (chdir).
+    api.context = SimpleNamespace(cwd="", session_id="")
     api._registered = registered_spells
     api._sigil_handlers = sigil_handlers
     api.on_dispose = MagicMock()

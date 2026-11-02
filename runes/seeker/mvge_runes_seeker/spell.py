@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import contextlib
 import re as _re
+from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any
 
 from mvge.core import DEFAULT_AGENT_NAME
 from mvge.core.abort import AbortSignal
 from mvge.core.spells import MvgeSpell, SpellContext, SpellExecutionMode
-from mvge.provider.registry import RealmRegistry
 
 from . import paths
 from .dci_matcher import DCISkillMatcher
@@ -24,13 +24,12 @@ class SearchSpell(MvgeSpell):
 
     def __init__(
         self,
-        provider_registry: RealmRegistry,
+        stream_text: Callable[..., Awaitable[str]] | None = None,
         spells_root: Path | None = None,
         skill_dirs: list[Path] | None = None,
         mcp_roots: list[Path] | None = None,
         rg_timeout: int = 10,
         nlt_model: str = "openrouter/free",
-        nlt_api_key: str = "",
         agent_name: str | None = None,
         project_dir: str | Path | None = None,
         rune_api: Any | None = None,
@@ -62,13 +61,12 @@ class SearchSpell(MvgeSpell):
             },
             execution_mode=SpellExecutionMode.PARALLEL,
         )
-        self._provider_registry = provider_registry
+        self._stream_text = stream_text
         self._explicit_spells_root = spells_root
         self._skill_dirs = skill_dirs
         self._mcp_roots = mcp_roots
         self._rg_timeout = rg_timeout
         self._nlt_model = nlt_model
-        self._nlt_api_key = nlt_api_key
         self._agent_name = agent_name
         self._project_dir = project_dir
         self._rune_api = rune_api
@@ -176,26 +174,26 @@ class SearchSpell(MvgeSpell):
                         )
 
             # B. Discovery via SkillCatalog
-            if self._rune_api is not None:
-                runner = getattr(self._rune_api, "_runner", None)
-                if runner is not None and hasattr(runner, "skill_catalog"):
-                    for sk in runner.skill_catalog.get_skills():
-                        if (
-                            q_lower in sk.name.lower()
-                            or q_lower in sk.description.lower()
-                            or any(t in sk.name.lower() for t in q_tokens if len(t) > 2)
-                        ):
-                            self._ledger.discovered_skills.add(sk.name)
-                            key = ("skill", sk.name)
-                            if key not in seen_keys:
-                                seen_keys.add(key)
-                                results.append(
-                                    {
-                                        "name": sk.name,
-                                        "kind": "skill",
-                                        "description": sk.description,
-                                    }
-                                )
+            if self._rune_api is not None and hasattr(
+                self._rune_api, "get_skills"
+            ):
+                for sk in self._rune_api.get_skills():
+                    if (
+                        q_lower in sk.name.lower()
+                        or q_lower in sk.description.lower()
+                        or any(t in sk.name.lower() for t in q_tokens if len(t) > 2)
+                    ):
+                        self._ledger.discovered_skills.add(sk.name)
+                        key = ("skill", sk.name)
+                        if key not in seen_keys:
+                            seen_keys.add(key)
+                            results.append(
+                                {
+                                    "name": sk.name,
+                                    "kind": "skill",
+                                    "description": sk.description,
+                                }
+                            )
 
         # 3. Search MCP
         if "mcp" in kinds:
@@ -227,11 +225,10 @@ class ToolSearchSpell(MvgeSpell):
 
     def __init__(
         self,
-        provider_registry: RealmRegistry,
+        stream_text: Callable[..., Awaitable[str]] | None = None,
         spells_root: Path | None = None,
         rg_timeout: int = 10,
         nlt_model: str = "openrouter/free",
-        nlt_api_key: str = "",
         agent_name: str | None = None,
         rune_api: Any | None = None,
         ledger: SeekerLedger | None = None,
@@ -254,11 +251,10 @@ class ToolSearchSpell(MvgeSpell):
             },
             execution_mode=SpellExecutionMode.SEQUENTIAL,
         )
-        self._provider_registry = provider_registry
+        self._stream_text = stream_text
         self._explicit_spells_root = spells_root
         self._rg_timeout = rg_timeout
         self._nlt_model = nlt_model
-        self._nlt_api_key = nlt_api_key
         self._agent_name = agent_name
         self._rune_api = rune_api
         self._ledger = ledger
@@ -309,9 +305,8 @@ class ToolSearchSpell(MvgeSpell):
             selected = [matches[0]]
         else:
             selector = NLTSelector(
-                self._provider_registry,
+                self._stream_text,
                 model_id=self._nlt_model,
-                api_key=self._nlt_api_key,
             )
             try:
                 selected = await selector.select(params, matches)

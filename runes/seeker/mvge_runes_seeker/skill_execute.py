@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import asyncio
 import sys
+from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any
 
 from mvge.core.abort import AbortSignal
 from mvge.core.spells import MvgeSpell, SpellContext, SpellExecutionMode
-from mvge.provider.registry import RealmRegistry
 
 from .dci_matcher import _get_skill_roots
 from .ledger import SeekerLedger
@@ -18,12 +18,11 @@ class SkillExecuteSpell(MvgeSpell):
 
     def __init__(
         self,
-        provider_registry: RealmRegistry,
+        stream_text: Callable[..., Awaitable[str]] | None = None,
         skill_dirs: list[Path] | None = None,
         agent_name: str | None = None,
         rg_timeout: int = 15,
         nlt_model: str = "openrouter/free",
-        nlt_api_key: str = "",
         project_dir: str | Path | None = None,
         ledger: SeekerLedger | None = None,
         name: str = "execute",
@@ -52,13 +51,12 @@ class SkillExecuteSpell(MvgeSpell):
             },
             execution_mode=SpellExecutionMode.SEQUENTIAL,
         )
-        self._provider_registry = provider_registry
+        self._stream_text = stream_text
         self._skill_dirs = skill_dirs
         self._agent_name = agent_name
         self._project_dir = project_dir
         self._rg_timeout = rg_timeout
         self._nlt_model = nlt_model
-        self._nlt_api_key = nlt_api_key
         self._ledger = ledger
 
     async def execute(

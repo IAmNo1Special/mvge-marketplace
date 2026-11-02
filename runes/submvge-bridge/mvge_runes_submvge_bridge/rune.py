@@ -50,22 +50,30 @@ class SubMvgeBridgeState:
                 self._manager = self._manager_factory()
             else:
                 from mvge.agent.sub_mvge import SubMvgeManager
+                from mvge.provider.registry import RealmRegistry
 
-                runner = getattr(self.api, "_runner", None)
-                runner_ctx = getattr(runner, "context", None)
+                # Phase 2A: the bridge never receives the parent
+                # runner. Realm factories/providers come from the
+                # facade's read-only views, and the approval presenter
+                # travels through the facade's manager-only callable.
+                runner_ctx = self.api.context
                 workspace = getattr(ctx, "workspace_root", None) or Path(
                     getattr(runner_ctx, "cwd", Path.cwd())
                 )
                 agent_name = getattr(ctx, "agent_name", None) or getattr(
                     runner_ctx, "agent_name", "coding_mvge"
                 )
-                registry = getattr(runner, "_provider_registry", None)
+                registry = RealmRegistry()
+                for prefix, factory in self.api.get_registered_realm_factories().items():
+                    registry.register_realm_factory(prefix, factory)
+                for name, config in self.api.get_registered_providers().items():
+                    registry.register_provider(name, config)
 
                 self._manager = SubMvgeManager(
                     parent_workspace=workspace,
                     parent_agent_name=agent_name,
                     parent_model_id=getattr(runner_ctx, "model_id", "") or None,
-                    shared_runner=runner,
+                    approval_presenter_source=self.api.approval_presenter_source(),
                     shared_realm_registry=registry,
                 )
         return self._manager

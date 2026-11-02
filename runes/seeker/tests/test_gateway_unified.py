@@ -5,7 +5,6 @@ from typing import Any, cast
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from mvge.provider.registry import RealmRegistry
 from mvge.runes.loader import load_factory_from_manifest
 from mvge.runes.manifest import load_manifest
 from mvge.runes.rune_runner import RuneRunner
@@ -67,7 +66,7 @@ async def test_execute_requires_prior_activation(tmp_path: Path) -> None:
     ledger = SeekerLedger()
 
     execute_spell = SkillExecuteSpell(
-        provider_registry=RealmRegistry(),
+        stream_text=None,
         skill_dirs=[tmp_path],
         ledger=ledger,
     )

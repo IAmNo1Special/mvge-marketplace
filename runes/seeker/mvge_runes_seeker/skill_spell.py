@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any
 
 from mvge.core.abort import AbortSignal
 from mvge.core.spells import MvgeSpell, SpellContext, SpellExecutionMode
-from mvge.provider.registry import RealmRegistry
 
 from .dci_matcher import (
     DCISkillMatcher,
@@ -23,11 +23,10 @@ class SkillSearchSpell(MvgeSpell):
 
     def __init__(
         self,
-        provider_registry: RealmRegistry,
+        stream_text: Callable[..., Awaitable[str]] | None = None,
         skill_dirs: list[Path] | None = None,
         rg_timeout: int = 15,
         nlt_model: str = "openrouter/free",
-        nlt_api_key: str = "",
         agent_name: str | None = None,
         project_dir: str | Path | None = None,
     ) -> None:
@@ -48,11 +47,10 @@ class SkillSearchSpell(MvgeSpell):
             },
             execution_mode=SpellExecutionMode.SEQUENTIAL,
         )
-        self._provider_registry = provider_registry
+        self._stream_text = stream_text
         self._explicit_skill_dirs = skill_dirs
         self._rg_timeout = rg_timeout
         self._nlt_model = nlt_model
-        self._nlt_api_key = nlt_api_key
         self._agent_name = agent_name
         self._project_dir = project_dir
 
@@ -100,9 +98,8 @@ class SkillSearchSpell(MvgeSpell):
             return {"skills_found": 0, "skills": [], "error": None}
 
         selector = SkillNLTSelector(
-            registry=self._provider_registry,
+            stream_text=self._stream_text,
             model_id=self._nlt_model,
-            api_key=self._nlt_api_key,
         )
         try:
             selected = await selector.select(task, candidates, max_results)

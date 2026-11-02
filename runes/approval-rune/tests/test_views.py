@@ -23,7 +23,7 @@ class FakeAPI:
 
     def __init__(self) -> None:
         """Initialize the instance."""
-        self._runner = type("R", (), {"context": FakeContext()})()
+        self.context = FakeContext()
         self.install_id = "install-1"
 
 

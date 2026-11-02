@@ -78,7 +78,6 @@ def _sigil_field(data: Any, name: str) -> Any:
 class SessionTitleRune:
     def __init__(self, api: RuneAPI) -> None:
         self._api = api
-        self._runner = api._runner
         self._state = TitleState()
         self._lock = asyncio.Lock()
         self._task: asyncio.Task | None = None
@@ -101,7 +100,7 @@ class SessionTitleRune:
         self._state.restored = False
         self._state.revision += 1
         self._cancel_llm()
-        self._runner.set_session_name(clean)
+        self._api.set_session_name(clean)
 
     def get_session_name(self) -> str | None:
         return self._state.name
@@ -189,7 +188,7 @@ class SessionTitleRune:
             self._state.source = "fallback"
             self._state.fallback_done = True
             self._state.revision += 1
-            self._runner.set_session_name(fallback)
+            self._api.set_session_name(fallback)
             await self._maybe_schedule_llm()
 
     def _cancel_llm(self) -> None:
@@ -217,20 +216,13 @@ class SessionTitleRune:
             self._state.llm_pending = False
 
     async def _call_llm_for_title(self) -> None:
-        from mvge.provider.registry import RealmRegistry
-        from mvge.runes.rune_runner import RuneRunner
-
-        runner = self._api._runner
-        if not isinstance(runner, RuneRunner):
-            return
-
-        model_id = runner.context.model_id
+        # Phase 2A: titles are generated through the engine-held
+        # realm-call capability, not a rune-constructed realm. This
+        # also drops the old positional-provider/keyword-model
+        # create_realm call, which did not match its signature.
+        model_id = self._api.context.model_id
         if not model_id:
             return
-
-        provider_name = model_id.split("/")[0] if "/" in model_id else "openrouter"
-        provider_registry = RealmRegistry()
-        realm = provider_registry.create_realm(provider_name, model=model_id)
 
         messages = [{"role": "user", "content": self._state.first_user_text or ""}]
 
@@ -239,21 +231,12 @@ class SessionTitleRune:
             "Respond with ONLY the title, no extra text."
         )
 
-        from mvge.core.channel import Model
-
-        model = Model(
-            id=model_id,
-            name="Title Generator",
-            realm=provider_name,
-            base_url="",
-            api_key=runner.context.api_key or "",
-        )
 
         prompt = f"{system}\n\nUser request: {messages[0]['content']}\n\nTitle:"
 
         try:
-            response = await realm.call(
-                prompt, model=model, max_tokens=50, temperature=0.3
+            response = await self._api.stream_model_text(
+                model_id, prompt, temperature=0.3, max_tokens=50
             )
             if not response:
                 return
@@ -264,7 +247,7 @@ class SessionTitleRune:
             self._state.name = title
             self._state.source = "provider"
             self._state.revision += 1
-            self._runner.set_session_name(title)
+            self._api.set_session_name(title)
         except Exception:  # noqa: BLE001, S110 -- applying a title must never crash the session
             pass
 

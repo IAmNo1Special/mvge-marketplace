@@ -13,9 +13,8 @@ from mvge_runes_okf_bridge.rune import rune_factory
 
 class MockRuneAPI:
     def __init__(self, cwd: Path) -> None:
-        self._runner = MagicMock()
-        self._runner.context = MagicMock()
-        self._runner.context.cwd = str(cwd)
+        self.context = MagicMock()
+        self.context.cwd = str(cwd)
         self.hooks: dict[SigilHook, list] = {}
         self.spells: dict[str, SpellDefinition] = {}
         self.commands: dict[str, dict] = {}

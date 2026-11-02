@@ -253,7 +253,6 @@ class ActivateSpell(MvgeSpell):
 
             connector = MCPConnector(
                 target_info,
-                getattr(self._rune_api, "_runner", None),
                 rune_api=self._rune_api,
             )
             try:

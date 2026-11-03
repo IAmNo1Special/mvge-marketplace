@@ -145,6 +145,55 @@ class Artifact:
         return self.path / str(self.manifest.get("entry_point", ""))
 
 
+#: Directory names never hashed: caches, dependency venvs, VCS metadata.
+_TREE_HASH_EXCLUDED_DIRS = frozenset({"__pycache__", ".venv", "venv", ".git"})
+
+#: File names never hashed: policy identity and the engine's pin sidecar.
+_TREE_HASH_EXCLUDED_FILES = frozenset({".install-id", ".rune-pin.json"})
+
+#: File suffixes never hashed: bytecode caches.
+_TREE_HASH_EXCLUDED_SUFFIXES = frozenset({".pyc", ".pyo"})
+
+
+def compute_tree_hash(artifact_dir: Path) -> str:
+    """Deterministic SHA-256 tree digest of one artifact directory.
+
+    This is a deliberate mirror of ``mvge.runes.pinning.compute_rune_tree_hash``
+    in the engine, not an import of it: the index test and the pin
+    generator must run against a released ``mvge`` that may predate
+    pinning, and the generator must run without an engine install at all.
+    The two implementations must stay byte-identical in walk order,
+    exclusions, and framing (relative path, NUL, bytes, NUL); the
+    parity test in ``tests/test_index_pinning.py`` checks them against
+    each other whenever the installed engine provides pinning.
+    """
+    import hashlib
+
+    files_to_hash: list[tuple[str, Path]] = []
+    for child in artifact_dir.rglob("*"):
+        if not child.is_file():
+            continue
+        rel_parts = child.relative_to(artifact_dir).parts
+        if any(part in _TREE_HASH_EXCLUDED_DIRS for part in rel_parts):
+            continue
+        if child.name in _TREE_HASH_EXCLUDED_FILES:
+            continue
+        if child.suffix in _TREE_HASH_EXCLUDED_SUFFIXES:
+            continue
+        files_to_hash.append((child.relative_to(artifact_dir).as_posix(), child))
+    if not files_to_hash:
+        return "sha256:empty"
+    files_to_hash.sort(key=lambda item: item[0])
+    hasher = hashlib.sha256()
+    for rel_posix, file_path in files_to_hash:
+        hasher.update(rel_posix.encode("utf-8") + b"\0")
+        try:
+            hasher.update(file_path.read_bytes() + b"\0")
+        except OSError:
+            continue
+    return "sha256:" + hasher.hexdigest()
+
+
 def load_index() -> dict[str, object]:
     return json.loads(INDEX_PATH.read_text(encoding="utf-8"))
 

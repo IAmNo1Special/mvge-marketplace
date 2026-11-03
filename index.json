@@ -21,7 +21,9 @@
       ],
       "python_deps": [
         "tomli-w>=1.0.0"
-      ]
+      ],
+      "commit": "3c0894ad2097eaea34533ade7403bea88b62ee99",
+      "tree_hash": "sha256:746e37e849a8bf6c9c43efea7b3a24f3f0432ee85e0ea04c80d8e880c26ca29d"
     },
     "openrouter-realm": {
       "name": "openrouter-realm",
@@ -41,7 +43,9 @@
       ],
       "python_deps": [
         "httpx>=0.27"
-      ]
+      ],
+      "commit": "3c0894ad2097eaea34533ade7403bea88b62ee99",
+      "tree_hash": "sha256:871c2d4e5571368014a648fad45860b080530a3c138d26d8e2750bbb9cabad11"
     },
     "opencode-realm": {
       "name": "opencode-realm",
@@ -61,7 +65,9 @@
       ],
       "python_deps": [
         "httpx>=0.27"
-      ]
+      ],
+      "commit": "3c0894ad2097eaea34533ade7403bea88b62ee99",
+      "tree_hash": "sha256:ef9dd8d00e12c7f2678388285944177e52b709ab70ade4b901bc7bcb7f1da518"
     },
     "seeker": {
       "name": "seeker",
@@ -87,7 +93,9 @@
       ],
       "python_deps": [
         "aiohttp"
-      ]
+      ],
+      "commit": "3c0894ad2097eaea34533ade7403bea88b62ee99",
+      "tree_hash": "sha256:eda25259bb856e53218386a3ccfdd4831d07385a2e121c3d29510ae08e4caecc"
     },
     "session-title": {
       "name": "session-title",
@@ -108,7 +116,9 @@
         "agent_end",
         "session_shutdown"
       ],
-      "python_deps": []
+      "python_deps": [],
+      "commit": "3c0894ad2097eaea34533ade7403bea88b62ee99",
+      "tree_hash": "sha256:4c0147c153a4dd3d2538623b969a0b8797310adbdf12dd883edf3388690f7a8c"
     },
     "mcp-bridge": {
       "name": "mcp-bridge",
@@ -133,7 +143,9 @@
       ],
       "python_deps": [
         "mcp>=2.2.0"
-      ]
+      ],
+      "commit": "3c0894ad2097eaea34533ade7403bea88b62ee99",
+      "tree_hash": "sha256:e4dcfb807a17d55e32298a3c80e75311aeeddf4ff65d6cea1a29e98d5e3ec7c2"
     },
     "opentelemetry-bridge": {
       "name": "opentelemetry-bridge",
@@ -164,7 +176,9 @@
       "python_deps": [
         "opentelemetry-api>=1.30.0",
         "opentelemetry-sdk>=1.30.0"
-      ]
+      ],
+      "commit": "3c0894ad2097eaea34533ade7403bea88b62ee99",
+      "tree_hash": "sha256:b3f72667c4c0b8ddb6b7d4d69d62af1e37aab971662b038bcd254bc04679259e"
     },
     "okf-bridge": {
       "name": "okf-bridge",
@@ -201,7 +215,9 @@
       "python_deps": [
         "pyyaml>=6.0",
         "typer>=0.12"
-      ]
+      ],
+      "commit": "3c0894ad2097eaea34533ade7403bea88b62ee99",
+      "tree_hash": "sha256:bd5480e263b17d5e01039575743d0a766c4f78b8ba823aaa50e0a294616321dc"
     },
     "adr-bridge": {
       "name": "adr-bridge",
@@ -235,7 +251,9 @@
       "python_deps": [
         "pyyaml>=6.0",
         "typer>=0.12"
-      ]
+      ],
+      "commit": "3c0894ad2097eaea34533ade7403bea88b62ee99",
+      "tree_hash": "sha256:1ce714f02051cb3c8357ca9a3687f0fbe389a414e6c8dbe445b9ff46c62fd35f"
     },
     "skills-bridge": {
       "name": "skills-bridge",
@@ -266,7 +284,9 @@
       "python_deps": [
         "pyyaml>=6.0",
         "typer>=0.12"
-      ]
+      ],
+      "commit": "3c0894ad2097eaea34533ade7403bea88b62ee99",
+      "tree_hash": "sha256:7e8bdb64de253e4d74050dc90bb598d8449433648adb213fdf4a17c9d99c4ae8"
     },
     "steering-bridge": {
       "name": "steering-bridge",
@@ -291,7 +311,9 @@
       ],
       "python_deps": [
         "typer>=0.12"
-      ]
+      ],
+      "commit": "3c0894ad2097eaea34533ade7403bea88b62ee99",
+      "tree_hash": "sha256:e6ff5c9da4f585930a3137adc395db1653129ed5bf3ddeb22732e6e5730616f7"
     },
     "selfmod-bridge": {
       "name": "selfmod-bridge",
@@ -312,7 +334,9 @@
       ],
       "commands": [
         "selfmod"
-      ]
+      ],
+      "commit": "3c0894ad2097eaea34533ade7403bea88b62ee99",
+      "tree_hash": "sha256:9b5c1806ddee332f73b9f59dc5ad848531b0e5ab89ae6353c8e2950caf2b731e"
     },
     "pi-codec": {
       "name": "pi-codec",
@@ -336,7 +360,9 @@
       ],
       "session_codecs": [
         "mvge_runes_pi_codec.codec:PiSessionCodec"
-      ]
+      ],
+      "commit": "3c0894ad2097eaea34533ade7403bea88b62ee99",
+      "tree_hash": "sha256:70d3d748a48cb27d7bb5d515c086b1195b243329b9d700e1713c522f4f953148"
     },
     "session-search": {
       "name": "session-search",
@@ -361,7 +387,9 @@
         "session_stats",
         "session_sync"
       ],
-      "python_deps": []
+      "python_deps": [],
+      "commit": "3c0894ad2097eaea34533ade7403bea88b62ee99",
+      "tree_hash": "sha256:18a229c8ef6a525af53fe1a2a5f93c6bb485e7363490542e196366fb1f5dfd3d"
     },
     "skill-evolution": {
       "name": "skill-evolution",
@@ -384,7 +412,9 @@
       "python_deps": [
         "pydantic>=2.13.4",
         "pyyaml>=6.0"
-      ]
+      ],
+      "commit": "3c0894ad2097eaea34533ade7403bea88b62ee99",
+      "tree_hash": "sha256:7def5f7de78bafe259080001224cdebfc18513ea698e36fcdf1012faa12a2b2b"
     },
     "submvge-bridge": {
       "name": "submvge-bridge",
@@ -403,7 +433,9 @@
         "message_mvge",
         "manage_mvges"
       ],
-      "python_deps": []
+      "python_deps": [],
+      "commit": "3c0894ad2097eaea34533ade7403bea88b62ee99",
+      "tree_hash": "sha256:82b445814e9cd5e03dd0348443bbb968762dd8c6364c4195fc5e3995b16f2839"
     },
     "checkpoint-bridge": {
       "name": "checkpoint-bridge",
@@ -421,7 +453,9 @@
         "checkpoint_diff",
         "checkpoint_restore_file"
       ],
-      "python_deps": []
+      "python_deps": [],
+      "commit": "3c0894ad2097eaea34533ade7403bea88b62ee99",
+      "tree_hash": "sha256:90d9c100966c31aecaf880b439c4c6436981ad94ddd62c97ee4346ea2ebc1f6e"
     },
     "lsp-bridge": {
       "name": "lsp-bridge",
@@ -438,7 +472,9 @@
       "hooks": [
         "after_spell_result"
       ],
-      "python_deps": []
+      "python_deps": [],
+      "commit": "3c0894ad2097eaea34533ade7403bea88b62ee99",
+      "tree_hash": "sha256:ff182e05a390d1517f88be3a61cddf0c5d3dcd3009d9da1b8fc7aa0f6d0c614e"
     },
     "codeact-rune": {
       "name": "codeact-rune",
@@ -455,7 +491,9 @@
       "spells": [
         "execute_python"
       ],
-      "python_deps": []
+      "python_deps": [],
+      "commit": "3c0894ad2097eaea34533ade7403bea88b62ee99",
+      "tree_hash": "sha256:7fd80a3180a31d1f7f4fdc17c9535c69383973f52542c131d551d203c943e408"
     },
     "eval-bridge": {
       "name": "eval-bridge",
@@ -474,7 +512,9 @@
       ],
       "python_deps": [
         "typer>=0.12"
-      ]
+      ],
+      "commit": "3c0894ad2097eaea34533ade7403bea88b62ee99",
+      "tree_hash": "sha256:c64204df114a063f4832cba3d7b2f9bacb0ee41e72cb9e2aac1be2309409d174"
     },
     "pollinations-realm": {
       "name": "pollinations-realm",
@@ -494,7 +534,9 @@
       ],
       "python_deps": [
         "httpx>=0.27"
-      ]
+      ],
+      "commit": "3c0894ad2097eaea34533ade7403bea88b62ee99",
+      "tree_hash": "sha256:b3fd7a822c73795b2143cd6aadefd71f45e9a61150c8141d9d2c92f286be6859"
     }
   },
   "mvges": {

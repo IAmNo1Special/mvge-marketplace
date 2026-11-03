@@ -8,6 +8,7 @@
         "after_provider_response"
     ],
     "name": "pollinations-realm",
+    "hosting": "in-process",
     "python_deps": [
         "httpx>=0.27"
     ],

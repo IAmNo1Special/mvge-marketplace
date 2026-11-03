@@ -1,5 +1,6 @@
 {
   "name": "openrouter-realm",
+  "hosting": "in-process",
   "version": "0.1.0",
   "description": "Official OpenRouter provider realm for Mvge",
   "types": [

@@ -8,5 +8,6 @@
   "entry_point": "rune.py",
   "python_deps": [],
   "enabled": true,
-  "capabilities": ["spell"]
+  "capabilities": ["spell", "filesystem"],
+  "filesystem_write_roots": ["."]
 }

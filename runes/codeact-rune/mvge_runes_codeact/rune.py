@@ -449,6 +449,11 @@ def rune_factory(api: RuneAPI) -> CodeActExecutor:
             },
             execution_mode=ExecutionMode.SEQUENTIAL,
             handler=execute_python_handler,
+            # Phase 5a: code executed by this spell may write
+            # workspace files, which is its purpose. The ladder
+            # enforces these roots for its subprocesses; the
+            # in-process CodeAct sandbox is unchanged.
+            write_roots=(".",),
         )
     )
 

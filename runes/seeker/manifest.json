@@ -1,5 +1,6 @@
 {
   "name": "seeker",
+  "hosting": "in-process",
   "version": "0.1.0",
   "description": "Seeker Protocol - DCI-based discovery for spells, skills, and MCP servers",
   "types": [

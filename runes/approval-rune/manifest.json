@@ -6,6 +6,7 @@
     "after_spell_result"
   ],
   "name": "approval-rune",
+  "hosting": "in-process",
   "python_deps": [
     "tomli-w>=1.0.0"
   ],

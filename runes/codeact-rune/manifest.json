@@ -1,5 +1,6 @@
 {
   "name": "codeact-rune",
+  "hosting": "in-process",
   "version": "0.1.0",
   "description": "CodeAct Python executor with AST safety, tool write-protection, and auto-dispatch",
   "types": ["Spell"],

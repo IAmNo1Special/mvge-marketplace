@@ -1,5 +1,6 @@
 {
   "name": "submvge-bridge",
+  "hosting": "in-process",
   "version": "0.1.0",
   "description": "Kernel sub-Mvge summoning, persistent sub-sessions, and reactive wakeup bridge",
   "types": ["Spell", "UICanvasTab"],

@@ -8,6 +8,7 @@
   "entry_point": "rune.py",
   "hooks": [],
   "name": "pi-codec",
+  "hosting": "in-process",
   "python_deps": [
     "typer>=0.12"
   ],

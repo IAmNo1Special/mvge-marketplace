@@ -1,5 +1,6 @@
 {
   "name": "session-title",
+  "hosting": "in-process",
   "version": "0.1.0",
   "description": "Auto-generates session titles from conversation content with instant fallback and optional LLM upgrade",
   "types": [

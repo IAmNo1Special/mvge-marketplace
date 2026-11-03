@@ -1,5 +1,6 @@
 {
   "name": "opencode-realm",
+  "hosting": "in-process",
   "version": "0.1.0",
   "description": "Official OpenCode Zen and Go provider realms for Mvge",
   "types": [

@@ -38,7 +38,7 @@ summary and must not drift from it:
 
 | Platform / backend | Enforcement | Gap |
 | --- | --- | --- |
-| Linux / `bwrap` | full | None claimed beyond the stated mounts. |
+| Linux / `bwrap` | full | None claimed beyond the stated mounts; `/proc` is a fresh procfs for the new PID namespace, so host PIDs and host process environ are not visible inside the wrap. |
 | Linux, macOS, Windows/WSL2 / `docker` (Linux containers) | full | Requires a Docker daemon; the image must provide `python3` and `mvge`. |
 | macOS without Docker | unavailable | Seatbelt is a Phase 5a write policy, not wrapping; wrapping refuses. |
 | Windows without Docker | write-confined only | Read/network documented gap (Phase 5a ACL ladder alone). Do not claim full confinement on Windows without Docker. |
@@ -67,8 +67,10 @@ outside the mounts cannot be read or written, that the
 workspace root cannot be written unless declared, that
 declared roots can be written, that no credential-shaped
 environment variable is visible, that the network is denied
-when denied, and that no credential-named file exists under
-any mount. It exits non-zero on any failure. A wrapped
+when denied (proved against a listener the script controls,
+not a dead port), that host `/proc` entries are not visible,
+and that no credential-named file exists under any mount.
+It exits non-zero on any failure. A wrapped
 deployment whose proof has not been run (or has failed) must
 not be described as confined.
 

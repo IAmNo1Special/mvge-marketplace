@@ -17,5 +17,6 @@
   },
   "python_deps": [],
   "enabled": true,
-  "capabilities": ["spell", "hook", "command"]
+  "capabilities": ["spell", "hook", "command", "filesystem"],
+  "filesystem_write_roots": ["."]
 }

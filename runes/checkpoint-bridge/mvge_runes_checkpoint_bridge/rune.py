@@ -857,6 +857,10 @@ def rune_factory(
             },
             execution_mode=ExecutionMode.SEQUENTIAL,
             handler=restore_handler,
+            # Phase 5a: restoring a file writes a workspace
+            # file. checkpoint_diff stays read_only and declares
+            # no roots.
+            write_roots=(".",),
         )
     )
 

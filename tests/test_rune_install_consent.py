@@ -24,7 +24,15 @@ import pytest
 from mvge.agent.rune_lifecycle import RuneLifecycle
 from mvge.core.layers import ResolvedLayer, Scope
 from mvge.runes.capabilities import default_capability_store_dir
-from mvge.runes.installer import consent_rune, install_rune
+from mvge.runes.installer import install_rune
+
+try:
+    from mvge.runes.installer import consent_rune
+except ImportError:  # Engine predates install-time consent.
+    pytest.skip(
+        "engine predates install-time consent",
+        allow_module_level=True,
+    )
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REALM_RUNE = REPO_ROOT / "runes" / "pollinations-realm"
